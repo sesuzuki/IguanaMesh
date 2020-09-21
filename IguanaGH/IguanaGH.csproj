@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{42E4798D-9D37-49A8-8BBC-00171792AA3F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IguanaGH</RootNamespace>
+    <AssemblyName>IguanaGH</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="RhinoCommon">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Rhino 6\System\rhinocommon.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Grasshopper">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Rhino 6\Plug-ins\Grasshopper\Grasshopper.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GH_IO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\Rhino 6\Plug-ins\Grasshopper\GH_IO.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IguanaMeshGH\IDisplayGH\IEdgesAsLinesGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ICubeGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ICylinderGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\IEllipsoidGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\IEllipticDupinCyclideGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IGmshSolverOptions.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IFromRhinoMeshGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\IHyperboloidOneSheetGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\IParabolicCylinderGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\IPlaneGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ISolidCubeGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ITorusGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ITubeGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\IMoebiusGH.cs" />
+    <Compile Include="IguanaMeshGH\IModifiersGH\IReactionDiffusionGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IDeconstructorGH.cs" />
+    <Compile Include="IguanaMeshGH\IDisplayGH\IFacesAsPolylinesGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IConstructMeshGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IMeshFromPolylineGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IMeshingOptions2DGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IPolygonalFaceGH.cs" />
+    <Compile Include="IguanaMeshGH\IUtilsGH\IHexahedronSolidGH.cs" />
+    <Compile Include="IguanaMeshGH\ITopologyGH\INakedEdgesGH.cs" />
+    <Compile Include="IguanaMeshGH\ITopologyGH\INakedVerticesGH.cs" />
+    <Compile Include="IguanaMeshGH\IDisplayGH\ISolidsAsBrepsGH.cs" />
+    <Compile Include="IguanaMeshGH\ITopologyGH\IVertexAdjacentVertices.cs" />
+    <Compile Include="IguanaMeshGH\ITopologyGH\IVertexIncidentElementsGH.cs" />
+    <Compile Include="IguanaGHInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_PlaneMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_IVoxel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_IFace.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_IFaceAsPolyline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_ConstructMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_CylinderMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_NakedVertices.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_CubeMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_FromRhinoMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AHF_DeconstructMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iguana\Iguana.csproj">
+      <Project>{15742704-fe29-4302-b438-65b1eac8124b}</Project>
+      <Name>Iguana</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
+Erase "$(TargetPath)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <FallbackCulture>en-US</FallbackCulture>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <StartProgram>C:\Program Files\Rhino 6\System\Rhino.exe</StartProgram>
+    <StartArguments>
+    </StartArguments>
+    <StartAction>Program</StartAction>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+</Project>
