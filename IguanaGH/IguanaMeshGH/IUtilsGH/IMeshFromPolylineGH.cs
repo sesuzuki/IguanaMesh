@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using Iguana.IguanaGmshWrappers;
+using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IMeshFromPolylineGH : GH_Component
     {
-        IGmshSolverOptions solverOpt;
+        IguanaGmshSolverOptions solverOpt;
         /// <summary>
         /// Initializes a new instance of the IMeshFromPolyline class.
         /// </summary>
@@ -92,23 +92,39 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
                 //solver options
                 Gmsh.Option.SetNumber("Mesh.Algorithm", (int) solverOpt.MeshingAlgorithm);
-                Gmsh.Option.SetNumber("Mesh.AllowSwapAngle", solverOpt.AllowSwapAngle);
                 Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", solverOpt.CharacteristicLengthFactor);
                 Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", solverOpt.CharacteristicLengthMin);
                 Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", solverOpt.CharacteristicLengthMax);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", Convert.ToDouble(solverOpt.CharacteristicLengthFromCurvature));
-                //Gmsh.Option.SetNumber("Mesh.RandomSeed", solverOpt.RandomSeed);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
-                //Gmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", solverOpt.RecombinationAlgorithm);
-                //Gmsh.Option.SetNumber("Mesh.RecombineOptimizeTopology", solverOpt.RecombineOptimizeTopology);
+
+                if (solverOpt.CharacteristicLengthFromCurvature)
+                {
+                    //Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
+                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+                }
+                else
+                {
+                    //Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
+                }        
 
                 Gmsh.Model.Mesh.Generate(2);
 
+                if (solverOpt.RecombineAll)
+                {
+                    Gmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", solverOpt.RecombinationAlgorithm);
+                    Gmsh.Model.Mesh.Recombine();
+                }
+
+                if (solverOpt.Subdivide)
+                {
+                    Gmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", solverOpt.SubdivisionAlgorithm);
+                    Gmsh.Model.Mesh.Refine();
+                }
+
                 if (solverOpt.Optimize)
                 {
-                    Gmsh.Option.SetNumber("Mesh.Optimize", 1);
-                    //Gmsh.Option.SetNumber("Mesh.RecombineOptimizeTopology", solverOpt.RecombineOptimizeTopology);
-                    Gmsh.Model.Mesh.Optimize(Gmsh.Model.Mesh.OptimizationMethod.Laplace2D, 5);
+
+                    Gmsh.Model.Mesh.Optimize(solverOpt.OptimizationAlgorithm, solverOpt.Smoothing);
                 }
 
 

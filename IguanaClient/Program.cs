@@ -8,7 +8,7 @@ using Iguana.IguanaMesh.ICreators;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IStandard;
 using Rhino.Geometry;
-using Iguana.IguanaGmshWrappers;
+using Iguana.IguanaMesh.IGmshWrappers;
 
 
 namespace IguanaClient

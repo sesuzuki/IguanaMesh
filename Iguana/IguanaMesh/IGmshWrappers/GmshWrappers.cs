@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Iguana.IguanaGmshWrappers
+namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public static partial class Gmsh
     {
@@ -353,6 +353,22 @@ namespace Iguana.IguanaGmshWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelOccSynchronize")]
             internal static extern void GmshModelOccSynchronize(ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelOccFuse")]
+            internal static extern void GmshModelOccFuse([In,Out] int[] objectDimTags, long objectDimTags_n, [In, Out] int[] toolDimTags, long toolDimTags_n, out IntPtr outDimTags, out long outDimTags_n, out IntPtr outDimTagsMap, out IntPtr outDimTagsMap_n, out long outDimTagsMap_nn, int tag, int removeObject, int removeTool, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelOccIntersect")]
+            internal static extern void GmshModelOccIntersect([In, Out] int[] objectDimTags, long objectDimTags_n, [In, Out] int[] toolDimTags, long toolDimTags_n, out IntPtr outDimTags, out long outDimTags_n, out IntPtr outDimTagsMap, out IntPtr outDimTagsMap_n, out long outDimTagsMap_nn, int tag, int removeObject, int removeTool, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelOccCut")]
+            internal static extern void GmshModelOccCut([In, Out] int[] objectDimTags, long objectDimTags_n, [In, Out] int[] toolDimTags, long toolDimTags_n, out IntPtr outDimTags, out long outDimTags_n, out IntPtr outDimTagsMap, out IntPtr outDimTagsMap_n, out long outDimTagsMap_nn, int tag, int removeObject, int removeTool, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelOccFragment")]
+            internal static extern void GmshModelOccFragment([In, Out] int[] objectDimTags, long objectDimTags_n, [In, Out] int[] toolDimTags, long toolDimTags_n, out IntPtr outDimTags, out long outDimTags_n, out IntPtr outDimTagsMap, out IntPtr outDimTagsMap_n, out long outDimTagsMap_nn, int tag, int removeObject, int removeTool, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////
@@ -369,18 +385,15 @@ namespace Iguana.IguanaGmshWrappers
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetNodes")]
-            //internal static extern void GmshModelMeshGetNodes(out IntPtr nodeTags, out IntPtr nodeTags_n, out IntPtr coord, out IntPtr coord_n, out IntPtr parametricCoord, out IntPtr parametricCoord_n, int dim, int tag, int includeBoundary, int returnParametricCoord, ref int ierr);
             internal static extern void GmshModelMeshGetNodes(out IntPtr nodeTags, out long nodeTags_n, out IntPtr coord, out long coord_n, out IntPtr parametricCoord, out long parametricCoord_n, int dim, int tag, int includeBoundary, int returnParametricCoord, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetElements")]
-            //internal static extern void GmshModelMeshGetElements(out IntPtr elementTypes, out IntPtr elementTypes_n, out IntPtr elementTags, out IntPtr elementTags_n, out IntPtr elementTags_nn, out IntPtr nodeTags, out IntPtr nodeTags_n, out IntPtr nodeTags_nn, int dim, int tag, ref int ierr);
             internal static extern void GmshModelMeshGetElements(out IntPtr elementTypes, out long elementTypes_n, out IntPtr elementTags, out IntPtr elementTags_n, out long elementTags_nn, out IntPtr nodeTags, out IntPtr nodeTags_n, out long nodeTags_nn, int dim, int tag, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshOptimize")]
             internal static extern void GmshModelMeshOptimize([In, Out] string method, int force, int niter, [In, Out] int[] dimTags, IntPtr dimTags_n, ref int ierr);
-            //GMSH_API void gmshModelMeshOptimize(const char* method, const int force, const int niter, int* dimTags, size_t dimTags_n, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRemoveDuplicateNodes")]
@@ -509,6 +522,14 @@ namespace Iguana.IguanaGmshWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshFieldSetAsBoundaryLayer")]
             internal static extern void GmshModelMeshFieldSetAsBoundaryLayer(int tag, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRefine")]
+            internal static extern void GmshModelMeshRefine(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRecombine")]
+            internal static extern void GmshModelMeshRecombine(ref int ierr);
 
             #endregion
 

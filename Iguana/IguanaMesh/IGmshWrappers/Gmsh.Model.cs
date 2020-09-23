@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace Iguana.IguanaGmshWrappers
+namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public static partial class Gmsh
     {

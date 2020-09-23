@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Iguana.IguanaGmshWrappers
+namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public static partial class Gmsh
     {
@@ -15,8 +15,6 @@ namespace Iguana.IguanaGmshWrappers
         {
             public static partial class Mesh
             {
-                public enum OptimizationMethod { Standard, Netgen, HighOrder, HighOrderElastic, HighOrderFastCurving, Laplace2D, Relocate2D, Relocate3D }
-
                 /// <summary>
                 /// Generate a mesh of the current model, up to dimension `dim' (0, 1, 2 or 3).
                 /// </summary>
@@ -147,7 +145,7 @@ namespace Iguana.IguanaGmshWrappers
                         // Building elements
                         int elements_size = nTags_val[i].Length;
 
-                        switch ((int)eTypes[i])
+                        /*switch ((int)eTypes[i])
                         {
                             // 3-node triangles 
                             case 2:
@@ -157,6 +155,19 @@ namespace Iguana.IguanaGmshWrappers
                                     elementTypes_out[i][j] = new int[] { (int)nTags_val[i][j * 3], (int)nTags_val[i][j * 3 + 1], (int)nTags_val[i][j * 3 + 2] };
                                 }
                                 break;
+                        }*/
+
+                        int eType = (int) (nTags_n[i] / eTags_n[i]);
+                        int count = elements_size / eType;
+                        elementTypes_out[i] = new int[count][];
+
+                        for (int j = 0; j < count; j++)
+                        {
+                            elementTypes_out[i][j] = new int[eType];
+                            for (int k=0; k<eType; k++)
+                            {
+                                elementTypes_out[i][j][k] = (int) nTags_val[i][j * eType + k];
+                            }
                         }
                     }
 
@@ -176,11 +187,11 @@ namespace Iguana.IguanaGmshWrappers
                 /// <param name="method"> `method' (empty for default tetrahedral mesh optimizer, "Netgen" for Netgen optimizer, "HighOrder" for
                 /// direct high-order mesh optimizer, "HighOrderElastic" for high-order elastic smoother, "HighOrderFastCurving" for fast curving algorithm,
                 /// "Laplace2D" for Laplace smoothing, "Relocate2D" and "Relocate3D" for node relocation)</param>
-                /// <param name="niter"> Number of Iterations </param>
-                public static void Optimize(OptimizationMethod method, int niter)
+                /// <param name="niter"> Number of Iterations. Default is 5. </param>
+                public static void Optimize(string method=default, int niter=5)
                 {
-                    if (method == OptimizationMethod.Standard) Gmsh.GmshWrappers.GmshModelMeshOptimize(null, -1, niter, null, IntPtr.Zero, ref _ierr);
-                    else Gmsh.GmshWrappers.GmshModelMeshOptimize(method.ToString(), -1, niter, null, IntPtr.Zero, ref _ierr);
+                    if (method == default) method = "";
+                    Gmsh.GmshWrappers.GmshModelMeshOptimize(method, -1, niter, null, IntPtr.Zero, ref _ierr);
                 }
 
                 /// <summary>
@@ -555,6 +566,45 @@ namespace Iguana.IguanaGmshWrappers
                 {
                     GmshWrappers.GmshModelMeshFieldSetAsBoundaryLayer(tag, ref _ierr);
                 }
+
+                /// <summary>
+                /// Refine the mesh of the current model by uniformly splitting the elements.
+                /// </summary>
+                public static void Refine()
+                {
+                    GmshWrappers.GmshModelMeshRefine(ref _ierr);
+                }
+
+                /// <summary>
+                /// Recombine the mesh of the current model.
+                /// </summary>
+                public static void Recombine()
+                {
+                    GmshWrappers.GmshModelMeshRecombine(ref _ierr);
+                }
+
+                /// <summary>
+                /// Embed the model entities of dimension `dim' and tags `tags' in the (`inDim', `inTag') model entity.
+                /// The embedded entities should not be part of the boundary of the entity `inTag', whose mesh will conform to the mesh of the embedded entities.
+                /// </summary>
+                /// <param name="dim"> The dimension `dim' can 0, 1 or 2 and must be strictly smaller than `inDim', which must be either 2 or 3. </param>
+                /// <param name="tags"></param>
+                /// <param name="inDim"></param>
+                /// <param name="inTag"></param>
+                public static void Embed(int dim, int[] tags, int inDim, int inTag)
+                {
+                    GmshWrappers.GmshModelMeshEmbed(dim, tags, tags.LongLength, inDim, inTag, ref _ierr);
+                }
+
+                /// <summary>
+                /// Remove embedded entities from the model entities `dimTags'. if `dim' is >= 0, only remove embedded entities of the given dimension (e.g.embedded points if `dim' == 0).
+                /// </summary>
+                /// <param name="dimTags"></param>
+                /// <param name="dim"></param>
+                public static void RemoveEmbedded(int[] dimTags, int dim) {
+                    GmshWrappers.GmshModelMeshRemoveEmbedded(dimTags, dimTags.LongLength, dim, ref _ierr);
+                }
+
             }
         }
     }

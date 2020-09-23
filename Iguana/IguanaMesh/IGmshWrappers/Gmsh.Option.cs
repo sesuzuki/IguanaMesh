@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Iguana.IguanaGmshWrappers
+namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public static partial class Gmsh
     {

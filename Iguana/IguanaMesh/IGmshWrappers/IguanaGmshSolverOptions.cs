@@ -3,11 +3,11 @@ using Grasshopper.Kernel.Types;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace IguanaGH.IguanaMeshGH.IUtilsGH
+namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public enum MeshSolvers2D { MeshAdapt = 1, Automatic = 2, InitialMeshOnly = 3, Delaunay = 5, TriFrontalDelaunay = 6, BAMG = 7, QuadsFrontalDelaunay = 8, PackingOfParallelograms = 9 }
 
-    public class IGmshSolverOptions
+    public class IguanaGmshSolverOptions
     {
         private List<double> meshSizes = new List<double>() { 1.0 };
         /// <summary>
@@ -15,6 +15,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// 3D mesh algorithm (1: Delaunay, 3: Initial mesh only, 4: Frontal, 7: MMG3D, 9: R-tree, 10: HXT). Default value: 1
         /// </summary>
         public int MeshingAlgorithm { get; set; }
+
+        /// <summary>
+        /// Optimization method (Standard, Netgen, HighOrder, HighOrderElastic, HighOrderFastCurving, Laplace2D, Relocate2D, Relocate3D)
+        /// </summary>
+        public string OptimizationAlgorithm { get; set; }
 
         /// <summary>
         /// Target mesh size at input nodes. If the number of size values is not equal to the number of nodes, the first item of the size value list is assigned to all nodes.
@@ -108,6 +113,13 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         [DefaultValue(1)]
         public double RandomSeed { get; set; }
+
+        /// <summary>
+        /// Seed of pseudo-random number generator.
+        /// Default value: 1
+        /// </summary>
+        [DefaultValue(1)]
+        public double RandomFactor { get; set; }
 
         /// <summary>
         /// Minimum number of nodes used to mesh circles and ellipses.
@@ -324,11 +336,19 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         public double SmoothRatio { get; set; }
 
         /// <summary>
-        /// Mesh subdivision algorithm(0: none, 1: all quadrangles, 2: all hexahedra, 3: barycentric).
+        /// Mesh subdivision algorithm(0: all quadrangles, 1: all hexahedra, 2: barycentric).
         /// Default value: 0
         /// </summary>
         [DefaultValue(0)]
         public int SubdivisionAlgorithm { get; set; }
+
+        /// <summary>
+        /// Mesh subdivision algorithm(0: all quadrangles, 1: all hexahedra, 2: barycentric).
+        /// Default value: false
+        /// </summary>
+        [DefaultValue(false)]
+        public bool Subdivide { get; set; }
+
 
         /// <summary>
         /// Skip a model edge in mesh generation if its length is less than user’s defined tolerance.
@@ -394,7 +414,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
         public bool CastTo<T>(out T target)
         {
-            if (typeof(T).IsAssignableFrom(typeof(IGmshSolverOptions)))
+            if (typeof(T).IsAssignableFrom(typeof(IguanaGmshSolverOptions)))
             {
                 target = default(T);
                 return true;

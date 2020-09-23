@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Iguana.IguanaGmshWrappers
+namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public static partial class Gmsh
     {
@@ -669,6 +669,126 @@ namespace Iguana.IguanaGmshWrappers
                     GmshWrappers.GmshModelOccSynchronize(ref _ierr);
                 }
 
+                /// <summary>
+                /// Compute the boolean union (the fusion) of the entities `objectDimTags' and
+                /// `toolDimTags'. Return the resulting entities in `outDimTags'. If `tag' is
+                /// positive, try to set the tag explicitly(only valid if the boolean
+                /// operation results in a single entity). Remove the object if `removeObject'
+                /// is set.Remove the tool if `removeTool' is set. 
+                /// </summary>
+                /// <param name="objectDimTags"></param>
+                /// <param name="toolDimTags"></param>
+                /// <param name="outDimTags_out"></param>
+                /// <param name="tag"></param>
+                /// <param name="removeObject"></param>
+                /// <param name="removeTool"></param>
+                public static void Fuse(int[] objectDimTags, int[] toolDimTags, out int[] outDimTags_out, int tag=-1, bool removeObject=true, bool removeTool=true)
+                {
+                    IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
+                    long outDimTags_n, outDimTagsMap_nn;
+                    GmshWrappers.GmshModelOccFuse(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+
+                    outDimTags_out = null;
+                    if (outDimTags_n > 0)
+                    {
+                        outDimTags_out = new int[outDimTags_n];
+                        Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
+                    }
+
+                    GmshWrappers.GmshFree(outDimTags);
+                    GmshWrappers.GmshFree(outDimTagsMap);
+                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                }
+
+                /// <summary>
+                /// Compute the boolean intersection (the common parts) of the entities
+                /// `objectDimTags' and `toolDimTags'. Return the resulting entities in
+                /// `outDimTags'. If `tag' is positive, try to set the tag explicitly(only
+                /// valid if the boolean operation results in a single entity). Remove the
+                /// object if `removeObject' is set. Remove the tool if `removeTool' is set.
+                /// </summary>
+                /// <param name="objectDimTags"></param>
+                /// <param name="toolDimTags"></param>
+                /// <param name="outDimTags_out"></param>
+                /// <param name="tag"></param>
+                /// <param name="removeObject"></param>
+                /// <param name="removeTool"></param>
+                public static void Intersect(int[] objectDimTags, int[] toolDimTags, out int[] outDimTags_out, int tag = -1, bool removeObject = true, bool removeTool = true)
+                {
+                    IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
+                    long outDimTags_n, outDimTagsMap_nn;
+                    GmshWrappers.GmshModelOccIntersect(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    outDimTags_out = null;
+                    if (outDimTags_n > 0)
+                    {
+                        outDimTags_out = new int[outDimTags_n];
+                        Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
+                    }
+
+                    GmshWrappers.GmshFree(outDimTags);
+                    GmshWrappers.GmshFree(outDimTagsMap);
+                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                }
+
+                /// <summary>
+                /// Compute the boolean difference between the entities `objectDimTags' and
+                /// `toolDimTags'. Return the resulting entities in `outDimTags'. If `tag' is
+                /// positive, try to set the tag explicitly(only valid if the boolean
+                /// operation results in a single entity). Remove the object if `removeObject'
+                /// is set.Remove the tool if `removeTool' is set.
+                /// </summary>
+                /// <param name="objectDimTags"></param>
+                /// <param name="toolDimTags"></param>
+                /// <param name="outDimTags_out"></param>
+                /// <param name="tag"></param>
+                /// <param name="removeObject"></param>
+                /// <param name="removeTool"></param>
+                public static void Cut(int[] objectDimTags, int[] toolDimTags, out int[] outDimTags_out, int tag = -1, bool removeObject = true, bool removeTool = true)
+                {
+                    IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
+                    long outDimTags_n, outDimTagsMap_nn;
+                    GmshWrappers.GmshModelOccCut(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    outDimTags_out = null;
+                    if (outDimTags_n > 0)
+                    {
+                        outDimTags_out = new int[outDimTags_n];
+                        Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
+                    }
+
+                    GmshWrappers.GmshFree(outDimTags);
+                    GmshWrappers.GmshFree(outDimTagsMap);
+                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                }
+
+                /// <summary>
+                /// Compute the boolean fragments (general fuse) of the entities
+                /// `objectDimTags' and `toolDimTags'. Return the resulting entities in
+                /// `outDimTags'. If `tag' is positive, try to set the tag explicitly(only
+                /// valid if the boolean operation results in a single entity). Remove the
+                /// object if `removeObject' is set. Remove the tool if `removeTool' is set.
+                /// </summary>
+                /// <param name="objectDimTags"></param>
+                /// <param name="toolDimTags"></param>
+                /// <param name="outDimTags_out"></param>
+                /// <param name="tag"></param>
+                /// <param name="removeObject"></param>
+                /// <param name="removeTool"></param>
+                public static void Fragment(int[] objectDimTags, int[] toolDimTags, out int[] outDimTags_out, int tag = -1, bool removeObject = true, bool removeTool = true)
+                {
+                    IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
+                    long outDimTags_n, outDimTagsMap_nn;
+                    GmshWrappers.GmshModelOccFragment(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    outDimTags_out = null;
+                    if (outDimTags_n > 0)
+                    {
+                        outDimTags_out = new int[outDimTags_n];
+                        Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
+                    }
+
+                    GmshWrappers.GmshFree(outDimTags);
+                    GmshWrappers.GmshFree(outDimTagsMap);
+                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                }
             }
         }
     }
