@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Iguana.IguanaMesh.ITypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -89,6 +90,47 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     GmshWrappers.GmshFree(parametricCoord);
                 }
 
+                public static IVertexCollection TryGetIVertexCollection(int dim = -1)
+                {
+                    try
+                    {
+                        IntPtr nodeTags, coord, parametricCoord;
+                        long nodeTags_Number, coord_Number, parametricCoord_Number;
+                        GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, -1, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+
+                        IVertexCollection vertices = new IVertexCollection();
+                        if (coord_Number > 0 && nodeTags_Number > 0)
+                        {
+                            // Coordinates
+                            var xyz = new double[coord_Number];
+                            Marshal.Copy(coord, xyz, 0, (int)coord_Number);
+                            // Keys
+                            var keys = new long[nodeTags_Number];
+                            Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
+                            // uvw
+                            var uvw = new double[parametricCoord_Number];
+                            Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
+
+                            for (int i = 0; i < nodeTags_Number; i++)
+                            {
+                                ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
+                                vertices.AddVertex(v);
+                            }
+                        }
+
+                        // Delete unmanaged allocated memory
+                        GmshWrappers.GmshFree(nodeTags);
+                        GmshWrappers.GmshFree(coord);
+                        GmshWrappers.GmshFree(parametricCoord);
+
+                        return vertices;
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                }
+
                 /// <summary>
                 /// Get the elements classified on the entity of dimension `dim'.
                 /// `elementTypes' contains the MSH types of the elements (e.g. `2' for 3-node triangles: see `getElementProperties' to obtain the properties for a given element type). 
@@ -145,18 +187,6 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         // Building elements
                         int elements_size = nTags_val[i].Length;
 
-                        /*switch ((int)eTypes[i])
-                        {
-                            // 3-node triangles 
-                            case 2:
-                                elementTypes_out[i] = new int[elements_size / 3][];
-                                for (int j = 0; j < elements_size / 3; j++)
-                                {
-                                    elementTypes_out[i][j] = new int[] { (int)nTags_val[i][j * 3], (int)nTags_val[i][j * 3 + 1], (int)nTags_val[i][j * 3 + 2] };
-                                }
-                                break;
-                        }*/
-
                         int eType = (int) (nTags_n[i] / eTags_n[i]);
                         int count = elements_size / eType;
                         elementTypes_out[i] = new int[count][];
@@ -180,6 +210,84 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 
                     foreach (IntPtr ptr in nTags_ptr) GmshWrappers.GmshFree(ptr);
                     foreach (IntPtr ptr in eTags_ptr) GmshWrappers.GmshFree(ptr);
+                }
+
+                public static IElementCollection TryGetIElementCollection(int dim=-1)
+                {
+                    try
+                    {
+                        IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
+                        long elementTypes_Number, elementTags_NNumber, nodeTags_NNumber;
+
+                        int tag = -1;
+
+                        GmshWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, tag, ref _ierr);
+
+                        var eTypes = new long[elementTypes_Number];
+                        var eTags_n = new long[elementTags_NNumber];
+                        var nTags_n = new long[nodeTags_NNumber];
+
+                        Marshal.Copy(elementTypes, eTypes, 0, (int)elementTypes_Number);
+                        Marshal.Copy(elementTags_n, eTags_n, 0, (int)elementTags_NNumber);
+                        Marshal.Copy(nodeTags_n, nTags_n, 0, (int)nodeTags_NNumber);
+
+                        var nTags_ptr = new IntPtr[nodeTags_NNumber];
+                        var eTags_ptr = new IntPtr[elementTags_NNumber];
+
+                        Marshal.Copy(nodeTags, nTags_ptr, 0, (int)nodeTags_NNumber);
+                        Marshal.Copy(elementTags, eTags_ptr, 0, (int)elementTags_NNumber);
+
+                        var eTags_val = new long[elementTags_NNumber][];
+                        var nTags_val = new long[nodeTags_NNumber][];
+
+                        IElementCollection elements = new IElementCollection();
+
+                        for (int i = 0; i < elementTags_NNumber; i++)
+                        {
+                            // Initializing containers
+                            eTags_val[i] = new long[eTags_n[i]];
+                            nTags_val[i] = new long[nTags_n[i]];
+
+                            // Marshalling
+                            Marshal.Copy(eTags_ptr[i], eTags_val[i], 0, (int)eTags_n[i]);
+                            Marshal.Copy(nTags_ptr[i], nTags_val[i], 0, (int)nTags_n[i]);
+
+                            // Building elements
+                            int elements_size = nTags_val[i].Length;
+
+                            int eType = (int)(nTags_n[i] / eTags_n[i]);
+                            int count = elements_size / eType;
+                            IElement e;
+                            for (int j = 0; j < count; j++)
+                            {
+                                int[] eData = new int[eType];
+                                for (int k = 0; k < eType; k++)
+                                {
+                                    eData[k] = (int)nTags_val[i][j * eType + k];
+                                }
+
+                                e = new IPolygonalFace(eData);
+
+                                elements.AddElement(e);
+                            }
+                        }
+
+                        // Delete unmanaged allocated memory
+                        GmshWrappers.GmshFree(elementTypes);
+                        GmshWrappers.GmshFree(elementTags);
+                        GmshWrappers.GmshFree(nodeTags);
+                        GmshWrappers.GmshFree(elementTags_n);
+                        GmshWrappers.GmshFree(nodeTags_n);
+
+                        foreach (IntPtr ptr in nTags_ptr) GmshWrappers.GmshFree(ptr);
+                        foreach (IntPtr ptr in eTags_ptr) GmshWrappers.GmshFree(ptr);
+
+                        return elements;
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
                 }
 
                 /// <summary>

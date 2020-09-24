@@ -73,7 +73,7 @@ namespace Iguana.IguanaMesh.ICreators
                     if (idxA == (u - 1)) idxB = 0;
                     for (int j = 0; j < v; j++)
                     {
-                        IPolygonalFace f = new IPolygonalFace(idxA * (v + 1) + j, idxA * (v + 1) + j + 1, idxB * (v + 1) + j + 1, idxB * (v + 1) + j);
+                        IPolygonalFace f = new IPolygonalFace.FirstOrder.Quadrangle(idxA * (v + 1) + j, idxA * (v + 1) + j + 1, idxB * (v + 1) + j + 1, idxB * (v + 1) + j);
                         f.Key = keyElement;
                         faces.Add(f);
 

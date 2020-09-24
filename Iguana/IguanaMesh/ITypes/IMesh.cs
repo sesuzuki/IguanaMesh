@@ -44,13 +44,13 @@ namespace Iguana.IguanaMesh.ITypes
             BuildTopology();
         }
 
-        public IMesh(ITopologicVertex[] vertices, int[] verticesKeys, List<IElement> elements)
+        public IMesh(IVertexCollection _vertices, IElementCollection elements)
         {
             Topology = new ITopology(this);
             initData();
 
-            Vertices.AddRangeVerticesWithKeys(vertices, verticesKeys);
-            Elements.AddRangeElements(elements);
+            Vertices = _vertices;
+            Elements = elements;
 
             BuildTopology();
         }

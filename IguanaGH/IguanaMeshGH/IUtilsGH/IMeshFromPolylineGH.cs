@@ -5,18 +5,18 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
+using IguanaGH.IguanaMeshGH.ITopologyGH;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IMeshFromPolylineGH : GH_Component
     {
-        IguanaGmshSolverOptions solverOpt;
         /// <summary>
         /// Initializes a new instance of the IMeshFromPolyline class.
         /// </summary>
         public IMeshFromPolylineGH()
-          : base("iMesh from closed polyline", "iMeshFromPolyline",
-              "General constructor for an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iMesh Planar", "iMeshBoundary",
+              "Create a planar mesh from a closed boundary polyline and a collection of internal boundraies polylines.",
               "Iguana", "Utils")
         {
         }
@@ -30,6 +30,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             pManager.AddCurveParameter("Inner boundaries", "Inner", "Holes as polylines", GH_ParamAccess.list);
             pManager.AddGenericParameter("Meshing Settings", "Settings", "Meshing settings", GH_ParamAccess.item);
             pManager[1].Optional = true;
+            pManager[2].Optional = true;
         }
 
         /// <summary>
@@ -46,117 +47,77 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            Curve _outer = null;
-            List<Curve> _inner = new List<Curve>();
+            PolylineCurve _outer = null;
+            List<PolylineCurve> _inner = new List<PolylineCurve>();
+            IguanaGmshSolverOptions solverOpt = new IguanaGmshSolverOptions();
 
-            //Retreive vertices and elements
+            //Retrieve vertices and elements
             DA.GetData(0, ref _outer);
             DA.GetDataList(1, _inner);
             DA.GetData(2, ref solverOpt);
 
             IMesh mesh = null;
 
-            if (_outer.IsClosed)
+            Gmsh.Initialize();
+
+            int[] crv_tags = new int[_inner.Count + 1];
+            crv_tags[0] = TryBuildGmshCurveLoop(_outer, solverOpt);
+
+            for (int i = 0; i < _inner.Count; i++)
             {
-                Gmsh.Initialize();
-
-                Polyline poly;
-                _outer.TryGetPolyline(out poly);
-
-                int[] pt_tags = new int[poly.Count - 1];
-                double size = 0.1;
-                for (int i = 0; i < poly.Count - 1; i++)
-                {
-                    Point3d pt = poly[i];
-                    size=solverOpt.TargetMeshSize[0];
-                    if(solverOpt.TargetMeshSize.Count == poly.Count - 1) size = solverOpt.TargetMeshSize[i];
-                    pt_tags[i] = Gmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
-                }
-
-                int[] ln_tags = new int[pt_tags.Length];
-                for (int i = 0; i < pt_tags.Length; i++)
-                {
-                    int start = pt_tags[i];
-                    int end = pt_tags[0];
-                    if (i < pt_tags.Length - 1) end = pt_tags[i + 1];
-
-                    ln_tags[i] = Gmsh.Model.Geo.AddLine(start, end);
-                }
-
-                //TODO Include inner boundaries
-                int pl_tag = Gmsh.Model.Geo.AddCurveLoop(ln_tags, 1);
-
-                Gmsh.Model.Geo.AddPlaneSurface(new int[] { pl_tag }, 1);
-
-                Gmsh.Model.Geo.Synchronize();
-
-                //solver options
-                Gmsh.Option.SetNumber("Mesh.Algorithm", (int) solverOpt.MeshingAlgorithm);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", solverOpt.CharacteristicLengthFactor);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", solverOpt.CharacteristicLengthMin);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", solverOpt.CharacteristicLengthMax);
-
-                if (solverOpt.CharacteristicLengthFromCurvature)
-                {
-                    //Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
-                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
-                }
-                else
-                {
-                    //Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
-                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
-                }        
-
-                Gmsh.Model.Mesh.Generate(2);
-
-                if (solverOpt.RecombineAll)
-                {
-                    Gmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", solverOpt.RecombinationAlgorithm);
-                    Gmsh.Model.Mesh.Recombine();
-                }
-
-                if (solverOpt.Subdivide)
-                {
-                    Gmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", solverOpt.SubdivisionAlgorithm);
-                    Gmsh.Model.Mesh.Refine();
-                }
-
-                if (solverOpt.Optimize)
-                {
-
-                    Gmsh.Model.Mesh.Optimize(solverOpt.OptimizationAlgorithm, solverOpt.Smoothing);
-                }
-
-
-                int[] nodesTag;
-                double[][] coords, uvw;
-                Gmsh.Model.Mesh.GetNodes(out nodesTag, out coords, out uvw, 2);
-
-                int[][][] elementTags;
-                Gmsh.Model.Mesh.GetElements(out elementTags, 2);
-                Gmsh.FinalizeGmsh();
-
-                ITopologicVertex[] nodes = new ITopologicVertex[nodesTag.Length];
-                for (int i = 0; i < nodesTag.Length; i++)
-                {
-                    nodes[i] = new ITopologicVertex(coords[i][0], coords[i][1], coords[i][2]);
-                }
-
-                List<IElement> elements = new List<IElement>();
-                for (int i = 0; i < elementTags.Length; i++)
-                {
-                    for (int j = 0; j < elementTags[i].Length; j++)
-                    {
-                        IPolygonalFace face = new IPolygonalFace(elementTags[i][j]);
-                        elements.Add(face);
-                    }
-                }
-
-                mesh = new IMesh(nodes, nodesTag, elements);
-                mesh.BuildTopology();
+                crv_tags[i + 1] = TryBuildGmshCurveLoop(_inner[i], solverOpt);
             }
 
+            Gmsh.Model.Geo.AddPlaneSurface(crv_tags, 1);
+
+            Gmsh.Model.Geo.Synchronize();
+
+            //solver options
+            solverOpt.ApplyBasicPreProcessing2D();
+
+            Gmsh.Model.Mesh.Generate(2);
+
+            solverOpt.ApplyBasicPostProcessing2D();
+
+            // Iguana mesh construction
+            IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
+            IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection();
+            mesh = new IMesh(vertices, elements);
+            mesh.BuildTopology();
+
+            Gmsh.FinalizeGmsh();
+
             DA.SetData(0, mesh);
+        }
+
+        public int TryBuildGmshCurveLoop(Curve crv, IguanaGmshSolverOptions solverOpt)
+        {
+            Polyline poly;
+            crv.TryGetPolyline(out poly);
+
+            if (!poly.IsClosed) poly.Add(poly[0]);
+
+            int[] pt_tags = new int[poly.Count - 1];
+            double size = 0.1;
+            for (int i = 0; i < poly.Count - 1; i++)
+            {
+                Point3d pt = poly[i];
+                size = solverOpt.TargetMeshSize[0];
+                if (solverOpt.TargetMeshSize.Count == poly.Count - 1) size = solverOpt.TargetMeshSize[i];
+                pt_tags[i] = Gmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
+            }
+
+            int[] ln_tags = new int[pt_tags.Length];
+            for (int i = 0; i < pt_tags.Length; i++)
+            {
+                int start = pt_tags[i];
+                int end = pt_tags[0];
+                if (i < pt_tags.Length - 1) end = pt_tags[i + 1];
+
+                ln_tags[i] = Gmsh.Model.Geo.AddLine(start, end);
+            }
+
+            return Gmsh.Model.Geo.AddCurveLoop(ln_tags);
         }
 
         /// <summary>

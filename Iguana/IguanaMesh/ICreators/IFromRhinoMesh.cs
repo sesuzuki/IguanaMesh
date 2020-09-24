@@ -53,8 +53,8 @@ namespace Iguana.IguanaMesh.ICreators
 
                 foreach (MeshFace f in rhinoMesh.Faces)
                 {
-                    IPolygonalFace iF = new IPolygonalFace(f.A, f.B, f.C);
-                    if (f.IsQuad) iF = new IPolygonalFace(f.A, f.B, f.C, f.D);
+                    IPolygonalFace iF = new IPolygonalFace.FirstOrder.Triangle(f.A, f.B, f.C);
+                    if (f.IsQuad) iF = new IPolygonalFace.FirstOrder.Quadrangle(f.A, f.B, f.C, f.D);
 
                     iF.Key = keyElement;
                     faces.Add(iF);

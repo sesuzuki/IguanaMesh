@@ -46,7 +46,7 @@ namespace Iguana.IguanaMesh.ICreators
                 mesh.Vertices.AddRangeVertices(vertices.ToList());
                 foreach (int[] f in faces)
                 {
-                    mesh.Elements.AddElement(new IPolygonalFace(f[0], f[1], f[2], f[3]));
+                    mesh.Elements.AddElement(new IPolygonalFace.FirstOrder.Quadrangle(f[0], f[1], f[2], f[3]));
                 }
 
                 mesh.BuildTopology();

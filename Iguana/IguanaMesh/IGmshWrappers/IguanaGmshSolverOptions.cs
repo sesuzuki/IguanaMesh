@@ -364,6 +364,44 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         [DefaultValue(1e-08)]
         public double ToleranceInitialDelaunay { get; set; }
 
+        public void ApplyBasicPreProcessing2D()
+        {
+            Gmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
+            Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
+            Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);
+            Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", CharacteristicLengthMax);
+
+            if (CharacteristicLengthFromCurvature)
+            {
+                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
+                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+            }
+            else
+            {
+                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
+            }
+        }
+
+        public void ApplyBasicPostProcessing2D()
+        {
+            if (RecombineAll)
+            {
+                Gmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", RecombinationAlgorithm);
+                Gmsh.Model.Mesh.Recombine();
+            }
+
+            if (Subdivide)
+            {
+                Gmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
+                Gmsh.Model.Mesh.Refine();
+            }
+
+            if (Optimize)
+            {
+                Gmsh.Model.Mesh.Optimize(OptimizationAlgorithm, Smoothing);
+            }
+        }
 
         #region GH_methods
         public bool IsValid

@@ -20,7 +20,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         private Int64 _v2hf;
 
-        public ITopologicVertex(double _x, double _y, double _z)
+        public ITopologicVertex(double _x, double _y, double _z, int _key=-1)
         {
             this.X = _x;
             this.Y = _y;
@@ -28,12 +28,12 @@ namespace Iguana.IguanaMesh.ITypes
             this.U = 0;
             this.V = 0;
             this.W = 0;
-            this.Key = -1;
+            this.Key = _key;
             this.Normal = new IVector3D();
             this._v2hf = 0;
         }
 
-        public ITopologicVertex(Point3d pt)
+        public ITopologicVertex(Point3d pt, int _key=-1)
         {
             this.X = pt.X;
             this.Y = pt.Y;
@@ -41,12 +41,12 @@ namespace Iguana.IguanaMesh.ITypes
             this.U = 0;
             this.V = 0;
             this.W = 0;
-            this.Key = -1;
+            this.Key = _key;
             this.Normal = new IVector3D();
             this._v2hf = 0;
         }
 
-        public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w)
+        public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w, int _key=-1)
         {
             this.X = _x;
             this.Y = _y;
@@ -54,7 +54,7 @@ namespace Iguana.IguanaMesh.ITypes
             this.U = _u;
             this.V = _v;
             this.W = _w;
-            this.Key = -1;
+            this.Key = _key;
             this.Normal = new IVector3D();
             this._v2hf = 0;
         }

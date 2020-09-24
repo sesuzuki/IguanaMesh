@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Iguana.IguanaMesh.ITypes
 {
-    public class IPolygonalFace : IElement
+    public partial class IPolygonalFace : IElement
     {
         /// <summary>
         /// <para> General constructor for a polygonal face. </para>
@@ -11,15 +11,6 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         ///
         public IPolygonalFace(int[] vertices) : base(vertices, vertices.Length, 2) {}
-
-        /// <summary>
-        /// <para> Specific constructor for a triangular face. </para>
-        /// <para><paramref name="A"/> : First vertex identifier. </para>
-        /// <para><paramref name="B"/> : Second vertex identifier. </para>
-        /// <para><paramref name="C"/> : Third vertex identifier. </para>
-        /// </summary>
-        ///
-        public IPolygonalFace(int A, int B, int C) : base(new int[]{ A, B, C }, 3, 2) { }
 
         /// <summary>
         /// <para> Specific constructor for a quadrangular face. </para>

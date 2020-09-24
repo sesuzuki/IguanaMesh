@@ -63,10 +63,15 @@
     <Compile Include="IguanaMesh\IGmshWrappers\Gmsh.Option.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshConstraintCollector.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\GmshWrappers.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshElementType.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshSolverOptions.cs" />
     <Compile Include="IguanaMesh\ITypes\IElementCollection.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.FirstOrder.cs" />
     <Compile Include="IguanaMesh\ITypes\IHexahedronSolid.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.FourthOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.SecondOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.ThirdOrder.cs" />
     <Compile Include="IguanaMesh\ITypes\IVertexCollection.cs" />
     <Compile Include="IguanaMesh\ITypes\IElementCollectionInterface.cs" />
     <Compile Include="IguanaMesh\IUtils\ITopology.cs" />

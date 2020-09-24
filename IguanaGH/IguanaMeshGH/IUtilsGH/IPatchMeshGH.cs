@@ -154,75 +154,20 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                         }
                     }
                 }
-                //////////////////////////////////////////////////
 
-
-                ///////////////////////////////////////////////// SOLVER OPTIONS
-                //solver options
-                Gmsh.Option.SetNumber("Mesh.Algorithm", (int)solverOpt.MeshingAlgorithm);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", solverOpt.CharacteristicLengthFactor);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", solverOpt.CharacteristicLengthMin);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", solverOpt.CharacteristicLengthMax);
-
-                if (solverOpt.CharacteristicLengthFromCurvature)
-                {
-                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 0);
-                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
-                }
-                else
-                {
-                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
-                    Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 1);
-                }
-                //////////////////////////////////////////////////
+                solverOpt.ApplyBasicPreProcessing2D();
 
                 Gmsh.Model.Mesh.Generate(2);
 
-                if (solverOpt.RecombineAll)
-                {
-                    Gmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", solverOpt.RecombinationAlgorithm);
-                    Gmsh.Model.Mesh.Recombine();
-                }
+                solverOpt.ApplyBasicPostProcessing2D();
 
-                if (solverOpt.Subdivide)
-                {
-                    Gmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", solverOpt.SubdivisionAlgorithm);
-                    Gmsh.Model.Mesh.Refine();
-                }
-
-                if (solverOpt.Optimize)
-                {
-
-                    Gmsh.Model.Mesh.Optimize(solverOpt.OptimizationAlgorithm, solverOpt.Smoothing);
-                }
-
-
-                int[] nodesTag;
-                double[][] coords, uvw;
-                Gmsh.Model.Mesh.GetNodes(out nodesTag, out coords, out uvw);
-
-                int[][][] elementTags;
-                Gmsh.Model.Mesh.GetElements(out elementTags, 2);
-                Gmsh.FinalizeGmsh();
-
-                ITopologicVertex[] nodes = new ITopologicVertex[nodesTag.Length];
-                for (int i = 0; i < nodesTag.Length; i++)
-                {
-                    nodes[i] = new ITopologicVertex(coords[i][0], coords[i][1], coords[i][2]);
-                }
-
-                List<IElement> elements = new List<IElement>();
-                for (int i = 0; i < elementTags.Length; i++)
-                {
-                    for (int j = 0; j < elementTags[i].Length; j++)
-                    {
-                        IPolygonalFace face = new IPolygonalFace(elementTags[i][j]);
-                        elements.Add(face);
-                    }
-                }
-
-                mesh = new IMesh(nodes, nodesTag, elements);
+                // Iguana mesh construction
+                IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
+                IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection();
+                mesh = new IMesh(vertices, elements);
                 mesh.BuildTopology();
+
+                Gmsh.FinalizeGmsh();
             }
 
             DA.SetData(0, mesh);

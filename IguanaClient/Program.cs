@@ -49,7 +49,11 @@ namespace IguanaClient
 
             Gmsh.Write("Mesh1.msh");
 
-            int[] nodesTag;
+
+            IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
+
+            Console.WriteLine(vertices);
+            /*int[] nodesTag;
             double[][] coords, uvw;
             Gmsh.Model.Mesh.GetNodes(out nodesTag, out coords, out uvw, 2);
             
@@ -63,7 +67,7 @@ namespace IguanaClient
                     Console.WriteLine("New Element");
                     Console.WriteLine(":: " + eData[0] + " :: " + eData[1] + " :: " + eData[2] + " ::");
                 }
-            }
+            }*/
 
             Gmsh.FinalizeGmsh();
 
