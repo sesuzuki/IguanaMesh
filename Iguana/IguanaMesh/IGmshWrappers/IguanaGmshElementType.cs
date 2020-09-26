@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.ICollections;
+using Iguana.IguanaMesh.ITypes.IElements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,152 +9,111 @@ using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    /// <summary>
-    /// Elements Type (number reference);
-    /// (2) => 3-node triangle.
-    /// (3) => 4-node quadrangle.
-    /// 4 => 4-node tetrahedron. 
-    /// 5 => 8-node hexahedron. 
-    /// 6 => 6-node prism. 
-    /// 7 => 5-node pyramid.
-    /// 8 => 3-node second order line (2 nodes associated with the vertices and 1 with the edge).
-    /// (9) = 6-node second order triangle (3 nodes associated with the vertices and 3 with the edges).
-    /// (10) => 9-node second order quadrangle (4 nodes associated with the vertices, 4 with the edges and 1 with the face).
-    /// 11 => 10-node second order tetrahedron(4 nodes associated with the vertices and 6 with the edges). 
-    /// 12 => 27-node second order hexahedron(8 nodes associated with the vertices, 12 with the edges, 6 with the faces and 1 with the volume). 
-    /// 13 => 18-node second order prism(6 nodes associated with the vertices, 9 with the edges and 3 with the quadrangular faces). 
-    /// 14 => 14-node second order pyramid(5 nodes associated with the vertices, 8 with the edges and 1 with the quadrangular face). 
-    /// 15 >= 1-node point.
-    /// (16) => 8-node second order quadrangle(4 nodes associated with the vertices and 4 with the edges). 
-    /// 17 => 20-node second order hexahedron(8 nodes associated with the vertices and 12 with the edges). 
-    /// 18 => 15-node second order prism(6 nodes associated with the vertices and 9 with the edges). 
-    /// 19 => 13-node second order pyramid(5 nodes associated with the vertices and 8 with the edges). 
-    /// (20) => 9-node third order incomplete triangle (3 nodes associated with the vertices, 6 with the edges)
-    /// (21) => 10-node third order triangle(3 nodes associated with the vertices, 6 with the edges, 1 with the face)
-    /// (22) => 12-node fourth order incomplete triangle(3 nodes associated with the vertices, 9 with the edges)
-    /// (23) => 15-node fourth order triangle(3 nodes associated with the vertices, 9 with the edges, 3 with the face)
-    /// 24 => 15-node fifth order incomplete triangle(3 nodes associated with the vertices, 12 with the edges)
-    /// 25 => 21-node fifth order complete triangle(3 nodes associated with the vertices, 12 with the edges, 6 with the face)
-    /// 26 => 4-node third order edge(2 nodes associated with the vertices, 2 internal to the edge) 
-    /// 27 => 5-node fourth order edge(2 nodes associated with the vertices, 3 internal to the edge) 
-    /// 28 => 6-node fifth order edge(2 nodes associated with the vertices, 4 internal to the edge) 
-    /// 29 => 20-node third order tetrahedron(4 nodes associated with the vertices, 12 with the edges, 4 with the faces)
-    /// 30 => 35-node fourth order tetrahedron(4 nodes associated with the vertices, 18 with the edges, 12 with the faces, 1 in the volume)
-    /// 31 => 56-node fifth order tetrahedron(4 nodes associated with the vertices, 24 with the edges, 24 with the faces, 4 in the volume)
-    /// 92 => 64-node third order hexahedron(8 nodes associated with the vertices, 24 with the edges, 24 with the faces, 8 in the volume)
-    /// 93 => 125-node fourth order hexahedron(8 nodes associated with the vertices, 36 with the edges, 54 with the faces, 27 in the volume)
-    /// </summary>
-    class IguanaGmshElementType
+    public static class IguanaGmshElementType
     {
-        ////
+        internal static int[] implementedElements = new int[]{2,3,9,16,20,22,24,11,4,19,7,6,18,5,17};
 
-        /*
-        Triangle:               Triangle6:          Triangle9/10:          Triangle12/15:
+        internal static bool IsElementImplemented(int elementType)
+        {
+            return implementedElements.Contains(elementType);
+        }
 
-        v
-        ^                                                                   2
-        |                                                                   | \
-        2                       2                    2                      9   8
-        |`\                     |`\                  | \                    |     \
-        |  `\                   |  `\                7   6                 10 (14)  7
-        |    `\                 5    `4              |     \                |         \
-        |      `\               |      `\            8  (9)  5             11 (12) (13) 6
-        |        `\             |        `\          |         \            |             \
-        0----------1 --> u      0-----3----1         0---3---4---1          0---3---4---5---1
-            
+        public static void TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref IElementCollection elements)
+        {
+            if (IsElementImplemented(elementType))
+            {
+                for (int j = 0; j < number_of_elements; j++)
+                {
+                    int[] eD = new int[nodes_per_element];
 
+                    IElement e = null;
 
-        Quadrangle:            Quadrangle8:            Quadrangle9:
+                    for (int k = 0; k < nodes_per_element; k++)
+                    {
+                        eD[k] = (int)nodes[j * nodes_per_element + k];
+                    }
 
-              v
-              ^
-              |
-        3-----------2          3-----6-----2           3-----6-----2
-        |     |     |          |           |           |           |
-        |     |     |          |           |           |           |
-        |     +---- | --> u    7           5           7     8     5
-        |           |          |           |           |           |
-        |           |          |           |           |           |
-        0-----------1          0-----4-----1           0-----4-----1
+                    switch (elementType)
+                    {
+                        //1st-order Triangle Face
+                        case 2:
+                            e = new ISurfaceElement(eD);
+                            break;
 
-        Tetrahedron:                          Tetrahedron10:
+                        //1st-order Quadrangle Face
+                        case 3:
+                            e = new ISurfaceElement(eD);
+                            break;
 
-                           v
-                         .
-                       ,/
-                      /
-                   2                                     2
-                 ,/|`\                                 ,/|`\
-               ,/  |  `\                             ,/  |  `\
-             ,/    '.   `\                         ,6    '.   `5
-           ,/       |     `\                     ,/       8     `\
-         ,/         |       `\                 ,/         |       `\
-        0-----------'.--------1 --> u         0--------4--'.--------1
-         `\.         |      ,/                 `\.         |      ,/
-            `\.      |    ,/                      `\.      |    ,9
-               `\.   '. ,/                           `7.   '. ,/
-                  `\. |/                                `\. |/
-                     `3                                    `3
-                        `\.
-                           ` w
+                        //2nd-order 6-node triangle 
+                        case 9:
+                            e = new ISurfaceElement.HighOrder.Triangle6(eD);
+                            break;
 
-        Hexahedron:             Hexahedron20:          Hexahedron27:
+                        //2nd-order 8-node quadrangle
+                        case 16:
+                            e = new ISurfaceElement.HighOrder.Quadrangle8(eD);
+                            break;
 
-               v
-        3----------2            3----13----2           3----13----2
-        |\     ^   |\           |\         |\          |\         |\
-        | \    |   | \          | 15       | 14        |15    24  | 14
-        |  \   |   |  \         9  \       11 \        9  \ 20    11 \
-        |   7------+---6        |   7----19+---6       |   7----19+---6
-        |   |  +-- |-- | -> u   |   |      |   |       |22 |  26  | 23|
-        0---+---\--1   |        0---+-8----1   |       0---+-8----1   |
-         \  |    \  \  |         \  17      \  18       \ 17    25 \  18
-          \ |     \  \ |         10 |        12|        10 |  21    12|
-           \|      w  \|           \|         \|          \|         \|
-            4----------5            4----16----5           4----16----5
+                        //3rd-order 9-node incomplete triangle 
+                        case 20:
+                            e = new ISurfaceElement.HighOrder.Triangle9(eD);
+                            break;
 
-                Prism:                      Prism15:               Prism18:
+                        //4th-order 12-node incomplete triangle
+                        case 22:
+                            e = new ISurfaceElement.HighOrder.Triangle12(eD);
+                            break;
 
-                   w
-                   ^
-                   |
-                   3                       3                      3
-                 ,/|`\                   ,/|`\                  ,/|`\
-               ,/  |  `\               12  |  13              12  |  13
-             ,/    |    `\           ,/    |    `\          ,/    |    `\
-            4------+------5         4------14-----5        4------14-----5
-            |      |      |         |      8      |        |      8      |
-            |    ,/|`\    |         |      |      |        |    ,/|`\    |
-            |  ,/  |  `\  |         |      |      |        |  15  |  16  |
-            |,/    |    `\|         |      |      |        |,/    |    `\|
-           ,|      |      |\        10     |      11       10-----17-----11
-         ,/ |      0      | `\      |      0      |        |      0      |
-        u   |    ,/ `\    |    v    |    ,/ `\    |        |    ,/ `\    |
-            |  ,/     `\  |         |  ,6     `7  |        |  ,6     `7  |
-            |,/         `\|         |,/         `\|        |,/         `\|
-            1-------------2         1------9------2        1------9------2
-         
-     
-        
-                    Pyramid:                     Pyramid13:                   Pyramid14:
+                        //5t-order 15-node incomplete triangle 
+                        case 24:
+                            e = new ISurfaceElement.HighOrder.Triangle15(eD);
+                            break;
 
-                           4                            4                            4
-                         ,/|\                         ,/|\                         ,/|\
-                       ,/ .'|\                      ,/ .'|\                      ,/ .'|\
-                     ,/   | | \                   ,/   | | \                   ,/   | | \
-                   ,/    .' | `.                ,/    .' | `.                ,/    .' | `.
-                 ,/      |  '.  \             ,7      |  12  \             ,7      |  12  \
-               ,/       .' w |   \          ,/       .'   |   \          ,/       .'   |   \
-             ,/         |  ^ |    \       ,/         9    |    11      ,/         9    |    11
-            0----------.'--|-3    `.     0--------6-.'----3    `.     0--------6-.'----3    `.
-             `\        |   |  `\    \      `\        |      `\    \     `\        |      `\    \
-               `\     .'   +----`\ - \ -> v  `5     .'        10   \      `5     .' 13     10   \
-                 `\   |    `\     `\  \        `\   |           `\  \       `\   |           `\  \
-                   `\.'      `\     `\`          `\.'             `\`         `\.'             `\`
-                      1----------------2            1--------8-------2           1--------8-------2
-                                `\
-                                   u
+                        //2nd-order 10-node tetrahedron
+                        case 11:
+                            e = new ITetrahedronElement.HighOrder.ITetrahedron10(eD);
+                            break;
 
-         */
+                        //1s-order 4-node tetrahedron element
+                        case 4:
+                            e = new ITetrahedronElement(eD);
+                            break;
+
+                        //2n-order 13-node pyramid
+                        case 19:
+                            e = new IPyramidElement.HighOrder.IPyramid13(eD);
+                            break;
+
+                        //1st-order 5-node pyramid element
+                        case 7:
+                            e = new IPyramidElement(eD);
+                            break;
+
+                        //1st-order 6-node prism element
+                        case 6:
+                            e = new IPrismElement(eD);
+                            break;
+
+                        //2nd-order 15-node prism
+                        case 18:
+                            e = new IPrismElement.HighOrder.IPrism15(eD);
+                            break;
+
+                        //1st-order 8-node hexahedron element
+                        case 5:
+                            e = new IHexahedronElement(eD);
+                            break;
+
+                        //2nd-order 20-node hexahedron
+                        case 17:
+                            e = new IHexahedronElement.HighOrder.IHexahedron20(eD);
+                            break;
+                    }
+
+                    if (e != null) elements.AddElement(e);
+                }
+            }
+        }
     }
 }

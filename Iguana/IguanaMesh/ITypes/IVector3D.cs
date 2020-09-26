@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Iguana.IStandard
+namespace Iguana.IguanaMesh.ITypes
 {
     public struct IVector3D
     {

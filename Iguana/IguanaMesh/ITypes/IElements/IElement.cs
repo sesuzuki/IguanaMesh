@@ -16,7 +16,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         //Default value Int64 is 0. This values denotes naked hf or not intiliazed values. 
         public Int64[] _siblingHalfFacets;
-        public int[] VerticesKeys { get; set; }
+        public int[] Vertices { get; set; }
 
         /// <summary>
         /// <para> Customizable constructor. </para>
@@ -31,7 +31,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void init(int[] vKeys, int halfFacetCount, int topologicDimension)
         {
-            VerticesKeys = vKeys;
+            Vertices = vKeys;
             TopologicDimension = topologicDimension;
             _siblingHalfFacets = new Int64[halfFacetCount];
         }
@@ -42,7 +42,7 @@ namespace Iguana.IguanaMesh.ITypes
         ///
         public int VerticesCount
         {
-            get => VerticesKeys.Length;
+            get => Vertices.Length;
         }
 
         public int HalfFacetsCount
@@ -187,7 +187,7 @@ namespace Iguana.IguanaMesh.ITypes
         ///
         public void Clear()
         {
-            VerticesKeys = new int[0];
+            Vertices = new int[0];
             _siblingHalfFacets = new Int64[0];
             TopologicDimension = 0;
         }
@@ -197,7 +197,7 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         public void Flip()
         {
-            VerticesKeys.Reverse();
+            Vertices.Reverse();
         }
 
         public Boolean Visited
@@ -225,6 +225,18 @@ namespace Iguana.IguanaMesh.ITypes
                 };
             }
         }
+
+        /// <summary>
+        /// Abstract method to return nodes required to build a basic representation the element.
+        /// This method returns "first order" nodes. 
+        /// <summary>
+        public abstract int[] GetNodesForFastDrawing();
+
+        /// <summary>
+        /// Abstract method to return nodes required to build a detailed representation of the element.
+        /// This method returns "first" and "high" order nodes.
+        /// <summary>
+        public abstract int[] GetNodesForDetailedDrawing();
 
         /// <summary>
         /// <para> Abstract method to add a vertex identifier to the element. </para> 
@@ -258,7 +270,7 @@ namespace Iguana.IguanaMesh.ITypes
             string msg = "AHF-IElement{";
             for(int i=0; i< VerticesCount; i++)
             {
-                int idx = VerticesKeys[i];
+                int idx = Vertices[i];
                 if (i < VerticesCount - 1) msg += idx + ";";
                 else msg += idx + "}";
             }

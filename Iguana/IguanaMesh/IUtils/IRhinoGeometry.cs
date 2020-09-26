@@ -31,7 +31,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                     for (int i = 0; i < e.VerticesCount; i++)
                     {
-                        pts[i] = mesh.Vertices.GetVertexWithKey(e.VerticesKeys[i]).RhinoPoint;
+                        pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                     }
                     pts[e.VerticesCount] = pts[0];
 
@@ -52,7 +52,7 @@ namespace Iguana.IguanaMesh.IUtils
                     Point3d[] pts = new Point3d[e.VerticesCount + 1];
                     for (int i = 0; i < e.VerticesCount; i++)
                     {
-                        pts[i] = mesh.Vertices.GetVertexWithKey(e.VerticesKeys[i]).RhinoPoint;
+                        pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                     }
                     pts[e.VerticesCount] = pts[0];
 

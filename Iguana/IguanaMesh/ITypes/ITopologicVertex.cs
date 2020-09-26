@@ -2,7 +2,6 @@
 using GH_IO.Serialization;
 using Rhino.Geometry;
 using System;
-using Iguana.IStandard;
 using System.Collections.Generic;
 
 namespace Iguana.IguanaMesh.ITypes

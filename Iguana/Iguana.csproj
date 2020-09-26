@@ -65,15 +65,20 @@
     <Compile Include="IguanaMesh\IGmshWrappers\GmshWrappers.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshElementType.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshSolverOptions.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElementCollection.cs" />
-    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.FirstOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IHexahedronSolid.cs" />
+    <Compile Include="IguanaMesh\ITypes\ICollections\IElementCollection.cs" />
+    <Compile Include="IguanaMesh\IUtils\IHelpers.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IPrismElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IPrismElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IPyramidElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IPyramidElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\ITetrahedronElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\ITetrahedronElement.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.cs" />
-    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.FourthOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.SecondOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.ThirdOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IVertexCollection.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElementCollectionInterface.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\ICollections\IVertexCollection.cs" />
+    <Compile Include="IguanaMesh\ITypes\ICollections\IElementCollectionInterface.cs" />
     <Compile Include="IguanaMesh\IUtils\ITopology.cs" />
     <Compile Include="IguanaMesh\IUtils\ITopologyInterface.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicVertex.cs" />
@@ -88,8 +93,8 @@
     <Compile Include="IguanaMesh\ICreators\IMoebius.cs" />
     <Compile Include="IguanaMesh\ICreators\IParabolicCylinder.cs" />
     <Compile Include="IguanaMesh\ICreators\IPlaneGrid.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElement.cs" />
-    <Compile Include="IguanaMesh\ITypes\IPolygonalFace.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\IElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.cs" />
     <Compile Include="IguanaMesh\IUtils\IRhinoGeometry.cs" />
     <Compile Include="IguanaMesh\ICreators\ISolidCube.cs" />
     <Compile Include="IguanaMesh\ICreators\ITorus.cs" />
@@ -97,8 +102,11 @@
     <Compile Include="IguanaMesh\IModifiers\IModifier.cs" />
     <Compile Include="IguanaMesh\IModifiers\IReactionDiffusion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IStandard\IVector3D.cs" />
-    <Compile Include="IguanaMesh\ITypes\IVertexCollectionInterface.cs" />
+    <Compile Include="IguanaMesh\ITypes\IVector3D.cs" />
+    <Compile Include="IguanaMesh\ITypes\ICollections\IVertexCollectionInterface.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

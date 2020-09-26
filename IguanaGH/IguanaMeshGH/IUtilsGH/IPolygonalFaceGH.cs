@@ -7,6 +7,7 @@ using Rhino.Geometry;
 using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Data;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.IElements;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -31,7 +32,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("String-sets of vertex Indexes", "F", "Formatted string-set of vertex indexes to a build AHF-IPolygonalFace object.\nThe set structure is defined as: Q{item1; item2; item3, ...}. \n" +
+            pManager.AddTextParameter("String-sets of vertex Indexes", "F", "Formatted string-set of vertex indexes to a build AHF-ISurfaceElement object.\nThe set structure is defined as: Q{item1; item2; item3, ...}. \n" +
                 "MeshFace objects from Rhino are automatically converted into AHF-IFace objects.\n\n" +
                 "NOTE: Vertices on an iElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html", GH_ParamAccess.list);
         }
@@ -41,7 +42,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("AHF-IPolygonalFace", "iF", "Constructed AHF-IPolygonalFace", GH_ParamAccess.list);
+            pManager.AddGenericParameter("AHF-ISurfaceElement", "iF", "Constructed AHF-ISurfaceElement", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -57,7 +58,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetDataList(0, _vertexIndexes);
 
             //Construction of Elements
-            List<IPolygonalFace> elements = new List<IPolygonalFace>();
+            List<ISurfaceElement> elements = new List<ISurfaceElement>();
 
             for(int i=0; i<_vertexIndexes.Count; i++)
             {
@@ -80,7 +81,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                     }
 
                     //Try to create an AHF_Element
-                    if (flag && vIdx.Count>=3) elements.Add(new IPolygonalFace(vIdx.ToArray()));
+                    if (flag && vIdx.Count>=3) elements.Add(new ISurfaceElement(vIdx.ToArray()));
 
                 }
             }

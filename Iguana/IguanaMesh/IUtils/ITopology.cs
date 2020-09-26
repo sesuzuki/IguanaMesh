@@ -1,5 +1,4 @@
-﻿using Iguana.IStandard;
-using Iguana.IguanaMesh.ITypes;
+﻿using Iguana.IguanaMesh.ITypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +42,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                             IElement e = iM.Elements.GetElementWithKey(key);
 
-                            if (e.VerticesKeys.Contains(vertexKey) && !neighbor.Contains(key))
+                            if (e.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
                             {
                                 eK = key;
                             }
@@ -183,7 +182,7 @@ namespace Iguana.IguanaMesh.IUtils
                             int B = i + 1;
                             if (i == sibhf.Length - 1) B = 0;
 
-                            naked.Add(Tuple.Create<int, int>(e.VerticesKeys[A], e.VerticesKeys[B]));
+                            naked.Add(Tuple.Create<int, int>(e.Vertices[A], e.Vertices[B]));
                         }
                     }
                 }

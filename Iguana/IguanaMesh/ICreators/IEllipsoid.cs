@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ICreators
@@ -121,7 +122,7 @@ namespace Iguana.IguanaMesh.ICreators
                         if (!f.Contains(C)) f.Add(C);
                         if (!f.Contains(D)) f.Add(D);
 
-                        IPolygonalFace face = new IPolygonalFace(f.ToArray());
+                        ISurfaceElement face = new ISurfaceElement(f.ToArray());
                         faces.Add(face);
                     }
                 }

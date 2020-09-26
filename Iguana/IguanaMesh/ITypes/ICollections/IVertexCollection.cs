@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Iguana.IguanaMesh.ITypes
+namespace Iguana.IguanaMesh.ITypes.ICollections
 {
     public class IVertexCollection : IVertexCollectionInterface
     {

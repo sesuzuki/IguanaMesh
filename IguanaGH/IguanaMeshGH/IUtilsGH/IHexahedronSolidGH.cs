@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
@@ -48,7 +49,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetDataList(0, _vertexIndexes);
 
             //Construction of Elements
-            List<IHexahedronSolid> elements = new List<IHexahedronSolid>();
+            List<IHexahedronElement> elements = new List<IHexahedronElement>();
 
             for (int i = 0; i < _vertexIndexes.Count; i++)
             {
@@ -71,7 +72,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                     }
 
                     //Try to create an AHF_Element
-                    if (flag && vIdx.Count >= 3) elements.Add(new IHexahedronSolid(vIdx.ToArray()));
+                    if (flag && vIdx.Count >= 3) elements.Add(new IHexahedronElement(vIdx.ToArray()));
 
                 }
             }

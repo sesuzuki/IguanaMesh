@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.ICollections;
 using Rhino.Display;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
@@ -44,6 +45,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "A", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
         }
 
         /// <summary>

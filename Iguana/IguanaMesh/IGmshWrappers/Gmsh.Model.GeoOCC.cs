@@ -518,19 +518,23 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.</param>
                 /// <param name="recombine"></param>
-                public static void Extrude(int[] dimTags, double dx, double dy, double dz, out int[] outDimTags, int[] numElements, double[] heights = null, bool recombine = true)
+                public static void Extrude(int[] dimTags, double dx, double dy, double dz, out int[] outDimTags, int[] numElements=default, double[] heights = default, bool recombine = false)
                 {
-                    IntPtr out_dimTags;
+                    IntPtr out_DimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_dimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    if (numElements == default) numElements = new int[0];
+                    if (heights == default) heights = new double[0];
+
+
+                    GmshWrappers.GmshModelOccExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
                         outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
+                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_dimTags);
+                    GmshWrappers.GmshFree(out_DimTags);
                 }
 
                 /// <summary>
@@ -564,17 +568,20 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="recombine"></param>
                 public static void Revolve(int[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements, double[] heights = null, bool recombine = true)
                 {
-                    IntPtr out_dimTags;
+                    IntPtr out_DimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_dimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    if (numElements == default) numElements = new int[0];
+                    if (heights == default) heights = new double[0];
+
+                    GmshWrappers.GmshModelOccRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
                         outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
+                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_dimTags);
+                    GmshWrappers.GmshFree(out_DimTags);
                 }
 
                 /// <summary>

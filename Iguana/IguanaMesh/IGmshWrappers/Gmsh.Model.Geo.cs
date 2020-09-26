@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Iguana.IguanaMesh.IUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -212,7 +213,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// If `dx' == `dy' == `dz' == 0, the entities are extruded along their normal.
                 /// Return extruded entities in `outDimTags'.
                 /// </summary>
-                /// <param name="dimTags"></param>
+                /// <param name="dimTags"> Contains the node tags of all the entities to extrude, concatenated: [dim1, tag, ..., dimN, tagN, ...]</param>
                 /// <param name="dx"></param>
                 /// <param name="dy"></param>
                 /// <param name="dz"></param>
@@ -220,10 +221,13 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.  </param>
                 /// <param name="recombine"></param>
-                public static void Extrude(int[] dimTags, double dx, double dy, double dz, out int[] outDimTags, int[] numElements=null, double[] heights=null, bool recombine=true)
+                public static void Extrude(int[] dimTags, double dx, double dy, double dz, out int[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
+                    if (numElements == default) numElements = new int[0];
+                    if (heights == default) heights = new double[0];
+
                     GmshWrappers.GmshModelGeoExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
                     outDimTags = null;
@@ -235,7 +239,8 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 
                     GmshWrappers.GmshFree(out_DimTags);
                 }
-            
+
+
 
 
                 /// <summary>
@@ -255,14 +260,17 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.</param>
                 /// <param name="recombine"></param>
-                public static void Revolve(int[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements=null, double[] heights=null, bool recombine=true)
+                public static void Revolve(int[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
+                    if (numElements == default) numElements = new int[0];
+                    if (heights == default) heights = new double[0];
+
                     GmshWrappers.GmshModelGeoRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
                     outDimTags = null;
-                    if (outDimTags_n>0)
+                    if (outDimTags_n > 0)
                     {
                         outDimTags = new int[outDimTags_n];
                         Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
@@ -290,12 +298,15 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1. </param>
                 /// <param name="recombine"></param>
-                public static void Twist(int[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements=null, double[] heights=null, bool recombine=false)
+                public static void Twist(int[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
+                    if (numElements == default) numElements = new int[0];
+                    if (heights == default) heights = new double[0];
+
                     GmshWrappers.GmshModelGeoTwist(dimTags, dimTags.LongLength, x, y, z, dx, dy, dz, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
-                    
+
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {

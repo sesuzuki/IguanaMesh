@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Iguana.IguanaMesh.ITypes
+namespace Iguana.IguanaMesh.ITypes.ICollections
 {
     interface IElementCollectionInterface
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ICreators
@@ -86,7 +87,7 @@ namespace Iguana.IguanaMesh.ICreators
 
                             int[] f = new int[8] { A,B,C,D,E,F,G,H };
 
-                            IHexahedronSolid iS = new IHexahedronSolid(f);
+                            IHexahedronElement iS = new IHexahedronElement(f);
                             iS.Key = keyElement;
                             solids.Add(iS);
 

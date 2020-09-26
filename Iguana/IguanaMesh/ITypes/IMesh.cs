@@ -6,6 +6,8 @@ using Rhino.Geometry;
 using Grasshopper.Kernel.Types;
 using GH_IO.Serialization;
 using Iguana.IguanaMesh.IUtils;
+using Iguana.IguanaMesh.ITypes.ICollections;
+using Iguana.IguanaMesh.ITypes.IElements;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -88,7 +90,7 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] vList = new int[]{ f.A, f.B, f.C };
                 if (f.IsQuad) vList = new int[]{ f.A, f.B, f.C, f.D };
 
-                this.Elements.AddElement(eK, new IPolygonalFace(vList));
+                this.Elements.AddElement(eK, new ISurfaceElement(vList));
             }
 
             this.BuildTopology();
@@ -180,10 +182,10 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] vList = new int[e.VerticesCount];
                 for(int i=0; i<e.VerticesCount; i++)
                 {
-                    int oldKey = e.VerticesKeys[i];
+                    int oldKey = e.Vertices[i];
                     vList[i] = maps[oldKey];
                 }
-                e.VerticesKeys = vList;
+                e.Vertices = vList;
 
                 this.Elements.AddElement(keyElement, e);
             }
@@ -244,7 +246,7 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] vList = new int[] { maps[f.A], maps[f.B], maps[f.C] };
                 if (f.IsQuad) vList = new int[]{ maps[f.A], maps[f.B], maps[f.C], maps[f.D] };
 
-                IPolygonalFace e = new IPolygonalFace(vList);
+                ISurfaceElement e = new ISurfaceElement(vList);
                 this.Elements.AddElement(e);
             }
 
@@ -350,7 +352,7 @@ namespace Iguana.IguanaMesh.ITypes
                     for (Int32 vertexID = 0; vertexID < e.VerticesCount; vertexID++)
                     {
 
-                        Int32 vKey = e.VerticesKeys[vertexID];      
+                        Int32 vKey = e.Vertices[vertexID];      
                         v = Vertices.GetVertexWithKey(vKey);
 
                         if (v.V2HF == 0)

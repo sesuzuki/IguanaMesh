@@ -6,6 +6,7 @@ using Rhino.Geometry;
 using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
 using IguanaGH.IguanaMeshGH.ITopologyGH;
+using Iguana.IguanaMesh.ITypes.ICollections;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -47,8 +48,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            PolylineCurve _outer = null;
-            List<PolylineCurve> _inner = new List<PolylineCurve>();
+            Curve _outer = null;
+            List<Curve> _inner = new List<Curve>();
             IguanaGmshSolverOptions solverOpt = new IguanaGmshSolverOptions();
 
             //Retrieve vertices and elements

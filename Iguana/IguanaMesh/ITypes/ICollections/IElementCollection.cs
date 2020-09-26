@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Iguana.IguanaMesh.ITypes
+namespace Iguana.IguanaMesh.ITypes.ICollections
 {
     public class IElementCollection : IElementCollectionInterface
     {

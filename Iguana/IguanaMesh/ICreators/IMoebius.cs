@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ICreators
@@ -92,7 +93,7 @@ namespace Iguana.IguanaMesh.ICreators
                             f[3] = (V - 1) - (j);
                         }
 
-                        IPolygonalFace iF = new IPolygonalFace(f);
+                        ISurfaceElement iF = new ISurfaceElement(f);
                         iF.Key = keyElement;
                         faces.Add(iF);
 

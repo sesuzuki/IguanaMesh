@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ICreators
@@ -73,7 +74,7 @@ namespace Iguana.IguanaMesh.ICreators
                     if (idxA == (u - 1)) idxB = 0;
                     for (int j = 0; j < v; j++)
                     {
-                        IPolygonalFace f = new IPolygonalFace.FirstOrder.Quadrangle(idxA * (v + 1) + j, idxA * (v + 1) + j + 1, idxB * (v + 1) + j + 1, idxB * (v + 1) + j);
+                        ISurfaceElement f = new ISurfaceElement(idxA * (v + 1) + j, idxA * (v + 1) + j + 1, idxB * (v + 1) + j + 1, idxB * (v + 1) + j);
                         f.Key = keyElement;
                         faces.Add(f);
 
