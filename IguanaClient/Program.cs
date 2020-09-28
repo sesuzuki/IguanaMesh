@@ -46,11 +46,6 @@ namespace IguanaClient
 
             Gmsh.Model.Mesh.Generate(2);
 
-            IVertexCollection v = Gmsh.Model.Mesh.TryGetIVertexCollection();
-            IElementCollection e = Gmsh.Model.Mesh.TryGetIElementCollection();
-
-            Console.WriteLine(v.Count);
-
             Gmsh.FinalizeGmsh();
 
             /*Gmsh.Initialize();

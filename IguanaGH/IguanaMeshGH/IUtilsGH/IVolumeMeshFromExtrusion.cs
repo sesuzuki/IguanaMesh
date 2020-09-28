@@ -69,12 +69,15 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
             if (crv.IsClosed)
             {
+                IVertexCollection vertices = new IVertexCollection();
+                IElementCollection elements = new IElementCollection();
+
                 NurbsCurve nCrv = crv.ToNurbsCurve();
                 if (crvRes > 0 && nCrv.Points.Count < crvRes) nCrv = nCrv.Rebuild(crvRes, nCrv.Degree, true);
 
                 Gmsh.Initialize();
 
-                /*int surfacetag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, solverOptions, pts_patch, constraintCollection);
+                int surfacetag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch);
 
                 int[] ov;
                 Gmsh.Model.GeoOCC.Extrude(new[] { 2, surfacetag }, 0, 0, 1, out ov, new int[] { 8, 2 }, new double[] { 0.5, 1 }, true);
@@ -90,10 +93,10 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 solverOptions.ApplyBasicPostProcessing2D();
 
                 // Iguana mesh construction
-                IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection(3);
-                IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection(3);
+                Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 3);
+                Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 3);
                 mesh = new IMesh(vertices, elements);
-                mesh.BuildTopology();*/
+                mesh.BuildTopology();
 
                 Gmsh.FinalizeGmsh();
             }

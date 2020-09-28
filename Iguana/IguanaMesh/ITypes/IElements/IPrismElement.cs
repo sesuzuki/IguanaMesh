@@ -73,28 +73,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     break;
             }
 
-            switch (index)
-            {
-                case 1:
-                    halfFacets = new int[] { Vertices[0], Vertices[1], Vertices[2], Vertices[3] };
-                    break;
-                case 2:
-                    halfFacets = new int[] { Vertices[0], Vertices[1], Vertices[4], Vertices[3] };
-                    break;
-                case 3:
-                    halfFacets = new int[] { Vertices[3], Vertices[0], Vertices[2], Vertices[5] };
-                    break;
-                case 4:
-                    halfFacets = new int[] { Vertices[2], Vertices[1], Vertices[4], Vertices[5] };
-                    break;
-                case 5:
-                    halfFacets = new int[] { Vertices[3], Vertices[4], Vertices[5] };
-                    break;
-                default:
-                    flag = false;
-                    break;
-            }
-
             return flag;
         }
 

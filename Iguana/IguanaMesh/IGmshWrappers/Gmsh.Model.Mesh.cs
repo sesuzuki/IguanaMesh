@@ -92,7 +92,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     GmshWrappers.GmshFree(parametricCoord);
                 }
 
-                public static void TryGetIVertexCollection(ref IVertexCollection vertices, int dim = -1, int tag = -1)
+                public static bool TryGetIVertexCollection(ref IVertexCollection vertices, int dim = -1, int tag = -1)
                 {
                     try
                     {
@@ -123,50 +123,12 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         GmshWrappers.GmshFree(nodeTags);
                         GmshWrappers.GmshFree(coord);
                         GmshWrappers.GmshFree(parametricCoord);
+
+                        return true;
                     }
                     catch (Exception)
                     {
-                    }
-                }
-
-                public static IVertexCollection TryGetIVertexCollection(int dim = -1, int tag=-1)
-                {
-                    try
-                    {
-                        IntPtr nodeTags, coord, parametricCoord;
-                        long nodeTags_Number, coord_Number, parametricCoord_Number;
-                        GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
-
-                        IVertexCollection vertices = new IVertexCollection();
-                        if (coord_Number > 0 && nodeTags_Number > 0)
-                        {
-                            // Coordinates
-                            var xyz = new double[coord_Number];
-                            Marshal.Copy(coord, xyz, 0, (int)coord_Number);
-                            // Keys
-                            var keys = new long[nodeTags_Number];
-                            Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
-                            // uvw
-                            var uvw = new double[parametricCoord_Number];
-                            Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
-
-                            for (int i = 0; i < nodeTags_Number; i++)
-                            {
-                                ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
-                                vertices.AddVertex(v);
-                            }
-                        }
-
-                        // Delete unmanaged allocated memory
-                        GmshWrappers.GmshFree(nodeTags);
-                        GmshWrappers.GmshFree(coord);
-                        GmshWrappers.GmshFree(parametricCoord);
-
-                        return vertices;
-                    }
-                    catch (Exception)
-                    {
-                        return null;
+                        return false;
                     }
                 }
 
@@ -259,7 +221,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 /// <param name="dim"> 2 for surface element, 3 for volume elements and -1 for all elements. Default is -1. </param>
                 /// <returns></returns>
-                public static IElementCollection TryGetIElementCollection(int dim=-1)
+                public static bool TryGetIElementCollection(ref IElementCollection elements, int dim=-1)
                 {
                     try
                     {
@@ -285,7 +247,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         var eTags_val = new long[elementTags_NNumber][];
                         var nTags_val = new long[nodeTags_NNumber][];
 
-                        IElementCollection elements = new IElementCollection();
+                        elements = new IElementCollection();
 
                         for (int i = 0; i < elementTags_NNumber; i++)
                         {
@@ -316,11 +278,11 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         foreach (IntPtr ptr in nTags_ptr) GmshWrappers.GmshFree(ptr);
                         foreach (IntPtr ptr in eTags_ptr) GmshWrappers.GmshFree(ptr);
 
-                        return elements;
+                        return true;
                     }
                     catch (Exception)
                     {
-                        return null;
+                        return false;
                     }
                 }
 

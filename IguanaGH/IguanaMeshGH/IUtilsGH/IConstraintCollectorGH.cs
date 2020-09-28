@@ -58,7 +58,28 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetDataList(2, crv);
             DA.GetDataList(3, crvS);
 
-            IguanaGmshConstraintCollector icollector = new IguanaGmshConstraintCollector(pts, ptsS);
+            IguanaGmshConstraintCollector icollector;
+
+            if (crv.Count > 0)
+            {
+                List<Polyline> poly = new List<Polyline>();
+                Polyline pl;
+                Curve c;
+                for(int i=0; i<poly.Count; i++)
+                {
+                    c = crv[i];
+                    if (c.IsPolyline())
+                    {
+                        c.TryGetPolyline(out pl);
+                        poly.Add(pl);
+                    }
+                }                
+                icollector = new IguanaGmshConstraintCollector(pts, ptsS);
+            }
+            else
+            {
+                icollector = new IguanaGmshConstraintCollector(pts, ptsS);
+            }
 
             DA.SetData(0, icollector);
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IUtils
 {
-    internal static class IHelpers
+    public static class IHelpers
     {
         public static Tuple<int, int>[] ToIntPair(int[] data)
         {

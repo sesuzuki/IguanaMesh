@@ -57,13 +57,13 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             List<Point3d> pts_patch = new List<Point3d>();
             int crvRes = 0;
             IguanaGmshSolverOptions solverOptions = new IguanaGmshSolverOptions();
-            IguanaGmshConstraintCollector constraintCollection = null;
+            IguanaGmshConstraintCollector constraints = null;
 
             DA.GetData(0, ref crv);
             DA.GetDataList(1, pts_patch);
             DA.GetData(2, ref crvRes);
 
-            DA.GetData(3, ref constraintCollection);
+            DA.GetData(3, ref constraints);
 
             DA.GetData(4, ref solverOptions);
 
@@ -71,14 +71,19 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
             if (crv.IsClosed)
             {
+                IVertexCollection vertices = new IVertexCollection();
+                IElementCollection elements = new IElementCollection();
+
                 NurbsCurve nCrv = crv.ToNurbsCurve();
                 if (crvRes > 0 && nCrv.Points.Count < crvRes) nCrv = nCrv.Rebuild(crvRes, nCrv.Degree, true);
 
                 Gmsh.Initialize();
 
-                //IVertexCollection vertices = new IVertexCollection();
-                //int physicalTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, ref vertices, solverOptions, pts_patch, constraintCollection);
-                IguanaGmshConstructors.OCCSurfacePatch(nCrv, solverOptions, pts_patch, constraintCollection);
+                // Suface construction
+                int surfaceTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch);
+
+                // Embed constraints
+                IguanaGmshConstructors.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, ref vertices, true);
 
                 // Preprocessing settings
                 solverOptions.ApplyBasicPreProcessing2D();
@@ -90,9 +95,10 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 solverOptions.ApplyBasicPostProcessing2D();
 
                 // Iguana mesh construction
-                IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
-                //Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2, physicalTag);
-                IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection(2);
+                Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2, surfaceTag);
+                Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+
+                // Iguana mesh construction
                 mesh = new IMesh(vertices, elements);
                 mesh.BuildTopology();
 

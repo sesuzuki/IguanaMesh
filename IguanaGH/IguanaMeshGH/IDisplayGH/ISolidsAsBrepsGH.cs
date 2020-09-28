@@ -47,9 +47,9 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
             IMesh mesh = null;
             DA.GetData(0, ref mesh);
 
-            //List<Brep> solids = IRhinoGeometry.GetSolidsAsBrep(mesh);
+            List<Brep> solids = IRhinoGeometry.GetSolidsAsBrep(mesh);
 
-            GH_Structure<GH_Curve> solids = new GH_Structure<GH_Curve>();
+            /*GH_Structure<GH_Curve> solids = new GH_Structure<GH_Curve>();
             Dictionary<int, List<PolylineCurve>> crv = IRhinoGeometry.GetSolidsAsPoly(mesh);
             foreach(int k in crv.Keys)
             {
@@ -60,9 +60,9 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
 
                     solids.Append(c, path);
                 }
-            }
+            }*/
 
-            DA.SetDataTree(0, solids);
+            DA.SetDataList(0, solids);
         }
 
         /// <summary>

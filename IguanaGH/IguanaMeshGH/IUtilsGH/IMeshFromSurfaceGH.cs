@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Windows.Forms;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
@@ -48,7 +48,6 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             Surface srf = null;
             IguanaGmshSolverOptions solverOpt = new IguanaGmshSolverOptions();
-            IMesh mesh = null;
 
             DA.GetData(0, ref srf);
             DA.GetData(1, ref solverOpt);
@@ -58,6 +57,10 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             int countU = ctr_pts.CountU;
             int countV = ctr_pts.CountV;
             int idx = 0;
+
+            IMesh mesh = null;
+            IVertexCollection vertices = new IVertexCollection();
+            IElementCollection elements = new IElementCollection();
 
             Gmsh.Initialize();
 
@@ -86,8 +89,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             solverOpt.ApplyBasicPostProcessing2D();
 
             // Iguana mesh construction
-            IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
-            IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection();
+            Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
+            Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+
             mesh = new IMesh(vertices, elements);
             mesh.BuildTopology();
 

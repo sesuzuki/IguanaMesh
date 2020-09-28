@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Iguana.IguanaMesh.ITypes;
+using Rhino;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.IUtils
@@ -66,12 +67,15 @@ namespace Iguana.IguanaMesh.IUtils
         public static List<Brep> GetSolidsAsBrep(IMesh mesh)
         {
             List<Brep> solids = new List<Brep>();
+            Brep b;
+            Surface face;
             foreach (IElement e in mesh.Elements.ElementsValues)
             {
                 if (e.TopologicDimension == 3)
                 {
-                    Brep b = new Brep();
-                    for (int i = 0; i < e.HalfFacetsCount; i++)
+                    b = new Brep();
+
+                    for (int i = 1; i <= e.HalfFacetsCount; i++)
                     {
                         int[] hf;
                         e.GetHalfFacet(i, out hf);
@@ -82,12 +86,11 @@ namespace Iguana.IguanaMesh.IUtils
                         {
                             pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
-
                         pts[hf.Length] = pts[0];
 
                         PolylineCurve pl = new PolylineCurve(pts);
 
-                        Surface face = Brep.CreatePatch(new PolylineCurve[] { pl }, null, 0.001).Surfaces[0];
+                        face = Brep.CreatePatch(new PolylineCurve[] { pl }, 2, 2, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance).Surfaces[0];
                         b.AddSurface(face);
                     }
 
@@ -107,7 +110,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (e.TopologicDimension == 3)
                 {
                     crv.Add(eK, new List<PolylineCurve>());
-                    for (int i = 0; i < e.HalfFacetsCount; i++)
+                    for (int i = 1; i <= e.HalfFacetsCount; i++)
                     {
                         int[] hf;
                         e.GetHalfFacet(i, out hf);

@@ -58,6 +58,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetData(2, ref solverOpt);
 
             IMesh mesh = null;
+            IVertexCollection vertices = new IVertexCollection();
+            IElementCollection elements = new IElementCollection();
 
             Gmsh.Initialize();
 
@@ -81,8 +83,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             solverOpt.ApplyBasicPostProcessing2D();
 
             // Iguana mesh construction
-            IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
-            IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection();
+            Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
+            Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+
             mesh = new IMesh(vertices, elements);
             mesh.BuildTopology();
 
