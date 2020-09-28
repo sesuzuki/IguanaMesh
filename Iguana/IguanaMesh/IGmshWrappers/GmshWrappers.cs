@@ -531,6 +531,10 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRecombine")]
             internal static extern void GmshModelMeshRecombine(ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshReclassifyNodes")]
+            internal static extern void GmshModelMeshReclassifyNodes(ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////

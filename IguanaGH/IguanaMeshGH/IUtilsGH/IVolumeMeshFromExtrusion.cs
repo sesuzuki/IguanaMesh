@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
-using Rhino.Display;
 using Rhino.Geometry;
-using Rhino.Geometry.Collections;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
-    public class IPatchMeshGH : GH_Component
+    public class IVolumeMeshFromExtrusion : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the IPatchMeshGH class.
+        /// Initializes a new instance of the IVolumeMeshFromExtrusion class.
         /// </summary>
-        public IPatchMeshGH()
-          : base("iMesh from Patch", "iMeshFromPatch",
+        public IVolumeMeshFromExtrusion()
+          : base("iVolumeMeshFromExtrusion", "iVolumeMeshExtrusion",
               "General constructor for an Array-based Half-Facet (AHF) Mesh Data Structure.",
               "Iguana", "Utils")
         {
@@ -30,8 +28,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             pManager.AddCurveParameter("Curve", "C", "Closed curve to patch", GH_ParamAccess.item);
             pManager.AddPointParameter("Points", "P", "Points to patch", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Count", "N", "Number of control points to rebuild curve", GH_ParamAccess.item);       
-            pManager.AddGenericParameter("IConstraints", "IConstraints", "Point constraint", GH_ParamAccess.item);            
+            pManager.AddIntegerParameter("Count", "N", "Number of control points to rebuild curve", GH_ParamAccess.item);
+            pManager.AddGenericParameter("IConstraints", "IConstraints", "Point constraint", GH_ParamAccess.item);
             pManager.AddGenericParameter("Meshing Settings", "ISettings", "Meshing settings", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
@@ -76,25 +74,26 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
                 Gmsh.Initialize();
 
-                //IVertexCollection vertices = new IVertexCollection();
-                //int physicalTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, ref vertices, solverOptions, pts_patch, constraintCollection);
-                IguanaGmshConstructors.OCCSurfacePatch(nCrv, solverOptions, pts_patch, constraintCollection);
+                /*int surfacetag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, solverOptions, pts_patch, constraintCollection);
 
-                // Preprocessing settings
+                int[] ov;
+                Gmsh.Model.GeoOCC.Extrude(new[] { 2, surfacetag }, 0, 0, 1, out ov, new int[] { 8, 2 }, new double[] { 0.5, 1 }, true);
+
+                Gmsh.Model.GeoOCC.Synchronize();
+
                 solverOptions.ApplyBasicPreProcessing2D();
 
                 // 2d mesh generation
-                Gmsh.Model.Mesh.Generate(2);
+                Gmsh.Model.Mesh.Generate(3);
 
                 // Postprocessing settings
                 solverOptions.ApplyBasicPostProcessing2D();
 
                 // Iguana mesh construction
-                IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection();
-                //Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2, physicalTag);
-                IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection(2);
+                IVertexCollection vertices = Gmsh.Model.Mesh.TryGetIVertexCollection(3);
+                IElementCollection elements = Gmsh.Model.Mesh.TryGetIElementCollection(3);
                 mesh = new IMesh(vertices, elements);
-                mesh.BuildTopology();
+                mesh.BuildTopology();*/
 
                 Gmsh.FinalizeGmsh();
             }
@@ -120,7 +119,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("46f44095-6a5b-47d2-848b-4663facc1845"); }
+            get { return new Guid("56d8270a-6fbe-49a2-bfd8-f7ac1b1f88b5"); }
         }
     }
 }

@@ -12,88 +12,67 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public class IguanaGmshConstraintCollector
     {
-        private double[] _ptsSize = new double[0];
-        private double[] _crvSize = new double[0];
-        private Point3d[] _pts = new Point3d[0];
-        private Curve[] _crv = new Curve[0];
+        private List<Tuple<Point3d, double>> data;
 
-        public IguanaGmshConstraintCollector(List<Point3d> pts, List<double> ptsSize, List<Curve> crv, List<double> crvSize)
+        public IguanaGmshConstraintCollector(List<Point3d> pts, List<double> factor1, List<PolylineCurve> poly=default, List<double> factor2=default)
         {
-            if (pts != null || pts.Count>0)
+            data = new List<Tuple<Point3d, double>>();
+            if (pts.Count == factor1.Count)
             {
-                _pts = pts.ToArray();
-                _ptsSize = new double[pts.Count];
-                if (pts.Count == ptsSize.Count)
+                for (int i = 0; i < pts.Count; i++)
                 {
-                    for (int i = 0; i < pts.Count; i++) _ptsSize[i] = ptsSize[i];
+                    data.Add(Tuple.Create(pts[i],factor1[i]));
                 }
-                else
+            }
+            else
+            {
+                for (int i = 0; i < pts.Count; i++)
                 {
-                    for (int i = 0; i < pts.Count; i++) _ptsSize[i] = ptsSize[0];
+                    data.Add(Tuple.Create(pts[i], factor1[0]));
                 }
             }
 
-            if (crv != null || crv.Count>0)
+            if (poly != default)
             {
-                _crv = crv.ToArray();
-                _crvSize = new double[crv.Count];
-                if (crv.Count == crvSize.Count)
+                if (poly.Count == factor2.Count)
                 {
-                    for (int i = 0; i < crv.Count; i++) _crvSize[i] = crvSize[i];
+                    for (int i = 0; i < poly.Count; i++)
+                    {
+                        PolylineCurve pl = poly[i];
+                        double f = factor2[i];
+                        int count = pl.PointCount;
+                        if (pl.IsClosed) count -= 1;
+                        for (int j = 0; j < count; j++) data.Add(Tuple.Create(pl.Point(j), f));
+                    }
                 }
                 else
                 {
-                    for (int i = 0; i < crv.Count; i++) _crvSize[i] = crvSize[0];
+                    double f = factor2[0];
+                    for (int i = 0; i < poly.Count; i++)
+                    {
+                        PolylineCurve pl = poly[i];
+                        int count = pl.PointCount;
+                        if (pl.IsClosed) count -= 1;
+                        for (int j = 0; j < count; j++) data.Add(Tuple.Create(pl.Point(j), f));
+                    }
                 }
             }
         }
 
-        public bool HasPointConstraints()
+        public bool HasConstraints()
         {
-            if (_pts != null || _pts.Length==0) return true;
+            if (data.Count!=0) return true;
             else return false;
         }
 
         public int GetPointConstraintCount()
         {
-            if (_pts != null) return _pts.Length;
-            else return 0;
+            return data.Count;
         }
 
-        public int GetCurveConstraintCount()
+        public Tuple<Point3d, double> GetConstraint(int idx)
         {
-            if (_crv != null) return _crv.Length;
-            else return 0;
-        }
-
-        public bool HasCurveConstraints()
-        {
-            if (_crv != null || _crv.Length==0) return true;
-            else return false;
-        }
-
-        public Tuple<Point3d, double> GetPointConstraint(int idx)
-        {
-            try
-            {
-                return Tuple.Create(_pts[idx], _ptsSize[idx]);
-            }
-            catch(Exception)
-            {
-                return null;
-            }
-        }
-
-        public Tuple<Curve, double> GetCurveConstraint(int idx)
-        {
-            try
-            {
-                return Tuple.Create(_crv[idx], _crvSize[idx]);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            return data[idx];
         }
 
         #region GH_methods

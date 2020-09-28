@@ -50,15 +50,15 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             List<Point3d> pts = new List<Point3d>();
             List<Curve> crv = new List<Curve>();
-            List<double> ptsS = new List<double>(){ 1 };
-            List<double> crvS = new List<double>(){ 1 };
+            List<double> ptsS = new List<double>(){};
+            List<double> crvS = new List<double>(){};
 
             DA.GetDataList(0, pts);
             DA.GetDataList(1, ptsS);
             DA.GetDataList(2, crv);
             DA.GetDataList(3, crvS);
 
-            IguanaGmshConstraintCollector icollector = new IguanaGmshConstraintCollector(pts, ptsS, crv, crvS);
+            IguanaGmshConstraintCollector icollector = new IguanaGmshConstraintCollector(pts, ptsS);
 
             DA.SetData(0, icollector);
         }

@@ -65,6 +65,7 @@
     <Compile Include="IguanaMesh\IGmshWrappers\GmshWrappers.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshElementType.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshSolverOptions.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshConstructors.cs" />
     <Compile Include="IguanaMesh\ITypes\ICollections\IElementCollection.cs" />
     <Compile Include="IguanaMesh\IUtils\IHelpers.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.HighOrder.cs" />

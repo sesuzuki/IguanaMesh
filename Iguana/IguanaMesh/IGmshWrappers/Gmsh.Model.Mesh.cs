@@ -92,13 +92,50 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     GmshWrappers.GmshFree(parametricCoord);
                 }
 
-                public static IVertexCollection TryGetIVertexCollection(int dim = -1)
+                public static void TryGetIVertexCollection(ref IVertexCollection vertices, int dim = -1, int tag = -1)
                 {
                     try
                     {
                         IntPtr nodeTags, coord, parametricCoord;
                         long nodeTags_Number, coord_Number, parametricCoord_Number;
-                        GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, -1, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+                        GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+
+                        if (coord_Number > 0 && nodeTags_Number > 0)
+                        {
+                            // Coordinates
+                            var xyz = new double[coord_Number];
+                            Marshal.Copy(coord, xyz, 0, (int)coord_Number);
+                            // Keys
+                            var keys = new long[nodeTags_Number];
+                            Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
+                            // uvw
+                            var uvw = new double[parametricCoord_Number];
+                            Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
+
+                            for (int i = 0; i < nodeTags_Number; i++)
+                            {
+                                ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
+                                vertices.AddVertex(v);
+                            }
+                        }
+
+                        // Delete unmanaged allocated memory
+                        GmshWrappers.GmshFree(nodeTags);
+                        GmshWrappers.GmshFree(coord);
+                        GmshWrappers.GmshFree(parametricCoord);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                public static IVertexCollection TryGetIVertexCollection(int dim = -1, int tag=-1)
+                {
+                    try
+                    {
+                        IntPtr nodeTags, coord, parametricCoord;
+                        long nodeTags_Number, coord_Number, parametricCoord_Number;
+                        GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
                         IVertexCollection vertices = new IVertexCollection();
                         if (coord_Number > 0 && nodeTags_Number > 0)
@@ -217,6 +254,11 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     foreach (IntPtr ptr in eTags_ptr) GmshWrappers.GmshFree(ptr);
                 }
 
+                /// <summary>
+                /// Try to return IElements from the gmsh
+                /// </summary>
+                /// <param name="dim"> 2 for surface element, 3 for volume elements and -1 for all elements. Default is -1. </param>
+                /// <returns></returns>
                 public static IElementCollection TryGetIElementCollection(int dim=-1)
                 {
                     try
@@ -224,9 +266,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
                         long elementTypes_Number, elementTags_NNumber, nodeTags_NNumber;
 
-                        int tag = -1;
-
-                        GmshWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, tag, ref _ierr);
+                        GmshWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, -1, ref _ierr);
 
                         var eTypes = new int[elementTypes_Number];
                         var eTags_n = new long[elementTags_NNumber];
@@ -263,22 +303,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                             int number_of_elements = nTags_val[i].Length / nodes_per_element;
 
                             IguanaGmshElementType.TryParseToIguanaElement(element_type, nTags_val[i], nodes_per_element, number_of_elements, ref elements);
-                            
-                            /*IElement e;
 
-                            for (int j = 0; j < number_of_elements; j++)
-                            {
-                                int[] eData = new int[nodes_per_element];
-
-                                for (int k = 0; k < nodes_per_element; k++)
-                                {
-                                    eData[k] = (int)nTags_val[i][j * nodes_per_element + k];
-                                }
-
-                                e = new ISurfaceElement(eData);
-
-                                elements.AddElement(e);
-                            }*/
                         }
 
                         // Delete unmanaged allocated memory
@@ -720,6 +745,17 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="dim"></param>
                 public static void RemoveEmbedded(int[] dimTags, int dim) {
                     GmshWrappers.GmshModelMeshRemoveEmbedded(dimTags, dimTags.LongLength, dim, ref _ierr);
+                }
+
+                /// <summary>
+                /// Reclassify all nodes on their associated model entity, based on the
+                /// elements.Can be used when importing nodes in bulk(e.g.by associating
+                /// them all to a single volume), to reclassify them correctly on model
+                /// surfaces, curves, etc.after the elements have been set.
+                /// </summary>
+                public static void ReclassifyNodes()
+                {
+                    GmshWrappers.GmshModelMeshReclassifyNodes(ref _ierr);
                 }
 
             }
