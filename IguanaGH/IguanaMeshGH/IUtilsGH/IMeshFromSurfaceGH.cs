@@ -62,7 +62,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             IVertexCollection vertices = new IVertexCollection();
             IElementCollection elements = new IElementCollection();
 
-            Gmsh.Initialize();
+            IguanaGmsh.Initialize();
 
             ControlPoint cP;
             int[] nTags = new int[countU * countV];
@@ -72,30 +72,30 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 for(int j=0; j<countV; j++)
                 {
                     cP = ctr_pts.GetControlPoint(i, j);
-                    nTags[idx] = Gmsh.Model.GeoOCC.AddPoint(cP.X, cP.Y, cP.Z);
+                    nTags[idx] = IguanaGmsh.Model.GeoOCC.AddPoint(cP.X, cP.Y, cP.Z);
                     weights[idx] = ctr_pts.GetWeight(i, j);
                     idx++;
                 }
             }
 
-            Gmsh.Model.GeoOCC.AddBSplineSurface(nTags, countU, nSrf.Degree(0), nSrf.Degree(1), weights);
+            IguanaGmsh.Model.GeoOCC.AddBSplineSurface(nTags, countU, nSrf.Degree(0), nSrf.Degree(1), weights);
 
-            Gmsh.Model.GeoOCC.Synchronize();
+            IguanaGmsh.Model.GeoOCC.Synchronize();
 
             solverOpt.ApplyBasicPreProcessing2D();
 
-            Gmsh.Model.Mesh.Generate(2);
+            IguanaGmsh.Model.Mesh.Generate(2);
 
             solverOpt.ApplyBasicPostProcessing2D();
 
             // Iguana mesh construction
-            Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
-            Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
+            IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
 
             mesh = new IMesh(vertices, elements);
             mesh.BuildTopology();
 
-            Gmsh.FinalizeGmsh();
+            IguanaGmsh.FinalizeGmsh();
 
             DA.SetData(0, mesh);
         }

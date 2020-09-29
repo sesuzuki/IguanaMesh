@@ -19,6 +19,6 @@ namespace Iguana.IguanaMesh.IUtils
 
         List<int> GetNakedVertices();
 
-        List<int[]> GetUniqueEdges();
+        List<Int64> GetUniqueEdges();
     }
 }

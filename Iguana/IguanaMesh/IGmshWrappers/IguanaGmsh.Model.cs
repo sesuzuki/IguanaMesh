@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    public static partial class Gmsh
+    public static partial class IguanaGmsh
     {
         public static partial class Model
         {
@@ -18,7 +18,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             /// <param name="name"> Name of the model </param>
             public static void Add(string name)
             {
-                GmshWrappers.GmshModelAdd(name, ref _ierr);
+                Wrappers.GmshModelAdd(name, ref _ierr);
             }
 
             /// <summary>
@@ -26,7 +26,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             /// </summary>
             public static void Remove()
             {
-                GmshWrappers.GmshModelRemove(ref _ierr);
+                Wrappers.GmshModelRemove(ref _ierr);
             }
 
             /// <summary>
@@ -38,7 +38,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             {
                 IntPtr arr_ptr, arr_size;
 
-                GmshWrappers.GmshModelGetEntities(out arr_ptr, out arr_size, 0, ref _ierr);
+                Wrappers.GmshModelGetEntities(out arr_ptr, out arr_size, 0, ref _ierr);
 
                 int length = arr_size.ToInt32();
 
@@ -56,8 +56,8 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     }
                 }
 
-                GmshWrappers.GmshFree(arr_ptr);
-                GmshWrappers.GmshFree(arr_size);
+                Wrappers.GmshFree(arr_ptr);
+                Wrappers.GmshFree(arr_size);
                 return ps;
             }
 
@@ -71,7 +71,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             /// <returns></returns>
             public static int AddPhysicalGroup(int dim, int[] tags, int tag = -1)
             {
-                return GmshWrappers.GmshModelAddPhysicalGroup(dim, tags, tags.Length, tag, ref _ierr);
+                return Wrappers.GmshModelAddPhysicalGroup(dim, tags, tags.Length, tag, ref _ierr);
             }
 
             /// <summary>
@@ -82,7 +82,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             /// <param name="name"></param>
             public static void SetPhysicalName(int dim, int tag, string name)
             {
-                GmshWrappers.GmshModelSetPhysicalName(dim, tag, name, ref _ierr);
+                Wrappers.GmshModelSetPhysicalName(dim, tag, name, ref _ierr);
             }
         }
     }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    public static partial class Gmsh
+    public static partial class IguanaGmsh
     {
         public enum MeshSolvers3D { Delaunay = 1, InitialMeshOnly = 3, Frontal = 4, MMG3D = 7, RTree = 9, HXT = 10 }
 
@@ -24,7 +24,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="dim"></param>
                 public static void Generate(int dim)
                 {
-                    GmshWrappers.GmshModelMeshGenerate(dim, ref _ierr);
+                    Wrappers.GmshModelMeshGenerate(dim, ref _ierr);
                 }
 
                 /// <summary>
@@ -38,7 +38,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr nodeTags, coord, parametricCoord;
                     long nodeTags_Number, coord_Number, parametricCoord_Number;
-                    GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+                    Wrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
 
                     nodeTags_out = null;
@@ -87,9 +87,9 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     }
 
                     // Delete unmanaged allocated memory
-                    GmshWrappers.GmshFree(nodeTags);
-                    GmshWrappers.GmshFree(coord);
-                    GmshWrappers.GmshFree(parametricCoord);
+                    Wrappers.GmshFree(nodeTags);
+                    Wrappers.GmshFree(coord);
+                    Wrappers.GmshFree(parametricCoord);
                 }
 
                 public static bool TryGetIVertexCollection(ref IVertexCollection vertices, int dim = -1, int tag = -1)
@@ -98,7 +98,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     {
                         IntPtr nodeTags, coord, parametricCoord;
                         long nodeTags_Number, coord_Number, parametricCoord_Number;
-                        GmshWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+                        Wrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
                         if (coord_Number > 0 && nodeTags_Number > 0)
                         {
@@ -120,9 +120,9 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         }
 
                         // Delete unmanaged allocated memory
-                        GmshWrappers.GmshFree(nodeTags);
-                        GmshWrappers.GmshFree(coord);
-                        GmshWrappers.GmshFree(parametricCoord);
+                        Wrappers.GmshFree(nodeTags);
+                        Wrappers.GmshFree(coord);
+                        Wrappers.GmshFree(parametricCoord);
 
                         return true;
                     }
@@ -155,7 +155,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 
                     int tag = -1;
 
-                    GmshWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, tag, ref _ierr);
+                    Wrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, tag, ref _ierr);
 
                     var eTypes = new int[elementTypes_Number];
                     var eTags_n = new long[elementTags_NNumber];
@@ -206,14 +206,14 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     }
 
                     // Delete unmanaged allocated memory
-                    GmshWrappers.GmshFree(elementTypes);
-                    GmshWrappers.GmshFree(elementTags);
-                    GmshWrappers.GmshFree(nodeTags);
-                    GmshWrappers.GmshFree(elementTags_n);
-                    GmshWrappers.GmshFree(nodeTags_n);
+                    Wrappers.GmshFree(elementTypes);
+                    Wrappers.GmshFree(elementTags);
+                    Wrappers.GmshFree(nodeTags);
+                    Wrappers.GmshFree(elementTags_n);
+                    Wrappers.GmshFree(nodeTags_n);
 
-                    foreach (IntPtr ptr in nTags_ptr) GmshWrappers.GmshFree(ptr);
-                    foreach (IntPtr ptr in eTags_ptr) GmshWrappers.GmshFree(ptr);
+                    foreach (IntPtr ptr in nTags_ptr) Wrappers.GmshFree(ptr);
+                    foreach (IntPtr ptr in eTags_ptr) Wrappers.GmshFree(ptr);
                 }
 
                 /// <summary>
@@ -228,7 +228,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
                         long elementTypes_Number, elementTags_NNumber, nodeTags_NNumber;
 
-                        GmshWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, -1, ref _ierr);
+                        Wrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, -1, ref _ierr);
 
                         var eTypes = new int[elementTypes_Number];
                         var eTags_n = new long[elementTags_NNumber];
@@ -269,14 +269,14 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         }
 
                         // Delete unmanaged allocated memory
-                        GmshWrappers.GmshFree(elementTypes);
-                        GmshWrappers.GmshFree(elementTags);
-                        GmshWrappers.GmshFree(nodeTags);
-                        GmshWrappers.GmshFree(elementTags_n);
-                        GmshWrappers.GmshFree(nodeTags_n);
+                        Wrappers.GmshFree(elementTypes);
+                        Wrappers.GmshFree(elementTags);
+                        Wrappers.GmshFree(nodeTags);
+                        Wrappers.GmshFree(elementTags_n);
+                        Wrappers.GmshFree(nodeTags_n);
 
-                        foreach (IntPtr ptr in nTags_ptr) GmshWrappers.GmshFree(ptr);
-                        foreach (IntPtr ptr in eTags_ptr) GmshWrappers.GmshFree(ptr);
+                        foreach (IntPtr ptr in nTags_ptr) Wrappers.GmshFree(ptr);
+                        foreach (IntPtr ptr in eTags_ptr) Wrappers.GmshFree(ptr);
 
                         return true;
                     }
@@ -295,14 +295,14 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 public static void Optimize(string method=default, int niter=5)
                 {
                     if (method == default) method = "";
-                    Gmsh.GmshWrappers.GmshModelMeshOptimize(method, -1, niter, null, IntPtr.Zero, ref _ierr);
+                    IguanaGmsh.Wrappers.GmshModelMeshOptimize(method, -1, niter, null, IntPtr.Zero, ref _ierr);
                 }
 
                 /// <summary>
                 /// Remove duplicate nodes in the mesh of the current model.
                 /// </summary>
                 public static void RemoveDuplicateNodes() {
-                    Gmsh.GmshWrappers.GmshModelMeshRemoveDuplicateNodes(ref _ierr);
+                    IguanaGmsh.Wrappers.GmshModelMeshRemoveDuplicateNodes(ref _ierr);
                 }
 
                 /// <summary>
@@ -311,7 +311,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="quality"> Quality of the surface. </param>
                 /// <param name="tag"> If `tag' < 0, split quadrangles in all surfaces. </param>
                 public static void MeshSplitQuadrangles(double quality, int tag=-1) {
-                    Gmsh.GmshWrappers.GmshModelMeshSplitQuadrangles(quality, tag, ref _ierr);
+                    IguanaGmsh.Wrappers.GmshModelMeshSplitQuadrangles(quality, tag, ref _ierr);
                 }
 
                     /// <summary>
@@ -321,7 +321,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     /// <param name="size"></param>
                 public static void MeshSetSize(int[] dimTags, double size)
                 {
-                    GmshWrappers.GmshModelMeshSetSize(dimTags, dimTags.LongLength, size, ref _ierr);
+                    Wrappers.GmshModelMeshSetSize(dimTags, dimTags.LongLength, size, ref _ierr);
                 }
 
                 /// <summary>
@@ -334,7 +334,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="parametricCoord"></param>
                 /// <param name="sizes"></param>
                 public static void SetSizeAtParametricPoints(int dim, int tag, double[] parametricCoord, double[] sizes) { 
-                    GmshWrappers.GmshModelMeshSetSizeAtParametricPoints(dim, tag, parametricCoord, parametricCoord.LongLength, sizes, sizes.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshSetSizeAtParametricPoints(dim, tag, parametricCoord, parametricCoord.LongLength, sizes, sizes.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -349,7 +349,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="coef"></param>
                 public static void SetTransfiniteCurve(int tag, int numNodes, string meshType, double coef)
                 {
-                    GmshWrappers.GmshModelMeshSetTransfiniteCurve(tag, numNodes, meshType, coef, ref _ierr);
+                    Wrappers.GmshModelMeshSetTransfiniteCurve(tag, numNodes, meshType, coef, ref _ierr);
                 }
 
                 /// <summary>
@@ -366,7 +366,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="cornerTags"></param>
                 public static void SetTransfiniteSurface(int tag, string arrangement, int[] cornerTags)
                 {
-                    GmshWrappers.GmshModelMeshSetTransfiniteSurface(tag, arrangement, cornerTags, cornerTags.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshSetTransfiniteSurface(tag, arrangement, cornerTags, cornerTags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -376,7 +376,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="cornerTags"></param>
                 public static void SetTransfiniteVolume(int tag, int[] cornerTags)
                 {
-                    GmshWrappers.GmshModelMeshSetTransfiniteVolume(tag, cornerTags, cornerTags.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshSetTransfiniteVolume(tag, cornerTags, cornerTags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -388,7 +388,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 public static void SetRecombine(int dim, int tag)
                 {
-                    GmshWrappers.GmshModelMeshSetRecombine(dim, tag, ref _ierr);
+                    Wrappers.GmshModelMeshSetRecombine(dim, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -399,7 +399,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="val"></param>
                 public static void SetSmoothing(int dim, int tag, int val)
                 {
-                    GmshWrappers.GmshModelMeshSetSmoothing(dim, tag, val, ref _ierr);
+                    Wrappers.GmshModelMeshSetSmoothing(dim, tag, val, ref _ierr);
                 }
 
                 /// <summary>
@@ -412,7 +412,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="val"></param>
                 public static void SetReverse(int dim, int tag, bool val)
                 {
-                    GmshWrappers.GmshModelMeshSetReverse(dim, tag, Convert.ToInt32(val), ref _ierr);
+                    Wrappers.GmshModelMeshSetReverse(dim, tag, Convert.ToInt32(val), ref _ierr);
                 }
 
                 /// <summary>
@@ -424,7 +424,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="val"></param>
                 public static void SetAlgorithm(int dim, int tag, int val)
                 {
-                    GmshWrappers.GmshModelMeshSetAlgorithm(dim, tag, val, ref _ierr);
+                    Wrappers.GmshModelMeshSetAlgorithm(dim, tag, val, ref _ierr);
                 }
 
                 /// <summary>
@@ -437,7 +437,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="val"></param>
                 public static void SetSizeFromBoundary(int dim, int tag, bool val)
                 {
-                    GmshWrappers.GmshModelMeshSetSizeFromBoundary(dim,tag, Convert.ToInt32(val), ref _ierr);
+                    Wrappers.GmshModelMeshSetSizeFromBoundary(dim,tag, Convert.ToInt32(val), ref _ierr);
                 }
 
                 /// <summary>
@@ -449,7 +449,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tags"></param>
                 public static void SetCompound(int dim, int[] tags)
                 {
-                    GmshWrappers.GmshModelMeshSetCompound(dim, tags, tags.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshSetCompound(dim, tags, tags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -460,7 +460,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 public static void SetOutwardOrientation(int tag)
                 {
-                    GmshWrappers.GmshModelMeshSetOutwardOrientation(tag, ref _ierr);
+                    Wrappers.GmshModelMeshSetOutwardOrientation(tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -468,7 +468,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 public static void RenumberNodes()
                 {
-                    GmshWrappers.GmshModelMeshRenumberNodes(ref _ierr);
+                    Wrappers.GmshModelMeshRenumberNodes(ref _ierr);
                 }
 
                 /// <summary>
@@ -476,7 +476,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 public static void RenumberElements()
                 {
-                    GmshWrappers.GmshModelMeshRenumberElements(ref _ierr);
+                    Wrappers.GmshModelMeshRenumberElements(ref _ierr);
                 }
 
                 /// <summary>
@@ -494,7 +494,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="affineTransform"></param>
                 public static void SetPeriodic(int dim, int[] tags, int[] tagsMaster, double[] affineTransform)
                 {
-                    GmshWrappers.GmshModelMeshSetPeriodic(dim, tags, tags.LongLength, tagsMaster, tagsMaster.LongLength, affineTransform, affineTransform.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshSetPeriodic(dim, tags, tags.LongLength, tagsMaster, tagsMaster.LongLength, affineTransform, affineTransform.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -512,7 +512,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="curveAngle"></param>
                 public static void ClassifySurfaces(double angle, bool boundary, bool forReparametrization, double curveAngle)
                 {
-                    GmshWrappers.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, ref _ierr);
+                    Wrappers.GmshModelMeshClassifySurfaces(angle, Convert.ToInt32(boundary), Convert.ToInt32(forReparametrization), curveAngle, ref _ierr);
                 }
 
                 /// <summary>
@@ -525,7 +525,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="dimTags"></param>
                 public static void CreateGeometry(int[] dimTags)
                 {
-                    GmshWrappers.GmshModelMeshCreateGeometry(dimTags, dimTags.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshCreateGeometry(dimTags, dimTags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -540,7 +540,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="exportDiscrete"></param>
                 public static void CreateTopology(bool makeSimplyConnected, bool exportDiscrete)
                 {
-                    GmshWrappers.GmshModelMeshCreateTopology(Convert.ToInt32(makeSimplyConnected), Convert.ToInt32(exportDiscrete), ref _ierr);
+                    Wrappers.GmshModelMeshCreateTopology(Convert.ToInt32(makeSimplyConnected), Convert.ToInt32(exportDiscrete), ref _ierr);
                 }
 
                 /// <summary>
@@ -558,7 +558,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="dims"></param>
                 public static void ComputeHomology(int[] domainTags, int[] subdomainTags, int[] dims)
                 {
-                    GmshWrappers.GmshModelMeshComputeHomology(domainTags, domainTags.LongLength, subdomainTags, subdomainTags.LongLength, dims, dims.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshComputeHomology(domainTags, domainTags.LongLength, subdomainTags, subdomainTags.LongLength, dims, dims.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -576,7 +576,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="dims"></param>
                 public static void ComputeCohomology(int[] domainTags, int[] subdomainTags, [In, Out] int[] dims)
                 {
-                    GmshWrappers.GmshModelMeshComputeCohomology(domainTags, domainTags.LongLength, subdomainTags, subdomainTags.LongLength, dims, dims.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshComputeCohomology(domainTags, domainTags.LongLength, subdomainTags, subdomainTags.LongLength, dims, dims.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -588,7 +588,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr viewTags;
                     long viewTags_n;
-                    GmshWrappers.GmshModelMeshComputeCrossField(out viewTags, out viewTags_n, ref _ierr);
+                    Wrappers.GmshModelMeshComputeCrossField(out viewTags, out viewTags_n, ref _ierr);
 
                     viewTags_out = null;
                     if (viewTags_n>0)
@@ -596,7 +596,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         viewTags_out = new int[viewTags_n];
                         Marshal.Copy(viewTags, viewTags_out, 0, (int) viewTags_n);
                     }
-                    GmshWrappers.GmshFree(viewTags);
+                    Wrappers.GmshFree(viewTags);
                 }
 
                 /// <summary>
@@ -608,7 +608,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int MeshFieldAdd(string fieldType, int tag=-1)
                 {
-                    return GmshWrappers.GmshModelMeshFieldAdd(fieldType, tag, ref _ierr);
+                    return Wrappers.GmshModelMeshFieldAdd(fieldType, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -617,7 +617,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 public static void MeshFieldRemove(int tag)
                 {
-                    GmshWrappers.GmshModelMeshFieldRemove(tag, ref _ierr);
+                    Wrappers.GmshModelMeshFieldRemove(tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -628,7 +628,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="value"></param>
                 public static void MeshFieldSetNumber(int tag, string option, double value)
                 {
-                    GmshWrappers.GmshModelMeshFieldSetNumber(tag, option, value, ref _ierr);
+                    Wrappers.GmshModelMeshFieldSetNumber(tag, option, value, ref _ierr);
                 }
 
                 /// <summary>
@@ -639,7 +639,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="value"></param>
                 public static void MeshFieldSetString(int tag, string option, string value)
                 {
-                    GmshWrappers.GmshModelMeshFieldSetString(tag, option, value, ref _ierr);
+                    Wrappers.GmshModelMeshFieldSetString(tag, option, value, ref _ierr);
                 }
 
                 /// <summary>
@@ -650,7 +650,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="value"></param>
                 public static void MeshFieldSetNumbers(int tag, string option, double[] value)
                 {
-                    GmshWrappers.GmshModelMeshFieldSetNumbers(tag, option, value, value.LongLength, ref _ierr);
+                    Wrappers.GmshModelMeshFieldSetNumbers(tag, option, value, value.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -659,7 +659,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 public static void MeshFieldSetAsBackgroundMesh(int tag)
                 {
-                    GmshWrappers.GmshModelMeshFieldSetAsBackgroundMesh(tag, ref _ierr);
+                    Wrappers.GmshModelMeshFieldSetAsBackgroundMesh(tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -668,7 +668,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 public static void MeshFieldSetAsBoundaryLayer(int tag)
                 {
-                    GmshWrappers.GmshModelMeshFieldSetAsBoundaryLayer(tag, ref _ierr);
+                    Wrappers.GmshModelMeshFieldSetAsBoundaryLayer(tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -676,7 +676,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 public static void Refine()
                 {
-                    GmshWrappers.GmshModelMeshRefine(ref _ierr);
+                    Wrappers.GmshModelMeshRefine(ref _ierr);
                 }
 
                 /// <summary>
@@ -684,7 +684,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 public static void Recombine()
                 {
-                    GmshWrappers.GmshModelMeshRecombine(ref _ierr);
+                    Wrappers.GmshModelMeshRecombine(ref _ierr);
                 }
 
                 /// <summary>
@@ -697,7 +697,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="inTag"></param>
                 public static void Embed(int dim, int[] tags, int inDim, int inTag)
                 {
-                    GmshWrappers.GmshModelMeshEmbed(dim, tags, tags.LongLength, inDim, inTag, ref _ierr);
+                    Wrappers.GmshModelMeshEmbed(dim, tags, tags.LongLength, inDim, inTag, ref _ierr);
                 }
 
                 /// <summary>
@@ -706,7 +706,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="dimTags"></param>
                 /// <param name="dim"></param>
                 public static void RemoveEmbedded(int[] dimTags, int dim) {
-                    GmshWrappers.GmshModelMeshRemoveEmbedded(dimTags, dimTags.LongLength, dim, ref _ierr);
+                    Wrappers.GmshModelMeshRemoveEmbedded(dimTags, dimTags.LongLength, dim, ref _ierr);
                 }
 
                 /// <summary>
@@ -717,7 +717,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 public static void ReclassifyNodes()
                 {
-                    GmshWrappers.GmshModelMeshReclassifyNodes(ref _ierr);
+                    Wrappers.GmshModelMeshReclassifyNodes(ref _ierr);
                 }
 
             }

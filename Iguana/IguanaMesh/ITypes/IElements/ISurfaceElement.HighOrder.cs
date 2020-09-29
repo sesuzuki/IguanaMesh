@@ -24,16 +24,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     string eType = "(6-Nodes) ITriangle 2nd-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices);
                 }
-
-                public override int[] GetNodesForFastDrawing()
-                {
-                    return new int[] { Vertices[0], Vertices[2], Vertices[4] };
-                }
-
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
-                }
             }
 
             /// <summary>
@@ -50,16 +40,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     string eType = "(8-Nodes) IQuadrangle 2nd-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices);
                 }
-
-                public override int[] GetNodesForFastDrawing()
-                {
-                    return new int[] { Vertices[0], Vertices[2], Vertices[4], Vertices[6] };
-                }
-
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
-                }
             }
 
             /// <summary>
@@ -75,16 +55,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 {
                     string eType = "(9-Nodes) ITriangle 3rd-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices, 3);
-                }
-
-                public override int[] GetNodesForFastDrawing()
-                {
-                    return new int[] { Vertices[0], Vertices[3], Vertices[6] };
-                }
-
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
                 }
             }
 
@@ -103,16 +73,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 {
                     string eType = "(12-Nodes) ITriangle 4th-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices, 4);
-                }
-
-                public override int[] GetNodesForFastDrawing()
-                {
-                    return new int[] { Vertices[0], Vertices[4], Vertices[8] };
-                }
-
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
                 }
             }
 
@@ -133,17 +93,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     string eType = "(15-Nodes) ITriangle 5th-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices, 5);
                 }
-
-                public override int[] GetNodesForFastDrawing()
-                {
-                    return new int[] { Vertices[0], Vertices[5], Vertices[10] };
-                }
-
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
-                }
-
             }
         }
     }

@@ -66,14 +66,31 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     throw new NotImplementedException();
                 }
 
-                public override int[] GetNodesForFastDrawing()
+                public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)
                 {
-                    return new int[] { Vertices[0], Vertices[1], Vertices[2], Vertices[3], Vertices[4] };
-                }
+                    Boolean flag = true;
+                    halfFacets = null;
 
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
+                    switch (index)
+                    {
+                        case 1:
+                            halfFacets = new int[] { Vertices[0], Vertices[3], Vertices[1] };
+                            break;
+                        case 2:
+                            halfFacets = new int[] { Vertices[3], Vertices[1], Vertices[2] };
+                            break;
+                        case 3:
+                            halfFacets = new int[] { Vertices[1], Vertices[0], Vertices[2] };
+                            break;
+                        case 4:
+                            halfFacets = new int[] { Vertices[0], Vertices[3], Vertices[2] };
+                            break;
+                        default:
+                            flag = false;
+                            break;
+                    }
+
+                    return flag;
                 }
             }
         }

@@ -2,6 +2,7 @@
 using System.Linq;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
+using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -227,22 +228,19 @@ namespace Iguana.IguanaMesh.ITypes
         }
 
         /// <summary>
-        /// Abstract method to return nodes required to build a basic representation the element.
-        /// This method returns "first order" nodes. 
-        /// <summary>
-        public abstract int[] GetNodesForFastDrawing();
+        /// Abstract method to return halfacets with only principal nodes.
+        /// With this method mid-nodes of high-order elements will not be returned.
+        /// The method is used for displaying rhino objects.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="halfFacets"></param>
+        /// <returns></returns>
+        public abstract bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets);
 
         /// <summary>
-        /// Abstract method to return nodes required to build a detailed representation of the element.
-        /// This method returns "first" and "high" order nodes.
-        /// <summary>
-        public abstract int[] GetNodesForDetailedDrawing();
-
-        /// <summary>
-        /// <para> Abstract method to add a vertex identifier to the element. </para> 
+        /// Abstract method to add a vertex identifier to the element.
         /// <paramref name="vertex"/> : The vertex identifier to add.
         /// </summary>
-        ///
         public abstract Boolean AddVertex(int vertexKey);
 
         /// <summary>

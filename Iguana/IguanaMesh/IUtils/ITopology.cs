@@ -38,7 +38,7 @@ namespace Iguana.IguanaMesh.IUtils
                         if (eData != 0)
                         {
 
-                            key = (Int32) (eData >> 32);
+                            key = (Int32)(eData >> 32);
 
                             IElement e = iM.Elements.GetElementWithKey(key);
 
@@ -211,9 +211,9 @@ namespace Iguana.IguanaMesh.IUtils
             return naked;
         }
 
-        public List<int[]> GetUniqueEdges()
+        public List<Int64> GetUniqueEdges()
         {
-            List<int[]> edges = new List<int[]>();
+            List<Int64> edges = new List<Int64>();
             IElement element_sibling;
             int elementID_sibling, halfFacetID_sibling;
             Boolean visited;
@@ -224,6 +224,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                 if (!e.Visited)
                 {
+                    int[] hf;
                     if (e.TopologicDimension == 2)
                     {
                         for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
@@ -243,26 +244,41 @@ namespace Iguana.IguanaMesh.IUtils
                                     element_sibling = iM.Elements.GetElementWithKey(elementID_sibling);
 
                                     visited = element_sibling.IsSiblingHalfFacetVisited(halfFacetID_sibling);
-                                    
+
                                     halfFacetID = halfFacetID_sibling;
                                     e = element_sibling;
                                 }
-
-                                int[] hf;
                                 e.GetHalfFacet(halfFacetID, out hf);
-                                edges.Add(hf);
+                                Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
+                                edges.Add(data);
                             }
-                            else if(e.IsNakedSiblingHalfFacet(halfFacetID))
+                            else if (e.IsNakedSiblingHalfFacet(halfFacetID))
                             {
-                                int[] hf;
                                 e.GetHalfFacet(halfFacetID, out hf);
-                                edges.Add(hf);
+                                Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
+                                edges.Add(data);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int next;
+                        Int64 data1, data2;
+                        for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                        {
+                            e.GetHalfFacet(halfFacetID, out hf);
+                            for (int i = 0; i < hf.Length; i++)
+                            {
+                                next = i + 1;
+                                if (i == hf.Length - 1) next = 0;
+                                data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
+                                data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
+                                if (!edges.Contains(data1) && !edges.Contains(data2)) edges.Add(data1);
                             }
                         }
                     }
                 }
             }
-
             iM.Elements.CleanVisits();
             return edges;
         }

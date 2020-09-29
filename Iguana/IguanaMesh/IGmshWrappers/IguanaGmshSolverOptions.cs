@@ -6,57 +6,51 @@ using System.ComponentModel;
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
     public enum MeshSolvers2D { MeshAdapt = 1, Automatic = 2, InitialMeshOnly = 3, Delaunay = 5, TriFrontalDelaunay = 6, BAMG = 7, QuadsFrontalDelaunay = 8, PackingOfParallelograms = 9 }
+    public enum MeshSolvers3D { Delaunay = 1, InitialMeshOnly = 3, Frontal = 4, MMG3D = 7, RTree = 9, HXT = 10 }
 
     public class IguanaGmshSolverOptions
     {
-        private List<double> meshSizes = new List<double>() { 1.0 };
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        ////// SETUP
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
+        #region Setup
+
+        [DefaultValue(true)]
+        public bool Is2D { get; set; }
+
         /// <summary>
         /// 2D mesh algorithm (1: MeshAdapt, 2: Automatic, 3: Initial mesh only, 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads, 9: Packing of Parallelograms). Default value: 6
+        /// </summary>
+        public MeshSolvers2D MeshingAlgorithm { get; set; }
+
+        /// <summary>
         /// 3D mesh algorithm (1: Delaunay, 3: Initial mesh only, 4: Frontal, 7: MMG3D, 9: R-tree, 10: HXT). Default value: 1
         /// </summary>
-        public int MeshingAlgorithm { get; set; }
+        public MeshSolvers2D MeshingAlgorithm3D { get; set; }
 
         /// <summary>
         /// Optimization method (Standard, Netgen, HighOrder, HighOrderElastic, HighOrderFastCurving, Laplace2D, Relocate2D, Relocate3D)
         /// </summary>
         public string OptimizationAlgorithm { get; set; }
 
+        #endregion
+
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        ////// Principal parameters
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+
+        #region Principal Parameters
+
         /// <summary>
         /// Target mesh size at input nodes. If the number of size values is not equal to the number of nodes, the first item of the size value list is assigned to all nodes.
         /// Default favlue is 1.0;
         /// </summary>
-        public List<double> TargetMeshSize {
-            get => meshSizes;
-            set => meshSizes = value;
-        }
-
-        /// <summary>
-        /// Threshold angle below which normals are not smoothed.
-        /// Default value: 30
-        /// </summary>
-        [DefaultValue(30)]
-        public double AngleSmoothNormals { get; set; }
-
-        /// <summary>
-        /// Consider connected facets as overlapping when the dihedral angle between the facets is smaller than the user’s defined tolerance.
-        /// Default value: 0.1
-        /// </summary>
-        [DefaultValue(0.1)]
-        public double AngleToleranceFacetOverlap { get; set; }
-
-        /// <summary>
-        /// Maximum anisotropy of the mesh.
-        /// Default value: 1e+33
-        /// </summary>
-        [DefaultValue(1e33)]
-        public double AnisoMax { get; set; }
-
-        /// <summary>
-        /// Threshold angle (in degrees) between faces normals under which we allow an edge swap.
-        /// Default value: 10
-        /// </summary>
-        [DefaultValue(10)]
-        public double AllowSwapAngle { get; set; }
+        public List<double> TargetMeshSizeAtNodes { get; set; }
 
         /// <summary>
         /// Factor applied to all mesh element sizes.
@@ -99,6 +93,36 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         /// </summary>
         [DefaultValue(false)]
         public double CharacteristicLengthFromParametricPoints { get; set; }
+
+        #endregion
+
+        /// <summary>
+        /// Threshold angle below which normals are not smoothed.
+        /// Default value: 30
+        /// </summary>
+        [DefaultValue(30)]
+        public double AngleSmoothNormals { get; set; }
+
+        /// <summary>
+        /// Consider connected facets as overlapping when the dihedral angle between the facets is smaller than the user’s defined tolerance.
+        /// Default value: 0.1
+        /// </summary>
+        [DefaultValue(0.1)]
+        public double AngleToleranceFacetOverlap { get; set; }
+
+        /// <summary>
+        /// Maximum anisotropy of the mesh.
+        /// Default value: 1e+33
+        /// </summary>
+        [DefaultValue(1e33)]
+        public double AnisoMax { get; set; }
+
+        /// <summary>
+        /// Threshold angle (in degrees) between faces normals under which we allow an edge swap.
+        /// Default value: 10
+        /// </summary>
+        [DefaultValue(10)]
+        public double AllowSwapAngle { get; set; }
 
         /// <summary>
         /// Element order(1: first order elements).
@@ -236,7 +260,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 
         /// <summary>
         /// Mesh recombination algorithm(0: simple, 1: blossom, 2: simple full-quad, 3: blossom full-quad)
-        /// For recombine the current mesh into quadrangles. This operation triggers a synchronization of the CAD model with the internal Gmsh model. 
+        /// For recombine the current mesh into quadrangles. This operation triggers a synchronization of the CAD model with the internal IguanaGmsh model. 
         /// Default value: 1
         /// </summary>
         [DefaultValue(1)]
@@ -366,20 +390,20 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 
         public void ApplyBasicPreProcessing2D()
         {
-            Gmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
-            Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
-            Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);
-            Gmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", CharacteristicLengthMax);
+            IguanaGmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
+            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
+            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);
+            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", CharacteristicLengthMax);
 
             if (CharacteristicLengthFromCurvature)
             {
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
             }
             else
             {
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
-                Gmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
             }
         }
 
@@ -387,19 +411,19 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         {
             if (RecombineAll)
             {
-                Gmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", RecombinationAlgorithm);
-                Gmsh.Model.Mesh.Recombine();
+                IguanaGmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", RecombinationAlgorithm);
+                IguanaGmsh.Model.Mesh.Recombine();
             }
 
             if (Subdivide)
             {
-                Gmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
-                Gmsh.Model.Mesh.Refine();
+                IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
+                IguanaGmsh.Model.Mesh.Refine();
             }
 
             if (Optimize)
             {
-                Gmsh.Model.Mesh.Optimize(OptimizationAlgorithm, Smoothing);
+                IguanaGmsh.Model.Mesh.Optimize(OptimizationAlgorithm, Smoothing);
             }
         }
 

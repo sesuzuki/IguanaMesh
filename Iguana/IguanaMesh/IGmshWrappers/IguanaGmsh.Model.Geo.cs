@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    public static partial class Gmsh
+    public static partial class IguanaGmsh
     {
         public static partial class Model
         {
@@ -29,7 +29,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddPoint(double x, double y, double z, double meshSize = -1, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddPoint(x, y, z, meshSize, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddPoint(x, y, z, meshSize, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -42,7 +42,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddLine(int startTag, int endTag, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddLine(startTag, endTag, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddLine(startTag, endTag, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -60,7 +60,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCircleArc(int startTag, int centerTag, int endTag, int tag = -1, double nx = 0.0, double ny = 0.0, double nz = 0.0)
                 {
-                    return GmshWrappers.GmshModelGeoAddCircleArc(startTag, centerTag, endTag, tag, nx, ny, nz, ref _ierr);
+                    return Wrappers.GmshModelGeoAddCircleArc(startTag, centerTag, endTag, tag, nx, ny, nz, ref _ierr);
                 }
 
                 /// <summary>
@@ -79,7 +79,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddEllipseArc(int startTag, int centerTag, int majorTag, int endTag, int tag = -1, double nx = 0.0, double ny = 0.0, double nz = 0.0)
                 {
-                    return GmshWrappers.GmshModelGeoAddEllipseArc(startTag, centerTag, majorTag, endTag, tag, nx, ny, nz, ref _ierr);
+                    return Wrappers.GmshModelGeoAddEllipseArc(startTag, centerTag, majorTag, endTag, tag, nx, ny, nz, ref _ierr);
                 }
 
                 /// <summary>
@@ -91,7 +91,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCurveLoop(int[] curveTags, int tag=-1)
                 {
-                    int tag_crv = GmshWrappers.GmshModelGeoAddCurveLoop(curveTags, curveTags.Length, tag, ref _ierr);
+                    int tag_crv = Wrappers.GmshModelGeoAddCurveLoop(curveTags, curveTags.Length, tag, ref _ierr);
                     return tag_crv;
                 }
 
@@ -105,7 +105,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddSpline(int[] pointTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddSpline(pointTags, pointTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddSpline(pointTags, pointTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -117,7 +117,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBSpline(int[] pointTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddBSpline(pointTags, pointTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddBSpline(pointTags, pointTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -129,7 +129,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBezier(int[] pointTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddBezier(pointTags, pointTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddBezier(pointTags, pointTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -142,7 +142,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCompoundSpline(int[] curveTags, int numIntervals, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddCompoundSpline(curveTags, curveTags.LongLength, numIntervals, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddCompoundSpline(curveTags, curveTags.LongLength, numIntervals, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -155,7 +155,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCompoundBSpline(int[] curveTags, int numIntervals, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddCompoundBSpline(curveTags, curveTags.LongLength, numIntervals, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddCompoundBSpline(curveTags, curveTags.LongLength, numIntervals, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -166,7 +166,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddPlaneSurface(int[] wireTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddPlaneSurface(wireTags, wireTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddPlaneSurface(wireTags, wireTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -181,7 +181,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddSurfaceFilling(int wireTag, int sphereCenterTag, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddSurfaceFilling(new int[] { wireTag }, 1, tag, sphereCenterTag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddSurfaceFilling(new int[] { wireTag }, 1, tag, sphereCenterTag, ref _ierr);
                 }
 
                 /// <summary>
@@ -193,7 +193,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddSurfaceLoop(int[] surfaceTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddSurfaceLoop(surfaceTags, surfaceTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddSurfaceLoop(surfaceTags, surfaceTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -205,7 +205,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddVolume(int[] shellTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelGeoAddVolume(shellTags, shellTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelGeoAddVolume(shellTags, shellTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -228,7 +228,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    GmshWrappers.GmshModelGeoExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    Wrappers.GmshModelGeoExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
                     outDimTags = null;
                     if (outDimTags_n > 0)
@@ -237,7 +237,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_DimTags);
+                    Wrappers.GmshFree(out_DimTags);
                 }
 
 
@@ -267,7 +267,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    GmshWrappers.GmshModelGeoRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    Wrappers.GmshModelGeoRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
                     outDimTags = null;
                     if (outDimTags_n > 0)
@@ -276,7 +276,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_DimTags);
+                    Wrappers.GmshFree(out_DimTags);
                 }
 
                 /// <summary>
@@ -305,7 +305,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    GmshWrappers.GmshModelGeoTwist(dimTags, dimTags.LongLength, x, y, z, dx, dy, dz, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    Wrappers.GmshModelGeoTwist(dimTags, dimTags.LongLength, x, y, z, dx, dy, dz, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
                     outDimTags = null;
                     if (outDimTags_n > 0)
@@ -314,7 +314,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_DimTags);
+                    Wrappers.GmshFree(out_DimTags);
                 }
 
                 /// <summary>
@@ -327,7 +327,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="coef"></param>
                 public static void SetTransfiniteCurve(int tag, int nPoints, string meshType, double coef)
                 {
-                    GmshWrappers.GmshModelGeoMeshSetTransfiniteCurve(tag, nPoints, meshType, coef, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetTransfiniteCurve(tag, nPoints, meshType, coef, ref _ierr);
                 }
 
                 /// <summary>
@@ -340,7 +340,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// specifying the corners explicitly is mandatory if the surface has more that 3 or 4 points on its boundary.; </param>
                 public static void SetTransfiniteSurface(int tag, string arrangement, int[] cornerTags)
                 {
-                    GmshWrappers.GmshModelGeoMeshSetTransfiniteSurface(tag, arrangement, cornerTags, cornerTags.LongLength, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetTransfiniteSurface(tag, arrangement, cornerTags, cornerTags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -350,7 +350,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="cornerTags"> `cornerTags' can be used to specify the(6 or 8) corners of the transfinite interpolation explicitly.  </param>
                 public static void SetTransfiniteVolume(int tag, int[] cornerTags, ref int ierr)
                 {
-                    GmshWrappers.GmshModelGeoMeshSetTransfiniteVolume(tag, cornerTags, cornerTags.LongLength, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetTransfiniteVolume(tag, cornerTags, cornerTags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -362,7 +362,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="angle"></param>
                 public static void SetRecombine(int dim, int tag, double angle)
                 {
-                    GmshWrappers.GmshModelGeoMeshSetRecombine(dim, tag, angle, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetRecombine(dim, tag, angle, ref _ierr);
                 }
 
                 /// <summary>
@@ -373,7 +373,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="val"> `val' iterations of a Laplace smoother are applied. </param>
                 public static void SetSmoothing(int dim, int tag, int val)
                 {
-                    GmshWrappers.GmshModelGeoMeshSetSmoothing(dim, tag, val, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetSmoothing(dim, tag, val, ref _ierr);
                 }
 
                 /// <summary>
@@ -384,7 +384,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="val"> If `val' is true, the mesh orientation will be reversed with respect to the natural mesh orientation(i.e.the orientation consistent with the orientation of the geometry).
                 /// If `val' is false, the mesh is left as-is. </param>
                 public static void SetReverse(int dim, int tag, bool val) {
-                    GmshWrappers.GmshModelGeoMeshSetReverse(dim, tag, Convert.ToInt32(val), ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetReverse(dim, tag, Convert.ToInt32(val), ref _ierr);
                 }
 
                 /// <summary>
@@ -395,7 +395,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 /// <param name="val"></param>
                 public static void SetAlgorithm(int dim, int tag, int val) {
-                    GmshWrappers.GmshModelGeoMeshSetAlgorithm(dim, tag, val, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetAlgorithm(dim, tag, val, ref _ierr);
                 }
 
                 /// <summary>
@@ -406,16 +406,16 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="tag"></param>
                 /// <param name="val"></param>
                 public static void SetSizeFromBoundary(int dim, int tag, int val) {
-                    GmshWrappers.GmshModelGeoMeshSetSizeFromBoundary(dim, tag, val, ref _ierr);
+                    Wrappers.GmshModelGeoMeshSetSizeFromBoundary(dim, tag, val, ref _ierr);
                 }
 
                 /// <summary>
-                /// Synchronize the built-in CAD representation with the current Gmsh model.
+                /// Synchronize the built-in CAD representation with the current IguanaGmsh model.
                 /// This can be called at any time, but since it involves a non trivial amount of processing, the number of synchronization points should normally be minimized.
                 /// </summary>
                 public static void Synchronize()
                 {
-                    GmshWrappers.GmshModelGeoSynchronize(ref _ierr);
+                    Wrappers.GmshModelGeoSynchronize(ref _ierr);
                 }
 
             }

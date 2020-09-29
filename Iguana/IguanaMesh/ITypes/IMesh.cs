@@ -385,26 +385,6 @@ namespace Iguana.IguanaMesh.ITypes
                             }
                         }
                     }
-
-                    /*for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
-                    {
-                        //Vertices of the facet
-                        int[] hf;
-                        e.GetHalfFacet(halfFacetID, out hf);
-                        Int64 sibData = (Int64)elementID << 32 | (Int64)halfFacetID;
-
-                        foreach (int vKey in hf)
-                        {
-                            v = Vertices.GetVertexWithKey(vKey);
-
-                            if (v.V2HF == 0 || e.GetSiblingHalfFacet(halfFacetID) == 0)
-                            {
-                                v.SetV2HF(sibData);
-                                Vertices.SetVertex(vKey, v);
-                            }
-                        }
-
-                    }*/
                 }
             }
             catch (Exception) { flag = false; }

@@ -16,62 +16,62 @@ namespace IguanaClient
     {
         static void Main(string[] args)
         {
-            const double lc = 0.5;
+            /*const double lc = 0.5;
 
-            Gmsh.Initialize();
+            IguanaGmsh.Initialize();
 
-            Gmsh.Option.SetNumber("General.Terminal", 1);
+            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
 
-            Gmsh.Model.Add("t1");
+            IguanaGmsh.Model.Add("t1");
 
-            Gmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
-            Gmsh.Model.Geo.AddPoint(1, 0, 0, lc, 2);
-            Gmsh.Model.Geo.AddPoint(1, 3, 0, lc, 3);
-            Gmsh.Model.Geo.AddPoint(0, 3, 0, lc, 4);
+            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
+            IguanaGmsh.Model.Geo.AddPoint(1, 0, 0, lc, 2);
+            IguanaGmsh.Model.Geo.AddPoint(1, 3, 0, lc, 3);
+            IguanaGmsh.Model.Geo.AddPoint(0, 3, 0, lc, 4);
 
-            Gmsh.Model.Geo.AddLine(1, 2, 1);
-            Gmsh.Model.Geo.AddLine(3, 2, 2);
-            Gmsh.Model.Geo.AddLine(3, 4, 3);
-            Gmsh.Model.Geo.AddLine(4, 1, 4);
+            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
+            IguanaGmsh.Model.Geo.AddLine(3, 2, 2);
+            IguanaGmsh.Model.Geo.AddLine(3, 4, 3);
+            IguanaGmsh.Model.Geo.AddLine(4, 1, 4);
 
-            Gmsh.Model.Geo.AddCurveLoop(new int[] { 4, 1, -2, 3 }, 1);
+            IguanaGmsh.Model.Geo.AddCurveLoop(new int[] { 4, 1, -2, 3 }, 1);
 
-            Gmsh.Model.Geo.AddPlaneSurface(new int[] { 1 }, 1);
+            IguanaGmsh.Model.Geo.AddPlaneSurface(new int[] { 1 }, 1);
 
-            Gmsh.Model.AddPhysicalGroup(2, new int[] { 1 }, 1);
+            IguanaGmsh.Model.AddPhysicalGroup(2, new int[] { 1 }, 1);
 
-            Gmsh.Model.SetPhysicalName(2, 1, "My surface");
+            IguanaGmsh.Model.SetPhysicalName(2, 1, "My surface");
 
-            Gmsh.Model.Geo.Synchronize();
+            IguanaGmsh.Model.Geo.Synchronize();
 
-            Gmsh.Model.Mesh.Generate(2);
+            IguanaGmsh.Model.Mesh.Generate(2);
 
-            Gmsh.FinalizeGmsh();
+            IguanaGmsh.FinalizeGmsh();*/
 
-            /*Gmsh.Initialize();
-            Gmsh.Option.SetNumber("General.Terminal", 1);
+            /*IguanaGmsh.Initialize();
+            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
 
-            Gmsh.Model.Add("t3");
+            IguanaGmsh.Model.Add("t3");
 
-            Gmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
-            Gmsh.Model.Geo.AddPoint(1, 0, 0, lc, 2);
-            Gmsh.Model.Geo.AddPoint(1, 3, 0, lc, 3);
-            Gmsh.Model.Geo.AddPoint(0, 3, 0, lc, 4);
+            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
+            IguanaGmsh.Model.Geo.AddPoint(1, 0, 0, lc, 2);
+            IguanaGmsh.Model.Geo.AddPoint(1, 3, 0, lc, 3);
+            IguanaGmsh.Model.Geo.AddPoint(0, 3, 0, lc, 4);
 
-            Gmsh.Model.Geo.AddLine(1, 2, 1);
-            Gmsh.Model.Geo.AddLine(3, 2, 2);
-            Gmsh.Model.Geo.AddLine(3, 4, 3);
-            Gmsh.Model.Geo.AddLine(4, 1, 4);
+            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
+            IguanaGmsh.Model.Geo.AddLine(3, 2, 2);
+            IguanaGmsh.Model.Geo.AddLine(3, 4, 3);
+            IguanaGmsh.Model.Geo.AddLine(4, 1, 4);
 
-            Gmsh.Model.Geo.AddCurveLoop(new int[] { 4, 1, -2, 3 }, 1);
+            IguanaGmsh.Model.Geo.AddCurveLoop(new int[] { 4, 1, -2, 3 }, 1);
 
-            Gmsh.Model.Geo.AddPlaneSurface(new int[] { 1 }, 1);
+            IguanaGmsh.Model.Geo.AddPlaneSurface(new int[] { 1 }, 1);
 
-            Gmsh.Model.AddPhysicalGroup(1, new int[] { 1,2,3,4 }, 5);
+            IguanaGmsh.Model.AddPhysicalGroup(1, new int[] { 1,2,3,4 }, 5);
 
-            int ps = Gmsh.Model.AddPhysicalGroup(2, new int[] { 1 });
+            int ps = IguanaGmsh.Model.AddPhysicalGroup(2, new int[] { 1 });
 
-            Gmsh.Model.SetPhysicalName(2, ps, "My surface");
+            IguanaGmsh.Model.SetPhysicalName(2, ps, "My surface");
 
             // As in `t2.cpp', we plan to perform an extrusion along the z axis.  But
             // here, instead of only extruding the geometry, we also want to extrude the
@@ -83,14 +83,14 @@ namespace IguanaClient
 
             double h = 0.1, angle = 90;
             int[] ov;
-            Gmsh.Model.Geo.Extrude(new[] { 2, 1 }, 0, 0, h, out ov, new int[]{8,2}, new double[]{ 0.5, 1}, true);
+            IguanaGmsh.Model.Geo.Extrude(new[] { 2, 1 }, 0, 0, h, out ov, new int[]{8,2}, new double[]{ 0.5, 1}, true);
 
             // The extrusion can also be performed with a rotation instead of a
             // translation, and the resulting mesh can be recombined into prisms (we use
             // only one layer here, with 7 subdivisions). All rotations are specified by
             // an an axis point (-0.1, 0, 0.1), an axis direction (0, 1, 0), and a
             // rotation angle (-Pi/2):
-            Gmsh.Model.Geo.Revolve(new[] {2, 28}, -0.1, 0, 0.1, 0, 1, 0, -Math.PI / 2, out ov, new int[]{7});
+            IguanaGmsh.Model.Geo.Revolve(new[] {2, 28}, -0.1, 0, 0.1, 0, 1, 0, -Math.PI / 2, out ov, new int[]{7});
 
             // Using the built-in geometry kernel, only rotations with angles < Pi are
             // supported. To do a full turn, you will thus need to apply at least 3
@@ -100,9 +100,9 @@ namespace IguanaClient
             // can also be combined to form a "twist".  The last (optional) argument for
             // the extrude() and twist() functions specifies whether the extruded mesh
             // should be recombined or not.
-            Gmsh.Model.Geo.Twist(new[]{2, 50}, 0, 0.15, 0.25, -2 * h, 0, 0, 1, 0, 0, angle* Math.PI / 180, out ov, new int[]{10}, default , true);
+            IguanaGmsh.Model.Geo.Twist(new[]{2, 50}, 0, 0.15, 0.25, -2 * h, 0, 0, 1, 0, 0, angle* Math.PI / 180, out ov, new int[]{10}, default , true);
 
-            Gmsh.Model.Geo.Synchronize();
+            IguanaGmsh.Model.Geo.Synchronize();
 
             // All the extrusion functions return a vector of extruded entities: the "top"
             // of the extruded surface (in `ov[0]'), the newly created volume (in `ov[1]')
@@ -110,16 +110,23 @@ namespace IguanaClient
 
             // We can then define a new physical volume (with tag 101) to group all the
             // elementary volumes:
-            Gmsh.Model.AddPhysicalGroup(3, new int[] { 1, 2, ov[3]}, 101);
+            IguanaGmsh.Model.AddPhysicalGroup(3, new int[] { 1, 2, ov[3]}, 101);
 
-            Gmsh.Model.Mesh.Generate(3);
-            //Gmsh.Write("t3.msh");
+            IguanaGmsh.Model.Mesh.Generate(3);
+            //IguanaGmsh.Write("t3.msh");
 
-            var element = Gmsh.Model.Mesh.TryGetIElementCollection();
+            var element = IguanaGmsh.Model.Mesh.TryGetIElementCollection();
 
 
-            Gmsh.FinalizeGmsh();*/
+            IguanaGmsh.FinalizeGmsh();*/
 
+            int elementID = 10;
+            int halfFacetID = 89;
+
+            Int64 sibData1 = (Int64)elementID << 32 | (Int64)halfFacetID;
+            Int64 sibData2 = (Int64)halfFacetID << 32 | (Int64)elementID;
+
+            Console.WriteLine(sibData1 + " ::  " + sibData2);
 
             Console.ReadLine();
         }

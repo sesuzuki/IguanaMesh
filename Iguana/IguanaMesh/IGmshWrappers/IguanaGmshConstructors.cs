@@ -23,7 +23,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             for (int i = 0; i < pts.Count - 1; i++)
             {
                 p1 = pts[i];
-                curvePts[i] = Gmsh.Model.GeoOCC.AddPoint(p1.X, p1.Y, p1.Z);
+                curvePts[i] = IguanaGmsh.Model.GeoOCC.AddPoint(p1.X, p1.Y, p1.Z);
                 weightPts[i] = pts.GetWeight(i);
             }
             weightPts[pts.Count - 1] = weightPts[0];
@@ -38,16 +38,16 @@ namespace Iguana.IguanaMesh.IGmshWrappers
             for (int i = 0; i < patchs.Count; i++)
             {
                 p2 = patchs[i];
-                patchPts[i] = Gmsh.Model.GeoOCC.AddPoint(p2.X, p2.Y, p2.Z);
+                patchPts[i] = IguanaGmsh.Model.GeoOCC.AddPoint(p2.X, p2.Y, p2.Z);
             }
 
             // 3._ Build OCC Geometry
-            int occCurve = Gmsh.Model.GeoOCC.AddBSpline(curvePts, crv.Degree, weightPts);
-            int occWire = Gmsh.Model.GeoOCC.AddWire(new int[] { occCurve });
-            int surfaceTag = Gmsh.Model.GeoOCC.AddSurfaceFilling(occWire, patchPts);
+            int occCurve = IguanaGmsh.Model.GeoOCC.AddBSpline(curvePts, crv.Degree, weightPts);
+            int occWire = IguanaGmsh.Model.GeoOCC.AddWire(new int[] { occCurve });
+            int surfaceTag = IguanaGmsh.Model.GeoOCC.AddSurfaceFilling(occWire, patchPts);
 
             // 5._ Synchronize model
-            if(synchronize) Gmsh.Model.GeoOCC.Synchronize();
+            if(synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
 
             return surfaceTag;
         }
@@ -66,13 +66,13 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     data = constraints.GetConstraint(i);
                     p = data.Item1;
-                    embedPts[i] = Gmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Item2);
+                    embedPts[i] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Item2);
                     vertices.AddVertex(embedPts[i], new ITopologicVertex(p.X, p.Y, p.Z));
                 }
 
-                if(synchronize) Gmsh.Model.GeoOCC.Synchronize();
+                if(synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
 
-                Gmsh.Model.Mesh.Embed(0, embedPts, 2, surfaceTag);
+                IguanaGmsh.Model.Mesh.Embed(0, embedPts, 2, surfaceTag);
             }
         }
     }

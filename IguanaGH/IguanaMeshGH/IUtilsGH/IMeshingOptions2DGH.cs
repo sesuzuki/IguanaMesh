@@ -74,8 +74,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetData(9, ref smoothingStep);
             DA.GetData(10, ref subD);
 
-            solverOpt.MeshingAlgorithm = (int)solver;
-            solverOpt.TargetMeshSize = sizes;
+            solverOpt.MeshingAlgorithm = solver;
+            solverOpt.TargetMeshSizeAtNodes = sizes;
             solverOpt.CharacteristicLengthFactor = sizeFactor;
             solverOpt.CharacteristicLengthMin = minSize;
             solverOpt.CharacteristicLengthMax = maxSize;

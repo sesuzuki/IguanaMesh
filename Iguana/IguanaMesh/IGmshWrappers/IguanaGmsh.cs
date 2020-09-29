@@ -3,18 +3,18 @@ using System.Runtime.InteropServices;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    public static partial class Gmsh
+    public static partial class IguanaGmsh
     {
         internal static int _ierr = 0;
 
 
         /// <summary>
-        /// Initialize Gmsh. This must be called before any call to the other functions in the API.
+        /// Initialize IguanaGmsh. This must be called before any call to the other functions in the API.
         /// </summary>
         public static void Initialize()
         {
             IntPtr argv = IntPtr.Zero;
-            GmshWrappers.GmshInitialize(0, ref argv, Convert.ToInt32(true), ref _ierr);
+            Wrappers.GmshInitialize(0, ref argv, Convert.ToInt32(true), ref _ierr);
             Marshal.FreeCoTaskMem(argv);
         }
 
@@ -24,7 +24,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         /// <param name="ptr"> Pointer</param>
         public static void Free(IntPtr ptr)
         {
-            GmshWrappers.GmshFree(ptr);
+            Wrappers.GmshFree(ptr);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         /// </summary>
         public static void FinalizeGmsh()
         {
-            GmshWrappers.GmshFinalize(ref _ierr);
+            Wrappers.GmshFinalize(ref _ierr);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         /// <param name="fileName"></param>
         public static void Open(string fileName)
         {
-            GmshWrappers.GmshOpen(fileName, ref _ierr);
+            Wrappers.GmshOpen(fileName, ref _ierr);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         /// <param name="fileName"> Name of the file </param>
         public static void Write(string fileName)
         {
-            GmshWrappers.GmshWrite(fileName, ref _ierr);
+            Wrappers.GmshWrite(fileName, ref _ierr);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
         /// </summary>
         public static void Clear()
         {
-            GmshWrappers.GmshClear(ref _ierr);
+            Wrappers.GmshClear(ref _ierr);
         }
 
 
@@ -67,26 +67,26 @@ namespace Iguana.IguanaMesh.IGmshWrappers
 
             /// <summary>
             /// Set a numerical option to `value'. `name' is of the form "category.option" or "category[num].option". 
-            /// Available categories and options are listed in the Gmsh reference manual.
-            /// By default Gmsh will not print out any messages: in order to output messages on the terminal, just set the "General.Terminal" option to 1:
+            /// Available categories and options are listed in the IguanaGmsh reference manual.
+            /// By default IguanaGmsh will not print out any messages: in order to output messages on the terminal, just set the "General.Terminal" option to 1:
             /// </summary>
             /// <param name="name"></param>
             /// <param name="value"></param>
             public static void SetNumber(string name, double value)
             {
-                GmshWrappers.GmshOptionSetNumber(name, value, ref _ierr);
+                Wrappers.GmshOptionSetNumber(name, value, ref _ierr);
             }
 
             /// <summary>
             /// Get the `value' of a numerical option. 
             /// </summary>
-            /// <param name="name"> `name' is of the form "category.option" or "category[num].option". Available categories and options are listed in the Gmsh reference manual. </param>
+            /// <param name="name"> `name' is of the form "category.option" or "category[num].option". Available categories and options are listed in the IguanaGmsh reference manual. </param>
             /// <returns></returns>
             public static double GetNumber(string name)
             {
                 IntPtr ptr = new IntPtr(0);
-                GmshWrappers.GmshOptionGetNumber(name, ptr, ref _ierr);
-                double val = GmshWrappers.IntPtrToDouble(ptr);
+                Wrappers.GmshOptionGetNumber(name, ptr, ref _ierr);
+                double val = Wrappers.IntPtrToDouble(ptr);
                 Marshal.FreeCoTaskMem(ptr);
                 return val;
             }

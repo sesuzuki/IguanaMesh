@@ -35,7 +35,7 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iElements as BReps.", "B", "Three-dimensional elements as BReps", GH_ParamAccess.tree);
+            pManager.AddGenericParameter("iElements as BReps.", "B", "Three-dimensional elements as BReps", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -47,20 +47,7 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
             IMesh mesh = null;
             DA.GetData(0, ref mesh);
 
-            List<Brep> solids = IRhinoGeometry.GetSolidsAsBrep(mesh);
-
-            /*GH_Structure<GH_Curve> solids = new GH_Structure<GH_Curve>();
-            Dictionary<int, List<PolylineCurve>> crv = IRhinoGeometry.GetSolidsAsPoly(mesh);
-            foreach(int k in crv.Keys)
-            {
-                GH_Path path = new GH_Path(k);
-                foreach(PolylineCurve poly in crv[k])
-                {
-                    GH_Curve c = new GH_Curve(poly);
-
-                    solids.Append(c, path);
-                }
-            }*/
+            List<Brep> solids = IRhinoGeometry.Get3DElementsAsBrep(mesh);
 
             DA.SetDataList(0, solids);
         }

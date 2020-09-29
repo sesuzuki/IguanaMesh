@@ -56,13 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IguanaMesh\IGmshWrappers\Gmsh.Model.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\Gmsh.Model.Geo.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\Gmsh.Model.GeoOCC.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\Gmsh.Model.Mesh.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\Gmsh.Option.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.Geo.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.GeoOCC.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.Mesh.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshConstraintCollector.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\GmshWrappers.cs" />
+    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Wrappers.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshElementType.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshSolverOptions.cs" />
     <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshConstructors.cs" />

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    public static partial class Gmsh
+    public static partial class IguanaGmsh
     {
         public static partial class Model
         {
@@ -26,7 +26,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddPoint(double x, double y, double z, double meshSize = -1, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddPoint(x, y, z, meshSize, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddPoint(x, y, z, meshSize, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -38,7 +38,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddLine(int startTag, int endTag, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddLine(startTag, endTag, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddLine(startTag, endTag, tag, ref _ierr);
 
                 }
 
@@ -53,7 +53,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCircleArc(int startTag, int centerTag, int endTag, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddCircleArc(startTag, centerTag, endTag, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddCircleArc(startTag, centerTag, endTag, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -71,7 +71,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCircleArc(double x, double y, double z, double r, double angle1 = -1, double angle2 = -1, int tag = -1)
                 {
-                    return GmshWrappers.gmshModelOccAddCircle(x, y, z, r, tag, angle1, angle2, ref _ierr);
+                    return Wrappers.gmshModelOccAddCircle(x, y, z, r, tag, angle1, angle2, ref _ierr);
                 }
 
                 /// <summary>
@@ -87,7 +87,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddEllipseArc(int startTag, int centerTag, int majorTag, int endTag, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddEllipseArc(startTag, centerTag, majorTag, endTag, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddEllipseArc(startTag, centerTag, majorTag, endTag, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -107,7 +107,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddEllipse(double x, double y, double z, double r1, double r2, double angle1 = -1, double angle2 = -1, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddEllipse(x, y, z, r1, r2, tag, angle1, angle2, ref _ierr);
+                    return Wrappers.GmshModelOccAddEllipse(x, y, z, r1, r2, tag, angle1, angle2, ref _ierr);
                 }
 
                 /// <summary>
@@ -120,7 +120,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddSpline(int[] pointTags, int tag = -1)
                 {
-                    return GmshWrappers.gmshModelOccAddSpline(pointTags, pointTags.LongLength, tag, ref _ierr);
+                    return Wrappers.gmshModelOccAddSpline(pointTags, pointTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -141,7 +141,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (weights == default) weights = new double[0];
                     if (knots == default) knots = new double[0];
                     if (multiplicities == default) multiplicities = new int[0];
-                    return GmshWrappers.GmshModelOccAddBSpline(pointTags, pointTags.LongLength, tag, degree, weights, weights.LongLength, knots, knots.LongLength, multiplicities, multiplicities.LongLength, ref _ierr);
+                    return Wrappers.GmshModelOccAddBSpline(pointTags, pointTags.LongLength, tag, degree, weights, weights.LongLength, knots, knots.LongLength, multiplicities, multiplicities.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -153,7 +153,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBezier(int[] pointTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddBezier(pointTags, pointTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddBezier(pointTags, pointTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -167,7 +167,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddWire(int[] curveTags, bool checkClosed = false, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddWire(curveTags, curveTags.LongLength, tag, Convert.ToInt32(checkClosed), ref _ierr);
+                    return Wrappers.GmshModelOccAddWire(curveTags, curveTags.LongLength, tag, Convert.ToInt32(checkClosed), ref _ierr);
                 }
 
                 /// <summary>
@@ -180,7 +180,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCurveLoop(int[] curveTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddCurveLoop(curveTags, curveTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddCurveLoop(curveTags, curveTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -197,7 +197,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddRectangle(double x, double y, double z, double dx, double dy, int tag = -1, double roundedRadius = 0)
                 {
-                    return GmshWrappers.GmshModelOccAddRectangle(x, y, z, dx, dy, tag, roundedRadius, ref _ierr);
+                    return Wrappers.GmshModelOccAddRectangle(x, y, z, dx, dy, tag, roundedRadius, ref _ierr);
                 }
 
                 /// <summary>
@@ -213,7 +213,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddDisk(double xc, double yc, double zc, double rx, double ry, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddDisk(xc, yc, zc, rx, ry, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddDisk(xc, yc, zc, rx, ry, tag, ref _ierr);
                 }
 
 
@@ -226,7 +226,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddPlaneSurface(int[] wireTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddPlaneSurface(wireTags, wireTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddPlaneSurface(wireTags, wireTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -240,7 +240,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 public static int AddSurfaceFilling(int wireTag, int[] pointTags = default, int tag = -1)
                 {
                     if (pointTags == default) pointTags = new int[0];
-                    return GmshWrappers.GmshModelOccAddSurfaceFilling(wireTag, tag, pointTags, pointTags.LongLength, ref _ierr);
+                    return Wrappers.GmshModelOccAddSurfaceFilling(wireTag, tag, pointTags, pointTags.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -254,7 +254,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBSplineFilling(int wireTag, string type = "Curved", int tag=-1)
                 {
-                    return GmshWrappers.GmshModelOccAddBSplineFilling(wireTag, tag, type, ref _ierr);
+                    return Wrappers.GmshModelOccAddBSplineFilling(wireTag, tag, type, ref _ierr);
                 }
 
                 /// <summary>
@@ -268,7 +268,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBezierFilling(int wireTag, string type = "Curved", int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddBezierFilling(wireTag, tag, type, ref _ierr);
+                    return Wrappers.GmshModelOccAddBezierFilling(wireTag, tag, type, ref _ierr);
                 }
 
                 /// <summary>
@@ -294,7 +294,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (knotsV == default) knotsV = new double[0];
                     if (multiplicitiesU == default) multiplicitiesU = new int[0];
                     if (multiplicitiesV == default) multiplicitiesV = new int[0];
-                    return GmshWrappers.GmshModelOccAddBSplineSurface(pointTags, pointTags.LongLength, numPointsU, tag, degreeU, degreeV, weights, weights.LongLength, knotsU, knotsU.LongLength, knotsV, knotsV.LongLength, multiplicitiesU, multiplicitiesU.LongLength, multiplicitiesV, multiplicitiesV.LongLength, ref _ierr);
+                    return Wrappers.GmshModelOccAddBSplineSurface(pointTags, pointTags.LongLength, numPointsU, tag, degreeU, degreeV, weights, weights.LongLength, knotsU, knotsU.LongLength, knotsV, knotsV.LongLength, multiplicitiesU, multiplicitiesU.LongLength, multiplicitiesV, multiplicitiesV.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -307,7 +307,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBezierSurface(int[] pointTags, int numPointsU, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddBezierSurface(pointTags, pointTags.LongLength, numPointsU, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddBezierSurface(pointTags, pointTags.LongLength, numPointsU, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -320,7 +320,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddSurfaceLoop(int[] surfaceTags, bool sewing = false, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddSurfaceLoop(surfaceTags, surfaceTags.LongLength, tag, Convert.ToInt32(sewing), ref _ierr);
+                    return Wrappers.GmshModelOccAddSurfaceLoop(surfaceTags, surfaceTags.LongLength, tag, Convert.ToInt32(sewing), ref _ierr);
                 }
 
                 /// <summary>
@@ -332,7 +332,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddVolume(int[] shellTags, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddVolume(shellTags, shellTags.LongLength, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddVolume(shellTags, shellTags.LongLength, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -352,7 +352,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddSphere(double xc, double yc, double zc, double radius, double angle1 = -1, double angle2 = -1, double angle3 = -1, int tag=-1)
                 {
-                    return GmshWrappers.GmshModelOccAddSphere(xc, yc, zc, radius, tag, angle1, angle2, angle3, ref _ierr);
+                    return Wrappers.GmshModelOccAddSphere(xc, yc, zc, radius, tag, angle1, angle2, angle3, ref _ierr);
                 }
 
 
@@ -370,7 +370,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddBox(double x, double y, double z, double dx, double dy, double dz, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddBox(x, y, z, dx, dy, dz, tag, ref _ierr);
+                    return Wrappers.GmshModelOccAddBox(x, y, z, dx, dy, dz, tag, ref _ierr);
                 }
 
                 /// <summary>
@@ -391,7 +391,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCylinder(double x, double y, double z, double dx, double dy, double dz, double r, double angle = -1, int tag =-1)
                 {
-                    return GmshWrappers.GmshModelOccAddCylinder(x, y, z, dx, dy, dz, r, tag, angle, ref _ierr);
+                    return Wrappers.GmshModelOccAddCylinder(x, y, z, dx, dy, dz, r, tag, angle, ref _ierr);
                 }
 
                 /// <summary>
@@ -413,7 +413,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddCone(double x, double y, double z, double dx, double dy, double dz, double r1, double r2, double angle = -1, int tag =-1)
                 {
-                    return GmshWrappers.GmshModelOccAddCone(x, y, z, dx, dy, dz, r1, r2, tag, angle, ref _ierr);
+                    return Wrappers.GmshModelOccAddCone(x, y, z, dx, dy, dz, r1, r2, tag, angle, ref _ierr);
                 }
 
                 /// <summary>
@@ -432,7 +432,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddWedge(double x, double y, double z, double dx, double dy, double dz, double ltx = -1, int tag =-1)
                 {
-                    return GmshWrappers.GmshModelOccAddWedge(x, y, z, dx, dy, dz, tag, ltx, ref _ierr);
+                    return Wrappers.GmshModelOccAddWedge(x, y, z, dx, dy, dz, tag, ltx, ref _ierr);
                 }
 
                 /// <summary>
@@ -449,7 +449,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <returns></returns>
                 public static int AddTorus(double x, double y, double z, double r1, double r2, double angle = -1, int tag = -1)
                 {
-                    return GmshWrappers.GmshModelOccAddTorus(x, y, z, r1, r2, tag, angle, ref _ierr);
+                    return Wrappers.GmshModelOccAddTorus(x, y, z, r1, r2, tag, angle, ref _ierr);
                 }
 
                 /* Add a volume (if the optional argument `makeSolid' is set) or surfaces
@@ -470,7 +470,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr dimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccAddThruSections(wireTags, wireTags.LongLength, out dimTags, out outDimTags_n, tag, Convert.ToInt32(makeSolid), Convert.ToInt32(makeRuled), maxDegree, ref _ierr);
+                    Wrappers.GmshModelOccAddThruSections(wireTags, wireTags.LongLength, out dimTags, out outDimTags_n, tag, Convert.ToInt32(makeSolid), Convert.ToInt32(makeRuled), maxDegree, ref _ierr);
 
                     outDimTags = null;
                     if (outDimTags_n > 0)
@@ -479,7 +479,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(dimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(dimTags);
+                    Wrappers.GmshFree(dimTags);
                 }
 
                 /// <summary>
@@ -495,7 +495,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr dimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccAddThickSolid(volumeTag, excludeSurfaceTags, excludeSurfaceTags.LongLength, offset, out dimTags, out outDimTags_n, tag, ref _ierr);
+                    Wrappers.GmshModelOccAddThickSolid(volumeTag, excludeSurfaceTags, excludeSurfaceTags.LongLength, offset, out dimTags, out outDimTags_n, tag, ref _ierr);
 
                     outDimTags = null;
                     if (outDimTags_n > 0)
@@ -503,7 +503,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         outDimTags = new int[outDimTags_n];
                         Marshal.Copy(dimTags, outDimTags, 0, (int)outDimTags_n);
                     }
-                    GmshWrappers.GmshFree(dimTags);
+                    Wrappers.GmshFree(dimTags);
                 }
 
                 /// <summary>
@@ -526,7 +526,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (heights == default) heights = new double[0];
 
 
-                    GmshWrappers.GmshModelOccExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    Wrappers.GmshModelOccExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
@@ -534,7 +534,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_DimTags);
+                    Wrappers.GmshFree(out_DimTags);
                 }
 
                 /// <summary>
@@ -542,7 +542,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// </summary>
                 public static void RemoveAllDuplicates()
                 {
-                    GmshWrappers.GmshModelOccRemoveAllDuplicates(ref _ierr);
+                    Wrappers.GmshModelOccRemoveAllDuplicates(ref _ierr);
                 }
 
 
@@ -573,7 +573,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    GmshWrappers.GmshModelOccRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    Wrappers.GmshModelOccRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
@@ -581,7 +581,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_DimTags);
+                    Wrappers.GmshFree(out_DimTags);
                 }
 
                 /// <summary>
@@ -595,7 +595,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr out_dimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccAddPipe(dimTags, dimTags.LongLength, wireTag, out out_dimTags, out outDimTags_n, ref _ierr);
+                    Wrappers.GmshModelOccAddPipe(dimTags, dimTags.LongLength, wireTag, out out_dimTags, out outDimTags_n, ref _ierr);
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
@@ -603,7 +603,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_dimTags);
+                    Wrappers.GmshFree(out_dimTags);
                 }
                 /* Fillet the volumes `volumeTags' on the curves `curveTags' with radii
                  * `radii'. The `radii' vector can either contain a single radius, as many
@@ -615,7 +615,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr out_dimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccFillet(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, radii, radii.LongLength, out out_dimTags, out outDimTags_n, removeVolume, ref _ierr);
+                    Wrappers.GmshModelOccFillet(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, radii, radii.LongLength, out out_dimTags, out outDimTags_n, removeVolume, ref _ierr);
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
@@ -623,7 +623,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_dimTags);
+                    Wrappers.GmshFree(out_dimTags);
                 }
 
                 /// <summary>
@@ -643,7 +643,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr out_dimTags;
                     long outDimTags_n;
-                    GmshWrappers.GmshModelOccChamfer(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, surfaceTags, surfaceTags.LongLength, distances, distances.LongLength, out out_dimTags, out outDimTags_n, Convert.ToInt32(removeVolume), ref _ierr);
+                    Wrappers.GmshModelOccChamfer(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, surfaceTags, surfaceTags.LongLength, distances, distances.LongLength, out out_dimTags, out outDimTags_n, Convert.ToInt32(removeVolume), ref _ierr);
 
                     outDimTags = null;
                     if (outDimTags_n > 0)
@@ -652,7 +652,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(out_dimTags);
+                    Wrappers.GmshFree(out_dimTags);
                 }
 
                 /// <summary>
@@ -665,15 +665,15 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 /// <param name="z"></param>
                 public static void GetCenterOfMass(int dim, int tag, out double x, out double y, out double z)
                 {
-                    GmshWrappers.GmshModelOccGetCenterOfMass(dim, tag, out x, out y, out z, ref _ierr);
+                    Wrappers.GmshModelOccGetCenterOfMass(dim, tag, out x, out y, out z, ref _ierr);
                 }
 
                 /// <summary>
-                /// Synchronize the OpenCASCADE CAD representation with the current Gmsh model.
+                /// Synchronize the OpenCASCADE CAD representation with the current IguanaGmsh model.
                 /// This can be called at any time, but since it involves a non trivial amount of processing, the number of synchronization points should normally be minimized.
                 /// </summary>
                 public static void Synchronize() {
-                    GmshWrappers.GmshModelOccSynchronize(ref _ierr);
+                    Wrappers.GmshModelOccSynchronize(ref _ierr);
                 }
 
                 /// <summary>
@@ -693,7 +693,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
-                    GmshWrappers.GmshModelOccFuse(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    Wrappers.GmshModelOccFuse(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
 
                     outDimTags_out = null;
                     if (outDimTags_n > 0)
@@ -702,9 +702,9 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(outDimTags);
-                    GmshWrappers.GmshFree(outDimTagsMap);
-                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                    Wrappers.GmshFree(outDimTags);
+                    Wrappers.GmshFree(outDimTagsMap);
+                    Wrappers.GmshFree(outDimTagsMap_n);
                 }
 
                 /// <summary>
@@ -724,7 +724,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
-                    GmshWrappers.GmshModelOccIntersect(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    Wrappers.GmshModelOccIntersect(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
                     outDimTags_out = null;
                     if (outDimTags_n > 0)
                     {
@@ -732,9 +732,9 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(outDimTags);
-                    GmshWrappers.GmshFree(outDimTagsMap);
-                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                    Wrappers.GmshFree(outDimTags);
+                    Wrappers.GmshFree(outDimTagsMap);
+                    Wrappers.GmshFree(outDimTagsMap_n);
                 }
 
                 /// <summary>
@@ -754,7 +754,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
-                    GmshWrappers.GmshModelOccCut(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    Wrappers.GmshModelOccCut(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
                     outDimTags_out = null;
                     if (outDimTags_n > 0)
                     {
@@ -762,9 +762,9 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(outDimTags);
-                    GmshWrappers.GmshFree(outDimTagsMap);
-                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                    Wrappers.GmshFree(outDimTags);
+                    Wrappers.GmshFree(outDimTagsMap);
+                    Wrappers.GmshFree(outDimTagsMap_n);
                 }
 
                 /// <summary>
@@ -784,7 +784,7 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                 {
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
-                    GmshWrappers.GmshModelOccFragment(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    Wrappers.GmshModelOccFragment(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
                     outDimTags_out = null;
                     if (outDimTags_n > 0)
                     {
@@ -792,9 +792,9 @@ namespace Iguana.IguanaMesh.IGmshWrappers
                         Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
                     }
 
-                    GmshWrappers.GmshFree(outDimTags);
-                    GmshWrappers.GmshFree(outDimTagsMap);
-                    GmshWrappers.GmshFree(outDimTagsMap_n);
+                    Wrappers.GmshFree(outDimTags);
+                    Wrappers.GmshFree(outDimTagsMap);
+                    Wrappers.GmshFree(outDimTagsMap_n);
                 }
             }
         }

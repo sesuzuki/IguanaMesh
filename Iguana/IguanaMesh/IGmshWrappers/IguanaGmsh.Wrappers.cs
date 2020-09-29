@@ -8,11 +8,11 @@ using System.Security;
 
 namespace Iguana.IguanaMesh.IGmshWrappers
 {
-    public static partial class Gmsh
+    public static partial class IguanaGmsh
     {
         private const string gmsh_dll = "gmsh-4.6.dll";
 
-        internal static class GmshWrappers
+        internal static class Wrappers
         {
 
             /////////////////////////////////////////////////////////////////////////

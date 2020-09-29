@@ -57,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IguanaMeshGH\IDisplayGH\I2DElementsAsSurfacesGH.cs" />
     <Compile Include="IguanaMeshGH\IDisplayGH\IEdgesAsLinesGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICubeGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICylinderGH.cs" />

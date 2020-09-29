@@ -5,12 +5,14 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IGmshWrappers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
+using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IVolumeMeshFromExtrusion : GH_Component
     {
+        IMesh mesh;
         /// <summary>
         /// Initializes a new instance of the IVolumeMeshFromExtrusion class.
         /// </summary>
@@ -65,7 +67,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
             DA.GetData(4, ref solverOptions);
 
-            IMesh mesh = null;
+            mesh = null;
 
             if (crv.IsClosed)
             {
@@ -75,33 +77,38 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 NurbsCurve nCrv = crv.ToNurbsCurve();
                 if (crvRes > 0 && nCrv.Points.Count < crvRes) nCrv = nCrv.Rebuild(crvRes, nCrv.Degree, true);
 
-                Gmsh.Initialize();
+                IguanaGmsh.Initialize();
 
                 int surfacetag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch);
 
                 int[] ov;
-                Gmsh.Model.GeoOCC.Extrude(new[] { 2, surfacetag }, 0, 0, 1, out ov, new int[] { 8, 2 }, new double[] { 0.5, 1 }, true);
+                IguanaGmsh.Model.GeoOCC.Extrude(new[] { 2, surfacetag }, 0, 0, 1, out ov, new int[] { 8, 2 }, new double[] { 0.5, 1 }, true);
 
-                Gmsh.Model.GeoOCC.Synchronize();
+                IguanaGmsh.Model.GeoOCC.Synchronize();
 
                 solverOptions.ApplyBasicPreProcessing2D();
 
                 // 2d mesh generation
-                Gmsh.Model.Mesh.Generate(3);
+                IguanaGmsh.Model.Mesh.Generate(3);
 
                 // Postprocessing settings
                 solverOptions.ApplyBasicPostProcessing2D();
 
                 // Iguana mesh construction
-                Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 3);
-                Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 3);
+                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 3);
+                IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 3);
                 mesh = new IMesh(vertices, elements);
                 mesh.BuildTopology();
 
-                Gmsh.FinalizeGmsh();
+                IguanaGmsh.FinalizeGmsh();
             }
 
             DA.SetData(0, mesh);
+        }
+
+        public override void DrawViewportWires(IGH_PreviewArgs args)
+        {
+            if(mesh!=null) IRhinoGeometry.DrawIMeshAsWires(args, mesh);
         }
 
         /// <summary>

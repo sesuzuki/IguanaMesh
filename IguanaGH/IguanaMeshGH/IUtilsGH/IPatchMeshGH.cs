@@ -77,7 +77,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 NurbsCurve nCrv = crv.ToNurbsCurve();
                 if (crvRes > 0 && nCrv.Points.Count < crvRes) nCrv = nCrv.Rebuild(crvRes, nCrv.Degree, true);
 
-                Gmsh.Initialize();
+                IguanaGmsh.Initialize();
 
                 // Suface construction
                 int surfaceTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch);
@@ -89,20 +89,20 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 solverOptions.ApplyBasicPreProcessing2D();
 
                 // 2d mesh generation
-                Gmsh.Model.Mesh.Generate(2);
+                IguanaGmsh.Model.Mesh.Generate(2);
 
                 // Postprocessing settings
                 solverOptions.ApplyBasicPostProcessing2D();
 
                 // Iguana mesh construction
-                Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2, surfaceTag);
-                Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2, surfaceTag);
+                IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
 
                 // Iguana mesh construction
                 mesh = new IMesh(vertices, elements);
                 mesh.BuildTopology();
 
-                Gmsh.FinalizeGmsh();
+                IguanaGmsh.FinalizeGmsh();
             }
 
             DA.SetData(0, mesh);

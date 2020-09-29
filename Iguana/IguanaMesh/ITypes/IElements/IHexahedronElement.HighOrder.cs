@@ -22,24 +22,14 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 public override string ToString()
                 {
                     string eType = "(20-Nodes) IHexahedron 2nd-Order";
-                    return IHelpers.HighOrder3DElementsToString(eType, Vertices,8);
-                }
-
-                public override int[] GetNodesForFastDrawing()
-                {
-                    return new int[] { Vertices[0], Vertices[1], Vertices[2], Vertices[3], Vertices[4], Vertices[5], Vertices[6], Vertices[7] };
-                }
-
-                public override int[] GetNodesForDetailedDrawing()
-                {
-                    return Vertices;
+                    return IHelpers.HighOrder3DElementsToString(eType, Vertices, 8);
                 }
 
                 public override bool GetHalfFacet(int index, out int[] halfFacets)
                 {
                     Boolean flag = true;
                     halfFacets = null;
-                    
+
                     switch (index)
                     {
                         case 1:
@@ -68,8 +58,39 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     return flag;
                 }
 
-            }
+                public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)
+                {
+                    Boolean flag = true;
+                    halfFacets = null;
 
+                    switch (index)
+                    {
+                        case 1:
+                            halfFacets = new int[] { Vertices[0], Vertices[1], Vertices[5], Vertices[4] };
+                            break;
+                        case 2:
+                            halfFacets = new int[] { Vertices[3], Vertices[7], Vertices[6], Vertices[2] };
+                            break;
+                        case 3:
+                            halfFacets = new int[] { Vertices[0], Vertices[4], Vertices[7], Vertices[3] };
+                            break;
+                        case 4:
+                            halfFacets = new int[] { Vertices[4], Vertices[5], Vertices[6], Vertices[7] };
+                            break;
+                        case 5:
+                            halfFacets = new int[] { Vertices[5], Vertices[1], Vertices[2], Vertices[6] };
+                            break;
+                        case 6:
+                            halfFacets = new int[] { Vertices[1], Vertices[8], Vertices[0], Vertices[9], Vertices[3], Vertices[13], Vertices[2], Vertices[11] };
+                            break;
+                        default:
+                            flag = false;
+                            break;
+                    }
+
+                    return flag;
+                }
+            }
         }
     }
 }

@@ -6,16 +6,16 @@ using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.IDisplay
+namespace IguanaGH.IguanaMeshGH.IDisplayGH
 {
-    public class IFacesAsPolylinesGH : GH_Component
+    public class I2DElementsAsSurfacesGH : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the AHF_IFacesAsPolylines class.
+        /// Initializes a new instance of the I2DElementsAsSurfacesGH class.
         /// </summary>
-        public IFacesAsPolylinesGH()
-          : base("iElementsAsPolylines", "iE-2D",
-              "Retrieve two-dimensional elements as polylines.",
+        public I2DElementsAsSurfacesGH()
+          : base("i2DElementsAsSurfaces", "iE2Surf",
+              "Retrieve two-dimensional elements as surfaces.",
               "Iguana", "Display")
         {
         }
@@ -25,7 +25,7 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "The Iguana mesh to extract faces.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "The Iguana mesh to extract two-dimesional elements.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iElements as Polylines.", "C", "Two-dimensional elements as closed poylines", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iElements as Surfaces.", "S", "Two-dimensional elements as Surfaces", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -45,10 +45,9 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
             IMesh mesh = null;
             DA.GetData(0, ref mesh);
 
-            List<Polyline> faces = IRhinoGeometry.GetAllFacesAsPolylines(mesh);
+            List<Surface> surfaces = IRhinoGeometry.Get2DElementsAsSurfaces(mesh);
 
-            DA.SetDataList(0, faces);
-
+            DA.SetDataList(0, surfaces);
         }
 
         /// <summary>
@@ -58,7 +57,9 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
         {
             get
             {
-                return Properties.Resources.AHF_IFaceAsPolyline;
+                //You can add image files to your project resources and access them like this:
+                // return Resources.IconForThisComponent;
+                return null;
             }
         }
 
@@ -67,7 +68,7 @@ namespace IguanaGH.IguanaMeshGH.IDisplay
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("cfb5834b-bb4d-4183-a543-c43c41807b70"); }
+            get { return new Guid("d78979e7-df48-48ce-bef0-45b38da43d8a"); }
         }
     }
 }

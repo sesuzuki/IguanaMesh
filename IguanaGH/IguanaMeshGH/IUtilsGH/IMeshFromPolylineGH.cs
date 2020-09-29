@@ -61,7 +61,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             IVertexCollection vertices = new IVertexCollection();
             IElementCollection elements = new IElementCollection();
 
-            Gmsh.Initialize();
+            IguanaGmsh.Initialize();
 
             int[] crv_tags = new int[_inner.Count + 1];
             crv_tags[0] = TryBuildGmshCurveLoop(_outer, solverOpt);
@@ -71,25 +71,25 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 crv_tags[i + 1] = TryBuildGmshCurveLoop(_inner[i], solverOpt);
             }
 
-            Gmsh.Model.Geo.AddPlaneSurface(crv_tags, 1);
+            IguanaGmsh.Model.Geo.AddPlaneSurface(crv_tags, 1);
 
-            Gmsh.Model.Geo.Synchronize();
+            IguanaGmsh.Model.Geo.Synchronize();
 
             //solver options
             solverOpt.ApplyBasicPreProcessing2D();
 
-            Gmsh.Model.Mesh.Generate(2);
+            IguanaGmsh.Model.Mesh.Generate(2);
 
             solverOpt.ApplyBasicPostProcessing2D();
 
             // Iguana mesh construction
-            Gmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
-            Gmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
+            IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
 
             mesh = new IMesh(vertices, elements);
             mesh.BuildTopology();
 
-            Gmsh.FinalizeGmsh();
+            IguanaGmsh.FinalizeGmsh();
 
             DA.SetData(0, mesh);
         }
@@ -106,9 +106,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             for (int i = 0; i < poly.Count - 1; i++)
             {
                 Point3d pt = poly[i];
-                size = solverOpt.TargetMeshSize[0];
-                if (solverOpt.TargetMeshSize.Count == poly.Count - 1) size = solverOpt.TargetMeshSize[i];
-                pt_tags[i] = Gmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
+                size = solverOpt.TargetMeshSizeAtNodes[0];
+                if (solverOpt.TargetMeshSizeAtNodes.Count == poly.Count - 1) size = solverOpt.TargetMeshSizeAtNodes[i];
+                pt_tags[i] = IguanaGmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
             }
 
             int[] ln_tags = new int[pt_tags.Length];
@@ -118,10 +118,10 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 int end = pt_tags[0];
                 if (i < pt_tags.Length - 1) end = pt_tags[i + 1];
 
-                ln_tags[i] = Gmsh.Model.Geo.AddLine(start, end);
+                ln_tags[i] = IguanaGmsh.Model.Geo.AddLine(start, end);
             }
 
-            return Gmsh.Model.Geo.AddCurveLoop(ln_tags);
+            return IguanaGmsh.Model.Geo.AddCurveLoop(ln_tags);
         }
 
         /// <summary>
