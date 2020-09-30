@@ -6,8 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Iguana.IguanaMesh.ICreators;
 using Iguana.IguanaMesh.ITypes;
-using Rhino.Geometry;
-using Iguana.IguanaMesh.IGmshWrappers;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes.ICollections;
 
 namespace IguanaClient
@@ -16,9 +15,9 @@ namespace IguanaClient
     {
         static void Main(string[] args)
         {
-            /*const double lc = 0.5;
+            const double lc = 0.5;
 
-            IguanaGmsh.Initialize();
+            /*IguanaGmsh.Initialize();
 
             IguanaGmsh.Option.SetNumber("General.Terminal", 1);
 
@@ -48,7 +47,7 @@ namespace IguanaClient
 
             IguanaGmsh.FinalizeGmsh();*/
 
-            /*IguanaGmsh.Initialize();
+            IguanaGmsh.Initialize();
             IguanaGmsh.Option.SetNumber("General.Terminal", 1);
 
             IguanaGmsh.Model.Add("t3");
@@ -115,18 +114,7 @@ namespace IguanaClient
             IguanaGmsh.Model.Mesh.Generate(3);
             //IguanaGmsh.Write("t3.msh");
 
-            var element = IguanaGmsh.Model.Mesh.TryGetIElementCollection();
-
-
-            IguanaGmsh.FinalizeGmsh();*/
-
-            int elementID = 10;
-            int halfFacetID = 89;
-
-            Int64 sibData1 = (Int64)elementID << 32 | (Int64)halfFacetID;
-            Int64 sibData2 = (Int64)halfFacetID << 32 | (Int64)elementID;
-
-            Console.WriteLine(sibData1 + " ::  " + sibData2);
+            IguanaGmsh.FinalizeGmsh();
 
             Console.ReadLine();
         }

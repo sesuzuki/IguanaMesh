@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
-using Iguana.IguanaMesh.IGmshWrappers;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
+using Iguana.IguanaMesh.IWrappers.ISolver;
+using Grasshopper.Kernel.Data;
+using Iguana.IguanaMesh.IWrappers.IConstraints;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -31,7 +34,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             pManager.AddCurveParameter("Curve", "C", "Closed curve to patch", GH_ParamAccess.item);
             pManager.AddPointParameter("Points", "P", "Points to patch", GH_ParamAccess.list);
             pManager.AddIntegerParameter("Count", "N", "Number of control points to rebuild curve", GH_ParamAccess.item);
-            pManager.AddGenericParameter("IConstraints", "IConstraints", "Point constraint", GH_ParamAccess.item);
+            pManager.AddGenericParameter("IConstraints", "IConstraints", "Constraints for mesh generation.", GH_ParamAccess.tree);
             pManager.AddGenericParameter("Meshing Settings", "ISettings", "Meshing settings", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
@@ -56,18 +59,19 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             Curve crv = null;
             List<Point3d> pts_patch = new List<Point3d>();
             int crvRes = 0;
-            IguanaGmshSolverOptions solverOptions = new IguanaGmshSolverOptions();
-            IguanaGmshConstraintCollector constraintCollection = null;
+            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
+            //GH_Structure<IguanaGmshConstraint> constraints = new GH_Structure<IguanaGmshConstraint>();
 
             DA.GetData(0, ref crv);
             DA.GetDataList(1, pts_patch);
             DA.GetData(2, ref crvRes);
 
-            DA.GetData(3, ref constraintCollection);
+            //DA.GetDataTree(3, out constraints);
 
             DA.GetData(4, ref solverOptions);
 
             mesh = null;
+            //IGH_StructureEnumerator allConstraints = constraints.AllData(true);
 
             if (crv.IsClosed)
             {

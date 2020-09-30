@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Grasshopper.Kernel;
-using Iguana.IguanaMesh.IGmshWrappers;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
-using Rhino.Display;
 using Rhino.Geometry;
-using Rhino.Geometry.Collections;
+using Iguana.IguanaMesh.IWrappers.ISolver;
+using Iguana.IguanaMesh.IUtils;
+using Iguana.IguanaMesh.IWrappers.IConstraints;
+using Grasshopper.Kernel.Data;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IPatchMeshGH : GH_Component
     {
+        int minCrvPts = 10;
+        IMesh mesh;
+
         /// <summary>
         /// Initializes a new instance of the IPatchMeshGH class.
         /// </summary>
@@ -30,8 +34,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             pManager.AddCurveParameter("Curve", "C", "Closed curve to patch", GH_ParamAccess.item);
             pManager.AddPointParameter("Points", "P", "Points to patch", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Count", "N", "Number of control points to rebuild curve", GH_ParamAccess.item);       
-            pManager.AddGenericParameter("IConstraints", "IConstraints", "Point constraint", GH_ParamAccess.item);            
+            pManager.AddIntegerParameter("Count", "N", "Minimum number of points used to mesh curves. Default is 10.", GH_ParamAccess.item, minCrvPts);       
+            pManager.AddGenericParameter("IConstraints", "IConstraints", "Constraints for mesh generation.", GH_ParamAccess.tree);            
             pManager.AddGenericParameter("Meshing Settings", "ISettings", "Meshing settings", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
@@ -56,18 +60,22 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             Curve crv = null;
             List<Point3d> pts_patch = new List<Point3d>();
             int crvRes = 0;
-            IguanaGmshSolverOptions solverOptions = new IguanaGmshSolverOptions();
-            IguanaGmshConstraintCollector constraints = null;
+            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
 
             DA.GetData(0, ref crv);
             DA.GetDataList(1, pts_patch);
             DA.GetData(2, ref crvRes);
-
-            DA.GetData(3, ref constraints);
-
             DA.GetData(4, ref solverOptions);
 
-            IMesh mesh = null;
+            List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
+            foreach (var obj in base.Params.Input[3].VolatileData.AllData(true))
+            {
+                IguanaGmshConstraint c = (IguanaGmshConstraint) obj;
+                constraints.Add(c);
+            }
+
+            mesh = null;
+            solverOptions.MinimumCurvePoints = crvRes;
 
             if (crv.IsClosed)
             {
@@ -75,15 +83,14 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 IElementCollection elements = new IElementCollection();
 
                 NurbsCurve nCrv = crv.ToNurbsCurve();
-                if (crvRes > 0 && nCrv.Points.Count < crvRes) nCrv = nCrv.Rebuild(crvRes, nCrv.Degree, true);
 
                 IguanaGmsh.Initialize();
 
                 // Suface construction
-                int surfaceTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch);
+                int surfaceTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch, true);
 
                 // Embed constraints
-                IguanaGmshConstructors.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, ref vertices, true);
+                if(constraints.Count>0) IguanaGmshConstructors.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, ref vertices, true);
 
                 // Preprocessing settings
                 solverOptions.ApplyBasicPreProcessing2D();
@@ -106,6 +113,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             }
 
             DA.SetData(0, mesh);
+        }
+
+        public override void DrawViewportWires(IGH_PreviewArgs args)
+        {
+            if (mesh != null) IRhinoGeometry.DrawIMeshAsWires(args, mesh);
         }
 
         /// <summary>

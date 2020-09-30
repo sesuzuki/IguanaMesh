@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 using Grasshopper.Kernel;
-using Iguana.IguanaMesh.IGmshWrappers;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
+using Iguana.IguanaMesh.IWrappers.ISolver;
+using Iguana.IguanaMesh.IUtils;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IMeshFromSurfaceGH : GH_Component
     {
+        IMesh mesh;
         /// <summary>
         /// Initializes a new instance of the IMeshFromEdges class.
         /// </summary>
@@ -47,7 +48,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             Surface srf = null;
-            IguanaGmshSolverOptions solverOpt = new IguanaGmshSolverOptions();
+            IguanaGmshSolver2D solverOpt = new IguanaGmshSolver2D();
 
             DA.GetData(0, ref srf);
             DA.GetData(1, ref solverOpt);
@@ -58,7 +59,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             int countV = ctr_pts.CountV;
             int idx = 0;
 
-            IMesh mesh = null;
+            mesh = null;
             IVertexCollection vertices = new IVertexCollection();
             IElementCollection elements = new IElementCollection();
 
@@ -98,6 +99,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             IguanaGmsh.FinalizeGmsh();
 
             DA.SetData(0, mesh);
+        }
+
+        public override void DrawViewportWires(IGH_PreviewArgs args)
+        {
+            if (mesh != null) IRhinoGeometry.DrawIMeshAsWires(args, mesh);
         }
 
         /// <summary>

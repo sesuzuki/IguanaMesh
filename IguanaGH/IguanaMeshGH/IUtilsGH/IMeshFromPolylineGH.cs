@@ -3,15 +3,18 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Rhino.Geometry;
-using Iguana.IguanaMesh.IGmshWrappers;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
-using IguanaGH.IguanaMeshGH.ITopologyGH;
 using Iguana.IguanaMesh.ITypes.ICollections;
+using Iguana.IguanaMesh.IWrappers.ISolver;
+using Iguana.IguanaMesh.IUtils;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IMeshFromPolylineGH : GH_Component
     {
+        IMesh mesh;
+
         /// <summary>
         /// Initializes a new instance of the IMeshFromPolyline class.
         /// </summary>
@@ -50,28 +53,28 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             Curve _outer = null;
             List<Curve> _inner = new List<Curve>();
-            IguanaGmshSolverOptions solverOpt = new IguanaGmshSolverOptions();
+            IguanaGmshSolver2D solverOpt = new IguanaGmshSolver2D();
 
             //Retrieve vertices and elements
             DA.GetData(0, ref _outer);
             DA.GetDataList(1, _inner);
             DA.GetData(2, ref solverOpt);
 
-            IMesh mesh = null;
+            mesh = null;
             IVertexCollection vertices = new IVertexCollection();
             IElementCollection elements = new IElementCollection();
 
             IguanaGmsh.Initialize();
 
             int[] crv_tags = new int[_inner.Count + 1];
-            crv_tags[0] = TryBuildGmshCurveLoop(_outer, solverOpt);
+            crv_tags[0] = IguanaGmshConstructors.GmshCurveLoop(_outer, solverOpt);
 
             for (int i = 0; i < _inner.Count; i++)
             {
-                crv_tags[i + 1] = TryBuildGmshCurveLoop(_inner[i], solverOpt);
+                crv_tags[i + 1] = IguanaGmshConstructors.GmshCurveLoop(_inner[i], solverOpt);
             }
 
-            IguanaGmsh.Model.Geo.AddPlaneSurface(crv_tags, 1);
+            IguanaGmsh.Model.Geo.AddPlaneSurface(crv_tags);
 
             IguanaGmsh.Model.Geo.Synchronize();
 
@@ -94,34 +97,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.SetData(0, mesh);
         }
 
-        public int TryBuildGmshCurveLoop(Curve crv, IguanaGmshSolverOptions solverOpt)
+        public override void DrawViewportWires(IGH_PreviewArgs args)
         {
-            Polyline poly;
-            crv.TryGetPolyline(out poly);
-
-            if (!poly.IsClosed) poly.Add(poly[0]);
-
-            int[] pt_tags = new int[poly.Count - 1];
-            double size = 0.1;
-            for (int i = 0; i < poly.Count - 1; i++)
-            {
-                Point3d pt = poly[i];
-                size = solverOpt.TargetMeshSizeAtNodes[0];
-                if (solverOpt.TargetMeshSizeAtNodes.Count == poly.Count - 1) size = solverOpt.TargetMeshSizeAtNodes[i];
-                pt_tags[i] = IguanaGmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
-            }
-
-            int[] ln_tags = new int[pt_tags.Length];
-            for (int i = 0; i < pt_tags.Length; i++)
-            {
-                int start = pt_tags[i];
-                int end = pt_tags[0];
-                if (i < pt_tags.Length - 1) end = pt_tags[i + 1];
-
-                ln_tags[i] = IguanaGmsh.Model.Geo.AddLine(start, end);
-            }
-
-            return IguanaGmsh.Model.Geo.AddCurveLoop(ln_tags);
+            if (mesh != null) IRhinoGeometry.DrawIMeshAsWires(args, mesh);
         }
 
         /// <summary>

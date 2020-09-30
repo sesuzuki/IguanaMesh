@@ -56,16 +56,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.Geo.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.GeoOCC.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Model.Mesh.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshConstraintCollector.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmsh.Wrappers.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshElementType.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshSolverOptions.cs" />
-    <Compile Include="IguanaMesh\IGmshWrappers\IguanaGmshConstructors.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IConstraints\IguanaGmshConstraint.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.Geo.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.GeoOCC.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.Mesh.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.IWrappers.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmshElementType.cs" />
+    <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver2D.cs" />
+    <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaGmshConstructors.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IguanaLoader.cs" />
     <Compile Include="IguanaMesh\ITypes\ICollections\IElementCollection.cs" />
     <Compile Include="IguanaMesh\IUtils\IHelpers.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.HighOrder.cs" />
@@ -102,12 +104,27 @@
     <Compile Include="IguanaMesh\ICreators\ITube.cs" />
     <Compile Include="IguanaMesh\IModifiers\IModifier.cs" />
     <Compile Include="IguanaMesh\IModifiers\IReactionDiffusion.cs" />
+    <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IguanaMesh\ITypes\IVector3D.cs" />
     <Compile Include="IguanaMesh\ITypes\ICollections\IVertexCollectionInterface.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gmsh-4.6.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
