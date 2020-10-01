@@ -109,11 +109,10 @@ namespace Iguana.IguanaMesh.ITypes
         {
             Boolean flag1 = BuildSiblingHalfFacets();
             Boolean flag2 = BuildVertexToHalfFacet();
+            //CullFloatingVertices();
 
             string type = this.GetMeshTypeDescription();
             message = "AHF-Mesh (Vertices: " + Vertices.Count + "; Elements: " + Elements.Count + " ; Type: " + type + ")";
-
-
 
             if (!flag1 || !flag2)
             {
@@ -124,6 +123,17 @@ namespace Iguana.IguanaMesh.ITypes
                 message += "Vertex to Half-Facet (v2hf): ";
                 if (flag2) message += " Built;\n";
                 else if (!flag2) message += " Errors Found;\n";
+            }
+        }
+
+        internal void CullFloatingVertices()
+        {
+            List<int> vList = Vertices.VerticesKeys;
+            List<int> fList = _tempVertexToHalfFacets.Keys.ToList();
+            if (vList.Count > fList.Count)
+            {
+                var keys = vList.Except(fList);
+                Vertices.DeleteVertices(keys);
             }
         }
 
@@ -279,7 +289,7 @@ namespace Iguana.IguanaMesh.ITypes
                         Int32 v = us[0];
                         us.ToList().ForEach(idx => { if (v < idx) v = idx; });
 
-                        Int64 sibData = (Int64) elementID << 32 | (Int64)halfFacetID;
+                        Int64 sibData = (Int64) elementID << 32 | (Int64) halfFacetID;
 
                         if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new List<Int64> {  });
                         _tempVertexToHalfFacets[v].Add(sibData);

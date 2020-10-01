@@ -8,6 +8,7 @@ using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Iguana.IguanaMesh.IUtils;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -67,11 +68,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             IguanaGmsh.Initialize();
 
             int[] crv_tags = new int[_inner.Count + 1];
-            crv_tags[0] = IguanaGmshConstructors.GmshCurveLoop(_outer, solverOpt);
+            crv_tags[0] = IguanaGmshFactory.GmshCurveLoop(_outer, solverOpt);
 
             for (int i = 0; i < _inner.Count; i++)
             {
-                crv_tags[i + 1] = IguanaGmshConstructors.GmshCurveLoop(_inner[i], solverOpt);
+                crv_tags[i + 1] = IguanaGmshFactory.GmshCurveLoop(_inner[i], solverOpt);
             }
 
             IguanaGmsh.Model.Geo.AddPlaneSurface(crv_tags);

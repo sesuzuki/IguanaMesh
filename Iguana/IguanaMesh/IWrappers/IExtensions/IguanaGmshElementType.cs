@@ -1,9 +1,10 @@
 ﻿using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.ITypes.IElements;
+using System;
 using System.Linq;
 
-namespace Iguana.IguanaMesh.IWrappers
+namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
     public static class IguanaGmshElementType
     {

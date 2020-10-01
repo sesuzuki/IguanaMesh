@@ -6,7 +6,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.IWrappers;
-using Iguana.IguanaMesh.IWrappers.IConstraints;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.ISettings

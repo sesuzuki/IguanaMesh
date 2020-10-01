@@ -1,4 +1,5 @@
 ﻿using Rhino.Geometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -357,33 +358,27 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
 
         public bool DeleteVertex(ITopologicVertex vertex)
         {
-            return _vertices.Remove(vertex.Key);
+            try
+            {
+                return _vertices.Remove(vertex.Key);
+            }
+            catch (Exception) { return false; }
         }
 
-        public bool DeleteVertices(List<int> keys)
+        public void DeleteVertices(IEnumerable<int> keys)
         {
-            if (keys.Count > 0 && keys != null)
+            foreach (int k in keys)
             {
-                foreach (int k in keys)
-                {
-                    DeleteVertex(k);
-                }
-                return true;
+                DeleteVertex(k);
             }
-            else return false;
         }
 
-        public bool DeleteVertices(List<ITopologicVertex> vertices)
+        public void DeleteVertices(IEnumerable<ITopologicVertex> vertices)
         {
-            if (vertices.Count > 0 && vertices != null)
+            foreach (ITopologicVertex v in vertices)
             {
-                foreach (ITopologicVertex v in vertices)
-                {
-                    DeleteVertex(v.Key);
-                }
-                return true;
+                DeleteVertex(v);
             }
-            else return false;
         }
 
         public bool ContainsKey(int key)

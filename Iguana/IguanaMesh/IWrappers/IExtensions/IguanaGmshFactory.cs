@@ -2,7 +2,7 @@
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
-using Iguana.IguanaMesh.IWrappers.IConstraints;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
@@ -10,9 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Iguana.IguanaMesh.IWrappers
+namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
-    public static class IguanaGmshConstructors
+    public static class IguanaGmshFactory
     {
         public static int OCCSurfacePatch(NurbsCurve crv, List<Point3d> patchs=default, bool synchronize=false)
         {
@@ -57,86 +57,80 @@ namespace Iguana.IguanaMesh.IWrappers
             return surfaceTag;
         }
 
-        public static void OCCEmbedConstraintsOnSurface(List<IguanaGmshConstraint> constraints, int surfaceTag, ref IVertexCollection vertices, bool synchronize=false)
+        internal static int EvaluatePoint(PointCloud pts, Point3d p, double t)
+        {
+            int idx = pts.ClosestPoint(p);
+            if (idx != -1 && p.DistanceTo(pts[idx].Location) > t) idx = -1;
+            return idx;
+        }
+
+        public static void OCCEmbedConstraintsOnSurface(List<IguanaGmshConstraint> constraints, int surfaceTag, bool synchronize=false)
         {
             int count = constraints.Count;
 
-            if (count>0)
+            if (count > 0)
             {
-                List<int> embedPts = new List<int>();
-                PointCloud cloudPts = new PointCloud();
+                List<int> ptsTags = new List<int>();
+                List<int> crvTags = new List<int>();
+
+                PointCloud pts = new PointCloud();
+
                 IguanaGmshConstraint data;
-                Point3d p1, p2, p3;
-                Line ln;
-                double dist;
+                Point3d p;
+                Polyline poly;
+                double t = 0.001;
+                int tag, idx;
+
                 for (int i = 0; i < count; i++)
                 {
                     data = constraints[i];
-                    int tag;
-                    bool flag1 = false, flag2=false;
-                    switch (data.Dim) {
-                        case 0:
-                            p1 = (Point3d) data.RhinoGeometry;
-                            if (cloudPts.Count == 0) flag1 = true;
-                            else
-                            {
-                                int cIdx = cloudPts.ClosestPoint(p1);
-                                p2 = cloudPts[cIdx].Location;
-                                dist = p1.DistanceTo(p2);
-                                if (dist > 0.1) flag1 = true;
-              
-                            }
 
-                            if (flag1)
+                    switch (data.Dim)
+                    {
+                        case 0:
+                            p = (Point3d)data.RhinoGeometry;
+                            idx = EvaluatePoint(pts, p, t);
+
+                            if (idx == -1)
                             {
-                                cloudPts.Add(p1);
-                                tag = IguanaGmsh.Model.GeoOCC.AddPoint(p1.X, p1.Y, p1.Z, data.Size);
-                                vertices.AddVertex(tag, new ITopologicVertex(p1.X, p1.Y, p1.Z));
-                                embedPts.Add(tag);
+                                tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Size);
+                                ptsTags.Add(tag);
+                                pts.Add(p);
                             }
 
                             break;
                         case 1:
-                            ln = (Line)data.RhinoGeometry;
-                            p1 = ln.From;
-                            p2 = ln.To;
-
-                            if (cloudPts.Count == 0) { flag1 = true; flag2 = false; }
-                            else
+                            poly = (Polyline) data.RhinoGeometry;
+                            int[] tempTags = new int[poly.Count];
+                            for (int j = 0; j < poly.Count; j ++)
                             {
-                                int cIdx = cloudPts.ClosestPoint(p1);
-                                p3 = cloudPts[cIdx].Location;
-                                dist = p1.DistanceTo(p3);
-                                if (dist > 0.1) flag1 = true;
-                                cIdx = cloudPts.ClosestPoint(p2);
-                                p3 = cloudPts[cIdx].Location;
-                                dist = p2.DistanceTo(p3);
-                                if (dist > 0.1) flag2 = true;
+                                p = poly[j];
+                                idx = EvaluatePoint(pts, p, t);
+
+                                if (idx == -1)
+                                {
+                                    tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Size);
+                                    ptsTags.Add(tag);
+                                    pts.Add(p);
+                                    idx = pts.Count-1;
+                                }
+
+                                tempTags[j] = idx;
                             }
 
-                            if (flag1)
+                            for (int j = 0; j < poly.SegmentCount; j++)
                             {
-                                cloudPts.Add(p1);
-                                tag = IguanaGmsh.Model.GeoOCC.AddPoint(p1.X, p1.Y, p1.Z, data.Size);
-                                vertices.AddVertex(tag, new ITopologicVertex(p1.X, p1.Y, p1.Z));
-                                embedPts.Add(tag);
-                            }
-
-                            if (flag2)
-                            {
-                                cloudPts.Add(p2);
-                                tag = IguanaGmsh.Model.GeoOCC.AddPoint(p2.X, p2.Y, p2.Z, data.Size);
-                                vertices.AddVertex(tag, new ITopologicVertex(p2.X, p2.Y, p2.Z));
-                                embedPts.Add(tag);
+                                crvTags.Add(IguanaGmsh.Model.GeoOCC.AddLine(ptsTags[tempTags[j]], ptsTags[tempTags[j + 1]]));
                             }
 
                             break;
                     }
                 }
 
-                if(synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
+                if (synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
 
-                IguanaGmsh.Model.Mesh.Embed(0, embedPts.ToArray(), 2, surfaceTag);
+                if ( ptsTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(0, ptsTags.ToArray(), 2, surfaceTag);
+                if( crvTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(1, crvTags.ToArray(), 2, surfaceTag);
             }
         }
 

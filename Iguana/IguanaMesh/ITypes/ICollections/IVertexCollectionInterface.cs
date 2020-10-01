@@ -82,9 +82,9 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
 
         Boolean DeleteVertex(ITopologicVertex vertex);
 
-        Boolean DeleteVertices(List<int> keys);
+        void DeleteVertices(IEnumerable<ITopologicVertex> vertex);
 
-        Boolean DeleteVertices(List<ITopologicVertex> vertex);
+        void DeleteVertices(IEnumerable<int> keys);
 
         Boolean DeleteTextureCoordinates(int key);
 

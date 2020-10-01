@@ -5,9 +5,9 @@ using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 
-namespace Iguana.IguanaMesh.IWrappers.IConstraints
+namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
-    public class IguanaGmshConstraint : IGH_Goo
+    public struct IguanaGmshConstraint : IGH_Goo
     {
         private int dim;
         private Object geom;
@@ -29,7 +29,7 @@ namespace Iguana.IguanaMesh.IWrappers.IConstraints
         #region GH_methods
         public bool IsValid
         {
-            get => this.Equals(null);
+            get => !this.Equals(null);
         }
 
         public string IsValidWhyNot
@@ -45,12 +45,12 @@ namespace Iguana.IguanaMesh.IWrappers.IConstraints
 
         public override string ToString()
         {
-            return "IguanaGmshConstraint";
+            return "IguanaGmshConstraint (Dimension: " + Dim + " )";
         }
 
         public string TypeName
         {
-            get => ToString();
+            get => "IguanaGmshConstraint";
         }
 
         public string TypeDescription
@@ -60,7 +60,7 @@ namespace Iguana.IguanaMesh.IWrappers.IConstraints
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo)this.MemberwiseClone();
+            return (IGH_Goo) this.MemberwiseClone();
         }
 
         public IGH_GooProxy EmitProxy()
@@ -92,17 +92,8 @@ namespace Iguana.IguanaMesh.IWrappers.IConstraints
         {
             if (typeof(T).IsAssignableFrom(typeof(IguanaGmshConstraint)))
             {
-                if (typeof(T).IsAssignableFrom(typeof(IguanaGmshConstraint)))
-                {
-                    if (this == null)
-                        target = default(T);
-                    else
-                        target = (T)(object)this;
-                    return true;
-                }
-
-                target = default(T);
-                return false;
+                target = (T)(object)this;
+                return true;
             }
 
             target = default(T);

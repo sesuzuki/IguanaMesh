@@ -9,7 +9,7 @@ using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Grasshopper.Kernel.Data;
-using Iguana.IguanaMesh.IWrappers.IConstraints;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -83,7 +83,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
                 IguanaGmsh.Initialize();
 
-                int surfacetag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch);
+                int surfacetag = IguanaGmshFactory.OCCSurfacePatch(nCrv, pts_patch);
 
                 int[] ov;
                 IguanaGmsh.Model.GeoOCC.Extrude(new[] { 2, surfacetag }, 0, 0, 1, out ov, new int[] { 8, 2 }, new double[] { 0.5, 1 }, true);

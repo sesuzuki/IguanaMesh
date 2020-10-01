@@ -1,6 +1,7 @@
 ﻿using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.ITypes.IElements;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -284,7 +285,7 @@ namespace Iguana.IguanaMesh.IWrappers
                     {
                         return false;
                     }
-                }
+                } 
 
                 /// <summary>
                 /// Optimize the mesh of the current model using.

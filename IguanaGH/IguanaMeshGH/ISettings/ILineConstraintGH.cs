@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
-using Iguana.IguanaMesh.IWrappers.IConstraints;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.ISettings
@@ -44,20 +44,14 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         {
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
 
-            List<Line> ln = new List<Line>();
-            int count = 0;
+            List<Polyline> poly = new List<Polyline>();
             foreach (var obj in base.Params.Input[0].VolatileData.AllData(true))
             {
                 Curve c;
                 obj.CastTo<Curve>(out c);
-
                 Polyline pl;
                 bool flag = c.TryGetPolyline(out pl);
-                if (flag)
-                {
-                    ln.AddRange(pl.GetSegments());
-                    count++;
-                }
+                if (flag) poly.Add(pl);
             }
 
             List<double> sizes = new List<double>();
@@ -70,28 +64,24 @@ namespace IguanaGH.IguanaMeshGH.ISettings
 
 
             int auxcount = sizes.Count;
+            int count = poly.Count;
 
             if (count > 0)
             {
-                Line l;
-                double s;
                 if (count == auxcount)
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        l = ln[i];
-                        s = sizes[i];
-                        IguanaGmshConstraint c = new IguanaGmshConstraint(0, l, s);
+                        IguanaGmshConstraint c = new IguanaGmshConstraint(1, poly[i], sizes[i]);
                         constraints.Add(c);
                     }
                 }
                 else
                 {
-                    s = sizes[0];
+                    double s = sizes[0];
                     for (int i = 0; i < count; i++)
                     {
-                        l = ln[i];
-                        IguanaGmshConstraint c = new IguanaGmshConstraint(0, l, s);
+                        IguanaGmshConstraint c = new IguanaGmshConstraint(1, poly[i], s);
                         constraints.Add(c);
                     }
                 }

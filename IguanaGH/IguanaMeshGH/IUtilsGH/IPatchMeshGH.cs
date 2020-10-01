@@ -7,7 +7,7 @@ using Iguana.IguanaMesh.ITypes.ICollections;
 using Rhino.Geometry;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Iguana.IguanaMesh.IUtils;
-using Iguana.IguanaMesh.IWrappers.IConstraints;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Grasshopper.Kernel.Data;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
@@ -70,7 +70,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
             foreach (var obj in base.Params.Input[3].VolatileData.AllData(true))
             {
-                IguanaGmshConstraint c = (IguanaGmshConstraint) obj;
+                IguanaGmshConstraint c;
+                obj.CastTo<IguanaGmshConstraint>(out c);
                 constraints.Add(c);
             }
 
@@ -87,10 +88,10 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 IguanaGmsh.Initialize();
 
                 // Suface construction
-                int surfaceTag = IguanaGmshConstructors.OCCSurfacePatch(nCrv, pts_patch, true);
+                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(nCrv, pts_patch, true);
 
                 // Embed constraints
-                if(constraints.Count>0) IguanaGmshConstructors.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, ref vertices, true);
+                if(constraints.Count>0) IguanaGmshFactory.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, true);
 
                 // Preprocessing settings
                 solverOptions.ApplyBasicPreProcessing2D();
@@ -102,7 +103,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 solverOptions.ApplyBasicPostProcessing2D();
 
                 // Iguana mesh construction
-                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2, surfaceTag);
+                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices);
                 IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
 
                 // Iguana mesh construction
