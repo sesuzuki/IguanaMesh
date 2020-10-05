@@ -47,7 +47,7 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
         #region Recombination
 
         /// <summary>
-        /// Apply recombination3D algorithm to all volumes, ignoring per-volume spec (experimental).
+        /// Apply recombination3D algorithm to all volumes, ignoring per-volume spec (experimental)
         /// Default value: false
         /// </summary>
         [DefaultValue(false)]
@@ -68,5 +68,50 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
         public bool Recombine3DConformity { get; set; }
 
         #endregion
+
+        public void ApplyBasic3DSettings()
+        {
+            IguanaGmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
+            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
+            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);
+            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", CharacteristicLengthMax);
+            IguanaGmsh.Option.SetNumber("Mesh.MinimumCurvePoints", MinimumCurvePoints);
+
+            if (CharacteristicLengthFromCurvature)
+            {
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+            }
+            else
+            {
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
+            }
+        }
+
+        public void ApplyAdvanced3DSettings()
+        {
+            if (Recombine3DAll)
+            {
+                //IguanaGmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", (int) RecombinationAlgorithm);
+                IguanaGmsh.Option.SetNumber("Mesh.RecombineOptimizeTopology", OptimizationSteps);
+                IguanaGmsh.Model.Mesh.Recombine();
+            }
+
+            if (Subdivide)
+            {
+                IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
+                IguanaGmsh.Model.Mesh.Refine();
+            }
+
+            if (Optimize)
+            {
+                IguanaGmsh.Option.SetNumber("Mesh.QualityType", QualityType);
+                IguanaGmsh.Option.SetNumber("Mesh.Optimize", SubdivisionAlgorithm);
+                string method = OptimizationAlgorithm;
+                if (method == "Standard") method = "";
+                IguanaGmsh.Model.Mesh.Optimize(method, OptimizationSteps);
+            }
+        }
     }
 }

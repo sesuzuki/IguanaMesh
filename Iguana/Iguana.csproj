@@ -56,6 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IguanaMesh\ITypes\IMesh.Build.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMesh.IGH_Goo.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMesh.Preview.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshConstraint.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.Geo.cs" />

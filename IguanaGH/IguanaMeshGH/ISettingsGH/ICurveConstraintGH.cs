@@ -13,8 +13,8 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         /// Initializes a new instance of the ILineConstraintGH class.
         /// </summary>
         public ILineConstraintGH()
-          : base("iLineConstraint", "iLnC",
-              "Line constraint for mesh generation.",
+          : base("iCurveConstraint", "iCrvC",
+              "Curve constraint for mesh generation.",
               "Iguana", "Settings")
         {
         }
@@ -44,14 +44,12 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         {
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
 
-            List<Polyline> poly = new List<Polyline>();
+            List<Curve> crv = new List<Curve>();
             foreach (var obj in base.Params.Input[0].VolatileData.AllData(true))
             {
                 Curve c;
                 obj.CastTo<Curve>(out c);
-                Polyline pl;
-                bool flag = c.TryGetPolyline(out pl);
-                if (flag) poly.Add(pl);
+                crv.Add(c);
             }
 
             List<double> sizes = new List<double>();
@@ -64,15 +62,22 @@ namespace IguanaGH.IguanaMeshGH.ISettings
 
 
             int auxcount = sizes.Count;
-            int count = poly.Count;
+            int count = crv.Count;
 
             if (count > 0)
             {
+                IguanaGmshConstraint c;
                 if (count == auxcount)
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        IguanaGmshConstraint c = new IguanaGmshConstraint(1, poly[i], sizes[i]);
+                        Polyline pl;
+                        bool flag = crv[i].TryGetPolyline(out pl);
+                        if (flag) c = new IguanaGmshConstraint(1, pl, sizes[i]);
+                        else
+                        {
+                            c = new IguanaGmshConstraint(2, crv[i].ToNurbsCurve(), sizes[i]);
+                        }
                         constraints.Add(c);
                     }
                 }
@@ -81,7 +86,13 @@ namespace IguanaGH.IguanaMeshGH.ISettings
                     double s = sizes[0];
                     for (int i = 0; i < count; i++)
                     {
-                        IguanaGmshConstraint c = new IguanaGmshConstraint(1, poly[i], s);
+                        Polyline pl;
+                        bool flag = crv[i].TryGetPolyline(out pl);
+                        if (flag) c = new IguanaGmshConstraint(1, pl, s);
+                        else
+                        {
+                            c = new IguanaGmshConstraint(2, crv[i].ToNurbsCurve(), s);
+                        }
                         constraints.Add(c);
                     }
                 }

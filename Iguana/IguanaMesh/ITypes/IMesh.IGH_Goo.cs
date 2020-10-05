@@ -1,32 +1,15 @@
 ﻿using GH_IO.Serialization;
-using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Iguana.IguanaMesh.IWrappers.IExtensions
+namespace Iguana.IguanaMesh.ITypes
 {
-    public struct IguanaGmshConstraint : IGH_Goo
+    public partial class IMesh : IGH_Goo
     {
-        private int dim;
-        private Object geom;
-        private double val;
-
-        public IguanaGmshConstraint(int dimension, Object geometry, double size)
-        {
-            dim = dimension;
-            geom = geometry;
-            val = size;
-        }
-
-        public Object RhinoGeometry { get => geom; }
-
-        public double Size { get => val; }
-
-        public int Dim { get => dim; }
-
-        #region GH_methods
         public bool IsValid
         {
             get => !this.Equals(null);
@@ -43,14 +26,9 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             }
         }
 
-        public override string ToString()
-        {
-            return "IguanaGmshConstraint";
-        }
-
         public string TypeName
         {
-            get => "IguanaGmshConstraint";
+            get => "IMesh";
         }
 
         public string TypeDescription
@@ -73,6 +51,18 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             return false;
         }
 
+        public bool CastTo<T>(out T target)
+        {
+            if (typeof(T).IsAssignableFrom(typeof(IMesh)))
+            {
+                target = (T)(object)this;
+                return true;
+            }
+
+            target = default(T);
+            return false;
+        }
+
         public object ScriptVariable()
         {
             return this;
@@ -87,18 +77,5 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             return true;
         }
-
-        public bool CastTo<T>(out T target)
-        {
-            if (typeof(T).IsAssignableFrom(typeof(IguanaGmshConstraint)))
-            {
-                target = (T)(object)this;
-                return true;
-            }
-
-            target = default(T);
-            return false;
-        }
-        #endregion
     }
 }

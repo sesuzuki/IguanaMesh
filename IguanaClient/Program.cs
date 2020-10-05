@@ -15,7 +15,7 @@ namespace IguanaClient
     {
         static void Main(string[] args)
         {
-            const double lc = 0.5;
+            /*const double lc = 0.5;
 
             IguanaGmsh.Initialize();
 
@@ -49,7 +49,7 @@ namespace IguanaClient
 
             IguanaGmsh.FinalizeGmsh();
 
-            /*IguanaGmsh.Initialize();
+            IguanaGmsh.Initialize();
             IguanaGmsh.Option.SetNumber("General.Terminal", 1);
 
             IguanaGmsh.Model.Add("t3");

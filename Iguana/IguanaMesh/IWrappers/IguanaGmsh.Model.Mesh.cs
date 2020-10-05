@@ -93,8 +93,9 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshFree(parametricCoord);
                 }
 
-                public static bool TryGetIVertexCollection(ref IVertexCollection vertices, int dim = -1, int tag = -1)
+                public static bool TryGetIVertexCollection(out IVertexCollection vertices, int dim = -1, int tag = -1)
                 {
+                    vertices = new IVertexCollection();
                     try
                     {
                         IntPtr nodeTags, coord, parametricCoord;
@@ -116,7 +117,7 @@ namespace Iguana.IguanaMesh.IWrappers
                             for (int i = 0; i < nodeTags_Number; i++)
                             {
                                 ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
-                                vertices.AddVertex(v);
+                                vertices.AddVertex((int)keys[i], v);
                             }
                         }
 
@@ -222,8 +223,11 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// </summary>
                 /// <param name="dim"> 2 for surface element, 3 for volume elements and -1 for all elements. Default is -1. </param>
                 /// <returns></returns>
-                public static bool TryGetIElementCollection(ref IElementCollection elements, int dim=-1)
+                public static bool TryGetIElementCollection(out IElementCollection elements, out HashSet<int> parsedNodes, int dim = -1)
                 {
+                    parsedNodes = new HashSet<int>();
+                    elements = new IElementCollection();
+
                     try
                     {
                         IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
@@ -248,8 +252,6 @@ namespace Iguana.IguanaMesh.IWrappers
                         var eTags_val = new long[elementTags_NNumber][];
                         var nTags_val = new long[nodeTags_NNumber][];
 
-                        elements = new IElementCollection();
-
                         for (int i = 0; i < elementTags_NNumber; i++)
                         {
                             // Initializing containers
@@ -261,11 +263,11 @@ namespace Iguana.IguanaMesh.IWrappers
                             Marshal.Copy(nTags_ptr[i], nTags_val[i], 0, (int)nTags_n[i]);
 
                             // Building elements
-                            int element_type = (int) eTypes[i];
+                            int element_type = (int)eTypes[i];
                             int nodes_per_element = (int)(nTags_n[i] / eTags_n[i]);
                             int number_of_elements = nTags_val[i].Length / nodes_per_element;
 
-                            IguanaGmshElementType.TryParseToIguanaElement(element_type, nTags_val[i], nodes_per_element, number_of_elements, ref elements);
+                            parsedNodes = IguanaGmshElementType.TryParseToIguanaElement(element_type, nTags_val[i], nodes_per_element, number_of_elements, ref elements);
 
                         }
 
@@ -281,11 +283,8 @@ namespace Iguana.IguanaMesh.IWrappers
 
                         return true;
                     }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                } 
+                    catch (Exception) { return false; }
+                }
 
                 /// <summary>
                 /// Optimize the mesh of the current model using.

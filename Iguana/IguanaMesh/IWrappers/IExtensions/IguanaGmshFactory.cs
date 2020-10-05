@@ -35,9 +35,8 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             curvePts[pts.Count - 1] = curvePts[0];
 
             // 2._ Check points to patch
-            int[] patchPts;
-            if (patchs == default) patchPts = new int[0];
-            else patchPts = new int[patchs.Count];
+            if (patchs == default) patchs = new List<Point3d>();
+            int[] patchPts = new int[patchs.Count];
 
             Point3d p2;             
             for (int i = 0; i < patchs.Count; i++)
@@ -78,8 +77,10 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                 IguanaGmshConstraint data;
                 Point3d p;
                 Polyline poly;
+                NurbsCurve crv;
                 double t = 0.001;
                 int tag, idx;
+                int[] tempTags;
 
                 for (int i = 0; i < count; i++)
                 {
@@ -99,9 +100,10 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             }
 
                             break;
+
                         case 1:
                             poly = (Polyline) data.RhinoGeometry;
-                            int[] tempTags = new int[poly.Count];
+                            tempTags = new int[poly.Count];
                             for (int j = 0; j < poly.Count; j ++)
                             {
                                 p = poly[j];
@@ -124,12 +126,43 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             }
 
                             break;
+
+                        case 2:
+                            crv = (NurbsCurve) data.RhinoGeometry;
+                            crv.MakePiecewiseBezier(true);
+                            NurbsCurvePointList cPts = crv.Points;
+                            NurbsCurveKnotList cKnots = crv.Knots;
+
+                            tempTags = new int[cPts.Count];
+                            double[] weightPts = new double[cPts.Count];
+
+                            for (int j = 0; j < cPts.Count; j++)
+                            {
+                                p = cPts[j].Location;
+                                weightPts[j] = cPts.GetWeight(j);
+
+                                idx = EvaluatePoint(pts, p, t);
+
+                                if (idx == -1)
+                                {
+                                    tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Size);
+                                    ptsTags.Add(tag);
+                                    pts.Add(p);
+                                    idx = pts.Count - 1;
+                                }
+
+                                tempTags[j] = idx;
+                            }
+
+                            crvTags.Add(IguanaGmsh.Model.GeoOCC.AddBSpline(tempTags, crv.Degree, weightPts));
+
+                            break;
                     }
                 }
 
                 if (synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
 
-                if ( ptsTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(0, ptsTags.ToArray(), 2, surfaceTag);
+                if( ptsTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(0, ptsTags.ToArray(), 2, surfaceTag);
                 if( crvTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(1, crvTags.ToArray(), 2, surfaceTag);
             }
         }

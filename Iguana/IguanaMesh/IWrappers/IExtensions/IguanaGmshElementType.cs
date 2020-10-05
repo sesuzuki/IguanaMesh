@@ -2,6 +2,7 @@
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.ITypes.IElements;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Iguana.IguanaMesh.IWrappers.IExtensions
@@ -15,8 +16,9 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             return implementedElements.Contains(elementType);
         }
 
-        public static void TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref IElementCollection elements)
+        public static HashSet<int> TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref IElementCollection elements)
         {
+            HashSet<int> parsedNodes = new HashSet<int>();
             if (IsElementImplemented(elementType))
             {
                 for (int j = 0; j < number_of_elements; j++)
@@ -28,6 +30,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                     for (int k = 0; k < nodes_per_element; k++)
                     {
                         eD[k] = (int)nodes[j * nodes_per_element + k];
+                        parsedNodes.Add(eD[k]);
                     }
 
                     switch (elementType)
@@ -111,6 +114,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                     if (e != null) elements.AddElement(e);
                 }
             }
+            return parsedNodes;
         }
     }
 }

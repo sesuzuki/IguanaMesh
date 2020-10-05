@@ -9,21 +9,19 @@ using Iguana.IguanaMesh.IWrappers.ISolver;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Grasshopper.Kernel.Data;
+using System.Linq;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
     public class IPatchMeshGH : GH_Component
     {
-        int minCrvPts = 10;
-        IMesh mesh;
-
         /// <summary>
         /// Initializes a new instance of the IPatchMeshGH class.
         /// </summary>
         public IPatchMeshGH()
-          : base("iMesh from Patch", "iMeshFromPatch",
-              "General constructor for an Array-based Half-Facet (AHF) Mesh Data Structure.",
-              "Iguana", "Utils")
+          : base("iCurvePatch", "iCrvPatch",
+              "Create a mesh from a curve patch.",
+              "Iguana", "Creators")
         {
         }
 
@@ -32,15 +30,13 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddCurveParameter("Curve", "C", "Closed curve to patch", GH_ParamAccess.item);
-            pManager.AddPointParameter("Points", "P", "Points to patch", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Count", "N", "Minimum number of points used to mesh curves. Default is 10.", GH_ParamAccess.item, minCrvPts);       
-            pManager.AddGenericParameter("IConstraints", "IConstraints", "Constraints for mesh generation.", GH_ParamAccess.tree);            
-            pManager.AddGenericParameter("Meshing Settings", "ISettings", "Meshing settings", GH_ParamAccess.item);
+            pManager.AddCurveParameter("Curve", "C", "Base closed curve.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("MeshingPoints", "M", "Minimum number of points used to mesh edge-surfaces. Default value is 10.", GH_ParamAccess.item, 10);
+            pManager.AddGenericParameter("iConstraints", "iC", "Constraints for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iSettings", "iS2D", "Two-dimensional meshing settings.", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
             pManager[3].Optional = true;
-            pManager[4].Optional = true;
         }
 
         /// <summary>
@@ -48,7 +44,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana Surface Mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -58,53 +54,54 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             Curve crv = null;
-            List<Point3d> pts_patch = new List<Point3d>();
-            int crvRes = 0;
+            int minPts = 10;
             IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
 
             DA.GetData(0, ref crv);
-            DA.GetDataList(1, pts_patch);
-            DA.GetData(2, ref crvRes);
-            DA.GetData(4, ref solverOptions);
+            DA.GetData(1, ref minPts);
+            DA.GetData(3, ref solverOptions);
 
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
-            foreach (var obj in base.Params.Input[3].VolatileData.AllData(true))
+            foreach (var obj in base.Params.Input[2].VolatileData.AllData(true))
             {
                 IguanaGmshConstraint c;
                 obj.CastTo<IguanaGmshConstraint>(out c);
                 constraints.Add(c);
             }
 
-            mesh = null;
-            solverOptions.MinimumCurvePoints = crvRes;
+            IMesh mesh = null;
+            solverOptions.MinimumCurvePoints = minPts;
 
             if (crv.IsClosed)
             {
-                IVertexCollection vertices = new IVertexCollection();
-                IElementCollection elements = new IElementCollection();
-
                 NurbsCurve nCrv = crv.ToNurbsCurve();
+                nCrv.Rebuild(minPts, nCrv.Degree, true);
 
                 IguanaGmsh.Initialize();
 
+                bool synchronize = true;
+                if (constraints.Count > 0) synchronize = false;
+
                 // Suface construction
-                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(nCrv, pts_patch, true);
+                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(nCrv, default, synchronize);
 
                 // Embed constraints
-                if(constraints.Count>0) IguanaGmshFactory.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, true);
+                if (!synchronize) IguanaGmshFactory.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, true);
 
                 // Preprocessing settings
-                solverOptions.ApplyBasicPreProcessing2D();
+                solverOptions.ApplyBasic2DSettings();
+                solverOptions.ApplyAdvanced2DSettings();
 
                 // 2d mesh generation
                 IguanaGmsh.Model.Mesh.Generate(2);
 
-                // Postprocessing settings
-                solverOptions.ApplyBasicPostProcessing2D();
-
                 // Iguana mesh construction
-                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices);
-                IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+                IVertexCollection vertices;
+                IElementCollection elements;
+                HashSet<int> parsedNodes;
+                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
+                IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
+                if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
 
                 // Iguana mesh construction
                 mesh = new IMesh(vertices, elements);
@@ -114,11 +111,6 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             }
 
             DA.SetData(0, mesh);
-        }
-
-        public override void DrawViewportWires(IGH_PreviewArgs args)
-        {
-            if (mesh != null) IRhinoGeometry.DrawIMeshAsWires(args, mesh);
         }
 
         /// <summary>

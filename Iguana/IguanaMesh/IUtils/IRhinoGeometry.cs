@@ -11,19 +11,6 @@ namespace Iguana.IguanaMesh.IUtils
 {
     public static class IRhinoGeometry
     {
-        public static void DrawIMeshAsWires(IGH_PreviewArgs args, IMesh mesh)
-        {
-            Point3d start, end;
-            int idxA, idxB;
-            foreach (Int64 pair in mesh.Topology.GetUniqueEdges())
-            {
-                idxA = (Int32)(pair >> 32);
-                idxB = (Int32)pair;
-                start = mesh.Vertices.GetVertexWithKey(idxA).RhinoPoint;
-                end = mesh.Vertices.GetVertexWithKey(idxB).RhinoPoint;
-                args.Display.DrawLine(start,end,args.WireColour,args.DefaultCurveThickness);
-            }
-        }
 
         public static List<Line> GetEdgesAsLines(IMesh mesh)
         {
@@ -146,6 +133,16 @@ namespace Iguana.IguanaMesh.IUtils
                 }
             }
             return solids;
+        }
+
+        public static IEnumerable<Point3d> GetVerticesAsPoints(IMesh mesh)
+        {
+            List<Point3d> pts = new List<Point3d>();
+            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            {
+                pts.Add(v.RhinoPoint);
+            }
+            return pts;
         }
 
         public static Dictionary<int, List<PolylineCurve>> GetSolidsAsPoly(IMesh mesh)

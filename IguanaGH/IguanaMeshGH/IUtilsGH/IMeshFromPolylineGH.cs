@@ -62,8 +62,6 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetData(2, ref solverOpt);
 
             mesh = null;
-            IVertexCollection vertices = new IVertexCollection();
-            IElementCollection elements = new IElementCollection();
 
             IguanaGmsh.Initialize();
 
@@ -80,15 +78,19 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             IguanaGmsh.Model.Geo.Synchronize();
 
             //solver options
-            solverOpt.ApplyBasicPreProcessing2D();
+            solverOpt.ApplyBasic2DSettings();
 
             IguanaGmsh.Model.Mesh.Generate(2);
 
-            solverOpt.ApplyBasicPostProcessing2D();
+            solverOpt.ApplyAdvanced2DSettings();
 
             // Iguana mesh construction
-            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(ref vertices, 2);
-            IguanaGmsh.Model.Mesh.TryGetIElementCollection(ref elements, 2);
+            IVertexCollection vertices;
+            IElementCollection elements;
+            HashSet<int> parsedNodes;
+            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
+            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
+            if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
 
             mesh = new IMesh(vertices, elements);
             mesh.BuildTopology();
@@ -96,11 +98,6 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             IguanaGmsh.FinalizeGmsh();
 
             DA.SetData(0, mesh);
-        }
-
-        public override void DrawViewportWires(IGH_PreviewArgs args)
-        {
-            if (mesh != null) IRhinoGeometry.DrawIMeshAsWires(args, mesh);
         }
 
         /// <summary>

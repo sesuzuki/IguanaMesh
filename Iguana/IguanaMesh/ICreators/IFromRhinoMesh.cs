@@ -6,20 +6,18 @@ using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ICreators
 {
-    class IFromRhinoMesh : ICreatorInterface
+    public class IFromRhinoMesh : ICreatorInterface
     {
         private Mesh rhinoMesh;
-        private List<Point3d> vertices;
+        private List<ITopologicVertex> vertices;
         private List<IElement> faces;
-        private List<Point2f> uvw;
         private int keyElement;
 
         public IFromRhinoMesh(Mesh _rhinoMesh)
         {
             rhinoMesh = _rhinoMesh;
-            vertices = new List<Point3d>();
+            vertices = new List<ITopologicVertex>();
             faces = new List<IElement>();
-            uvw = new List<Point2f>();
 
         }
 
@@ -29,7 +27,7 @@ namespace Iguana.IguanaMesh.ICreators
             Boolean flag = BuildDataBase();
             if (flag)
             {
-                mesh.Vertices.AddRangeVerticesWithTextureCoordinates(vertices, uvw);
+                mesh.Vertices.AddRangeVertices(vertices);
                 mesh.Elements.AddRangeElements(faces);
 
                 mesh.BuildTopology();
@@ -44,12 +42,16 @@ namespace Iguana.IguanaMesh.ICreators
                 Boolean flag = false;
                 if (rhinoMesh.TextureCoordinates.Count == rhinoMesh.Vertices.Count) flag = true;
 
+                Point2f uvw = new Point2f(0,0);
                 for (int i = 0; i < rhinoMesh.Vertices.Count; i++)
                 {
-                    vertices.Add(rhinoMesh.Vertices[i]);
+                    if (flag) uvw = rhinoMesh.TextureCoordinates[i];
 
-                    if (flag) uvw.Add(rhinoMesh.TextureCoordinates[i]);
-                    else uvw.Add(new Point2f(0, 0));
+                    ITopologicVertex v = new ITopologicVertex(rhinoMesh.Vertices[i]);
+                    v.Key = i;
+                    v.TextureCoordinates = new double[] { uvw.X, uvw.Y, 0 };          
+
+                    vertices.Add(v);
                 }
 
                 foreach (MeshFace f in rhinoMesh.Faces)

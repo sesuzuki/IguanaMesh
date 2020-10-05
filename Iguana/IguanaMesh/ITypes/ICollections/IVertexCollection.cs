@@ -9,22 +9,26 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
     {
         private Dictionary<int, ITopologicVertex> _vertices = new Dictionary<int, ITopologicVertex>();
 
+        public void CullUnparsedNodes(IEnumerable<int> parsedNodes)
+        {
+            var cullNodes = VerticesKeys.Except(parsedNodes);
+            if (cullNodes.Count() > 0) DeleteVertices(cullNodes);
+        }
+
         public bool AddVertex(int key, ITopologicVertex vertex)
         {
-            if (key < 0) key = FindNextKey();
-            if (!_vertices.ContainsKey(key) && key>=0)
+            try
             {
                 vertex.Key = key;
                 _vertices.Add(key, vertex);
-
                 return true;
             }
-            else return false;
+            catch (Exception) { return false; }
         }
 
-        public bool AddVertex(ITopologicVertex vertex)
+        public bool AddVertex(int key, Point3d point)
         {
-            return AddVertex(vertex.Key, vertex);
+            return AddVertex(key, new ITopologicVertex(point.X, point.Y, point.Z));
         }
 
         public bool AddVertex(int key, double x, double y, double z)
@@ -32,27 +36,9 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             return AddVertex(key, new ITopologicVertex(x, y, z));
         }
 
-        public bool AddVertex(int key, double[] _vertex)
-        {
-            if (_vertex.Length == 3)
-            {
-                return AddVertex(key, new ITopologicVertex(_vertex[0], _vertex[1], _vertex[2]));
-            }
-            else return false;
-        }
-
-        public bool AddVertexWithTextureCoordinates(int key, double x, double y, double z, double u, double v, double w)
+        public bool AddVertex(int key, double x, double y, double z, double u, double v, double w)
         {
             return AddVertex(key, new ITopologicVertex(x, y, z, u, v, w));
-        }
-
-        public bool AddVertexWithTextureCoordinates(int key, double[] _vertex)
-        {
-            if (_vertex.Length == 6)
-            {
-                return AddVertex(key, new ITopologicVertex(_vertex[0], _vertex[1], _vertex[2], _vertex[3], _vertex[4], _vertex[5]));
-            }
-            else return false;
         }
 
         public int FindNextKey()
@@ -65,46 +51,49 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
 
         public bool SetVertex(int key, ITopologicVertex vertex)
         {
-            if (_vertices.ContainsKey(key) && key>=0)
-            {
+            try {
                 vertex.Key = key;
                 _vertices[key] = vertex;
+                return true;
+            }
+            catch (Exception) { return false; }
+        }
+
+        public bool SetVertexPosition(int key, Point3d point)
+        {
+            if (_vertices.ContainsKey(key))
+            {
+                ITopologicVertex v = _vertices[key];
+                v.Position = new double[] { point.X, point.Y, point.Z };
+                _vertices[key] = v;
                 return true;
             }
             else return false;
         }
 
-        public bool SetVertex(int key, double[] value)
+
+        public bool SetVertexPosition(int key, double x, double y, double z)
         {
-            if (value.Length == 3)
+            if (_vertices.ContainsKey(key))
             {
-                return SetVertex(key, new ITopologicVertex(value[0], value[1], value[2]));
+                ITopologicVertex v = _vertices[key];
+                v.Position = new double[] { x, y, z };
+                _vertices[key] = v;
+                return true;
             }
             else return false;
         }
 
-        public bool SetVertex(int key, double x, double y, double z)
+        public bool SetVertexTextureCoordinates(int key, double u, double v, double w)
         {
-            return SetVertex(key, new ITopologicVertex(x, y, z));
-        }
-
-        public bool SetVertexWithTextureCoordinates(int key, double x, double y, double z, double u, double v, double w)
-        {
-            return SetVertex(key, new ITopologicVertex(x, y, z, u, v, w));
-        }
-
-        public bool SetVertexWithTextureCoordinates(int key, double[] value)
-        {
-            if (value.Length == 6)
+            if (_vertices.ContainsKey(key))
             {
-                return SetVertex(key, new ITopologicVertex(value[0], value[1], value[2], value[3], value[4], value[5]));
+                ITopologicVertex vertex = _vertices[key];
+                vertex.TextureCoordinates = new double[] { u,v,w };
+                _vertices[key] = vertex;
+                return true;
             }
             else return false;
-        }
-
-        public bool SetVertex(ITopologicVertex vertex)
-        {
-            return SetVertex(vertex.Key, vertex);
         }
 
         public void Clean()
@@ -112,83 +101,38 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             _vertices = new Dictionary<int, ITopologicVertex>();
         }
 
-        public bool SetOrAddVertex(int key, ITopologicVertex vertex)
+        public bool AddRangeVertices(IEnumerable<ITopologicVertex> vertices)
         {
-            if (_vertices.ContainsKey(key)) return SetVertex(key, vertex);
-            else return AddVertex(key, vertex);
-        }
-
-        public bool SetOrAddVertex(int key, double[] vertex)
-        {
-            if (vertex.Length == 3) return SetOrAddVertex(key, new ITopologicVertex(vertex[0], vertex[1], vertex[2]));
-            else return false;
-        }
-
-        public bool SetOrAddVertex(int key, double x, double y, double z)
-        {
-            return SetOrAddVertex(key, new ITopologicVertex(x,y,z));
-        }
-
-        public bool SetOrAddVertexWithTextureCoordinates(int key, double x, double y, double z, double u, double v, double w)
-        {
-            return SetOrAddVertex(key, new ITopologicVertex(x, y, z, u, v, w));
-        }
-
-        public bool SetOrAddVertexWithTextureCoordinates(int key, double[] vertex)
-        {
-            if (vertex.Length == 6) return SetOrAddVertex(key, new ITopologicVertex(vertex[0], vertex[1], vertex[2], vertex[3], vertex[4], vertex[5]));
-            else return false;
-        }
-
-        public bool SetOrAddVertex(ITopologicVertex vertex)
-        {
-            return SetOrAddVertex(vertex.Key, vertex);
-        }
-
-        public bool AddRangeVertices(List<ITopologicVertex> vertices)
-        {
-            if (vertices.Count > 0 && vertices != null)
-            {
-                int lastKey = FindNextKey();
-                foreach (ITopologicVertex v in vertices)
+            try { 
+                foreach(ITopologicVertex v in vertices)
                 {
-                    AddVertex(lastKey, v);
-                    lastKey++;
+                    AddVertex(v.Key, v);
                 }
                 return true;
             }
-            else return false;
+            catch (Exception) { return false; }
         }
 
-        public bool AddRangeVerticesWithKeys(ITopologicVertex[] vertices, int[] keys)
+        public bool AddRangeVertices(IEnumerable<int> keys, IEnumerable<ITopologicVertex> vertices)
         {
-            if (vertices.Length > 0 && vertices.Length==keys.Length)
+            try
             {
-                for(int i=0; i<vertices.Length; i++)
+                if (keys.Count() == vertices.Count())
                 {
-                    AddVertex(keys[i], vertices[i]);
+                    for (int i = 0; i < keys.Count(); i++)
+                    {
+                        AddVertex(keys.ElementAt(i), vertices.ElementAt(i));
+                    }
+                    return true;
                 }
-                return true;
+                else return false;
             }
-            else return false;
+            catch (Exception) { return false; }
         }
 
-        public bool AddRangeVertices(List<int> keys, List<ITopologicVertex> vertices)
+        public bool AddRangeVertices(IEnumerable<Point3d> points)
         {
-            if (keys.Count == vertices.Count && keys.Count>0)
-            {
-                for(int i=0; i<keys.Count; i++)
-                {
-                    AddVertex(keys[i], vertices[i]);
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool AddRangeVertices(List<Point3d> points)
-        {
-            if (points.Count > 0 && points != null)
+            try
             {
                 int lastKey = FindNextKey();
                 foreach (Point3d pt in points)
@@ -197,163 +141,50 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
                     lastKey++;
                 }
                 return true;
-            }
-            else return false;
+            }catch(Exception) { return false; }
         }
 
-        public bool AddRangeVertices(double[][] values)
+        public bool SetRangeVertices(IEnumerable<int> keys, IEnumerable<ITopologicVertex> vertices)
         {
-            if (values.Length>0 && values != null)
+            try
             {
-                int key = FindNextKey();
-                foreach (double[] v in values)
+                if (keys.Count() == vertices.Count())
                 {
-                    if (v.Length == 3) AddVertex(key, new ITopologicVertex(v[0], v[1], v[2]));
-                    key++;
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool AddRangeVerticesWithTextureCoordinates(double[][] values)
-        {
-            if (values.Length > 0 && values != null)
-            {
-                int key = FindNextKey();
-                foreach (double[] v in values)
-                {
-                    if (v.Length == 6) AddVertex(key, new ITopologicVertex(v[0], v[1], v[2], v[3], v[4], v[5]));
-                    key++;
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool AddRangeVerticesWithTextureCoordinates(List<Point3d> points, List<Point2f> uvw)
-        {
-            if (points.Count > 0 && points.Count==uvw.Count)
-            {
-                int lastKey = FindNextKey();
-                Point3d pt;
-                Point2f coord;
-                for(int i=0;i<points.Count; i++)
-                {
-                    pt = points[i];
-                    coord = uvw[i];
-                    AddVertex(lastKey, new ITopologicVertex(pt.X, pt.Y, pt.Z, coord.X, coord.Y, 0));
-                    lastKey++;
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetRangeVertices(List<int> keys, List<ITopologicVertex> vertices)
-        {
-            if (keys.Count == vertices.Count && keys.Count>0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    SetVertex(keys[i], vertices[i]);
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetRangeVertices(List<int> keys, List<Point3d> vertices)
-        {
-            if (keys.Count == vertices.Count && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    SetVertex(keys[i], new ITopologicVertex(vertices[i]));
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetRangeVertices(List<int> keys, double[][] vertices)
-        {
-            if (keys.Count == vertices.Length && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    SetVertex(keys[i], vertices[i]);
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetOrAddRangeVertices(List<ITopologicVertex> vertices)
-        {
-            if (vertices!=null && vertices.Count > 0)
-            {
-                int lastKey = FindNextKey(), key;
-                for (int i = 0; i < vertices.Count; i++)
-                {
-                    key = vertices[i].Key;
-                    if (_vertices.ContainsKey(key)) SetVertex(key, vertices[i]);
-                    else
+                    for (int i = 0; i < keys.Count(); i++)
                     {
-                        AddVertex(lastKey, vertices[i]);
-                        lastKey++;
+                        SetVertex(keys.ElementAt(i), vertices.ElementAt(i));
                     }
+                    return true;
                 }
-                return true;
+                else return false;
             }
-            else return false;
+            catch (Exception) { return false; }
         }
 
-        public bool SetOrAddRangeVertices(List<int> keys, List<ITopologicVertex> vertices)
+        public bool SetRangeVertices(IEnumerable<int> keys, IEnumerable<Point3d> points)
         {
-            if (keys.Count == vertices.Count && keys.Count > 0)
+            try
             {
-                for (int i = 0; i < keys.Count; i++)
+                if (keys.Count() == points.Count())
                 {
-                    if(_vertices.ContainsKey(keys[i])) SetVertex(keys[i], vertices[i]);
-                    else AddVertex(keys[i], vertices[i]);
+                    for (int i = 0; i < keys.Count(); i++)
+                    {
+                        SetVertexPosition(keys.ElementAt(i), points.ElementAt(i));
+                    }
+                    return true;
                 }
-                return true;
+                else return false;
             }
-            else return false;
-        }
-
-        public bool SetOrAddRangeVertices(List<int> keys, List<Point3d> vertices)
-        {
-            if (keys.Count == vertices.Count && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    if (_vertices.ContainsKey(keys[i])) SetVertex(keys[i], new ITopologicVertex(vertices[i]));
-                    else AddVertex(keys[i], new ITopologicVertex(vertices[i]));
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetOrAddRangeVertices(List<int> keys, double[][] vertices)
-        {
-            if (keys.Count == vertices.Length && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    if (_vertices.ContainsKey(keys[i])) SetVertex(keys[i], vertices[i]);
-                    else AddVertex(keys[i], vertices[i]);
-                }
-                return true;
-            }
-            else return false;
+            catch (Exception) { return false; }
         }
 
         public bool DeleteVertex(int key)
         {
-            return _vertices.Remove(key);
+            try
+            {
+                return _vertices.Remove(key);
+            }
+            catch (Exception) { return false; }
         }
 
         public bool DeleteVertex(ITopologicVertex vertex)
@@ -367,18 +198,26 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
 
         public void DeleteVertices(IEnumerable<int> keys)
         {
-            foreach (int k in keys)
+            try
             {
-                DeleteVertex(k);
+                foreach (int k in keys)
+                {
+                    DeleteVertex(k);
+                }
             }
+            catch (Exception) { }
         }
 
         public void DeleteVertices(IEnumerable<ITopologicVertex> vertices)
         {
-            foreach (ITopologicVertex v in vertices)
+            try
             {
-                DeleteVertex(v);
+                foreach (ITopologicVertex v in vertices)
+                {
+                    DeleteVertex(v);
+                }
             }
+            catch (Exception) { }
         }
 
         public bool ContainsKey(int key)
@@ -389,73 +228,6 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
         public ITopologicVertex GetVertexWithKey(int key)
         {
             return _vertices[key];
-        }
-
-        public bool SetRangeTextureCoordinates(List<int> keys, double[][] uvw)
-        {
-            if (keys.Count == uvw.Length && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    SetTextureCoordinates(keys[i], uvw[i]);
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetOrAddRangeVerticesWithTextureCoordinates(List<int> keys, double[][] vertices)
-        {
-            if (keys.Count == vertices.Length && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    if (_vertices.ContainsKey(keys[i])) SetOrAddVertexWithTextureCoordinates(keys[i], vertices[i]);
-                    else AddVertex(keys[i], vertices[i]);
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetOrAddRangeVerticesWithTextureCoordinates(List<int> keys, List<Point3d> vertices, List<Point2f> uvw)
-        {
-            if (keys.Count == vertices.Count && uvw.Count==keys.Count && keys.Count > 0)
-            {
-                for (int i = 0; i < keys.Count; i++)
-                {
-                    Point3d pt = vertices[i];
-                    Point2f coord = uvw[i];
-                    if (_vertices.ContainsKey(keys[i])) SetVertexWithTextureCoordinates(keys[i], pt.X, pt.Y, pt.Z, coord.X, coord.Y, 0);
-                    else AddVertexWithTextureCoordinates(keys[i], pt.X, pt.Y, pt.Z, coord.X, coord.Y, 0);
-                }
-                return true;
-            }
-            else return false;
-        }
-
-        public bool SetTextureCoordinates(int key, double u, double v, double w)
-        {
-            if (_vertices.ContainsKey(key))
-            {
-                ITopologicVertex vertex = _vertices[key];
-                vertex.X = u;
-                vertex.Y = v;
-                vertex.Z = w;
-                return SetVertex(key, vertex);
-            }
-            else return false;
-        }
-
-        public bool SetTextureCoordinates(int key, double[] uvw)
-        {
-            if (_vertices.ContainsKey(key))
-            {
-                ITopologicVertex v = _vertices[key];
-                v.TextureCoordinates = uvw;
-                return SetVertex(key, v);
-            }
-            else return false;
         }
 
         public bool DeleteTextureCoordinates(int key)
@@ -474,7 +246,9 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
         {
             foreach(int key in _vertices.Keys)
             {
-                DeleteTextureCoordinates(key);
+                ITopologicVertex v = _vertices[key];
+                v.TextureCoordinates = new double[] { 0, 0, 0 };
+                SetVertex(key, v);
             }
         }
 

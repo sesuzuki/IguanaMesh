@@ -6,87 +6,41 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
 {
     interface IVertexCollectionInterface
     {
-        Boolean AddVertex(int key, ITopologicVertex vertex);
+        bool AddVertex(int key, ITopologicVertex vertex);
 
-        Boolean AddVertex(int key, double[] vertex);
+        bool AddVertex(int key, Point3d point);
 
-        Boolean AddVertex(int key, double x, double y, double z);
+        bool AddVertex(int key, double x, double y, double z);
 
-        Boolean AddVertex(ITopologicVertex vertex);
+        bool AddVertex(int key, double x, double y, double z, double u, double v, double w);
 
-        Boolean AddVertexWithTextureCoordinates(int key, double x, double y, double z, double u, double v, double w);
+        bool AddRangeVertices(IEnumerable<ITopologicVertex> vertices);
 
-        Boolean AddVertexWithTextureCoordinates(int key, double[] vertex);
+        bool AddRangeVertices(IEnumerable<int> keys, IEnumerable<ITopologicVertex> vertices);
 
-        Boolean SetOrAddVertex(ITopologicVertex vertex);
+        bool AddRangeVertices(IEnumerable<Point3d> points);
 
-        Boolean SetOrAddVertex(int key, ITopologicVertex vertex);
+        bool SetRangeVertices(IEnumerable<int> keys, IEnumerable<ITopologicVertex> vertices);
 
-        Boolean SetOrAddVertex(int key, double[] vertex);
+        bool SetRangeVertices(IEnumerable<int> keys, IEnumerable<Point3d> points);
 
-        Boolean SetOrAddVertex(int key, double x, double y, double z);
+        bool SetVertex(int key, ITopologicVertex vertex);
 
-        Boolean SetOrAddVertexWithTextureCoordinates(int key, double x, double y, double z, double u, double v, double w);
+        bool SetVertexPosition(int key, Point3d point);
 
-        Boolean SetOrAddVertexWithTextureCoordinates(int key, double[] vertex);
+        bool SetVertexPosition(int key, double x, double y, double z);
 
-        Boolean AddRangeVertices(List<ITopologicVertex> vertices);
+        bool SetVertexTextureCoordinates(int key, double u, double v, double w);
 
-        Boolean AddRangeVertices(List<int> keys, List<ITopologicVertex> vertices);
+        bool DeleteVertex(int key);
 
-        Boolean AddRangeVertices(List<Point3d> vertices);
+        bool DeleteVertex(ITopologicVertex vertex);
 
-        Boolean AddRangeVertices(double[][] vertices);
-
-        Boolean AddRangeVerticesWithTextureCoordinates(double[][] vertices);
-
-        Boolean AddRangeVerticesWithTextureCoordinates(List<Point3d> vertices, List<Point2f> uvw);
-
-        Boolean SetRangeVertices(List<int> keys, List<ITopologicVertex> vertices);
-
-        Boolean SetRangeVertices(List<int> keys, List<Point3d> vertices);
-
-        Boolean SetRangeVertices(List<int> keys, double[][] vertices);
-
-        Boolean SetRangeTextureCoordinates(List<int> keys, double[][] uvw);
-
-        Boolean SetOrAddRangeVertices(List<ITopologicVertex> vertices);
-
-        Boolean SetOrAddRangeVertices(List<int> keys, List<ITopologicVertex> vertices);
-
-        Boolean SetOrAddRangeVertices(List<int> keys, List<Point3d> vertices);
-
-        Boolean SetOrAddRangeVertices(List<int> keys, double[][] vertices);
-
-        Boolean SetOrAddRangeVerticesWithTextureCoordinates(List<int> keys, double[][] vertices);
-
-        Boolean SetOrAddRangeVerticesWithTextureCoordinates(List<int> keys, List<Point3d> vertices, List<Point2f> uvw);
-
-        Boolean SetVertex(int key, ITopologicVertex vertex);
-
-        Boolean SetVertex(int key, double[] vertex);
-
-        Boolean SetVertex(int key, double x, double y, double z);
-
-        Boolean SetVertexWithTextureCoordinates(int key, double x, double y, double z, double u, double v, double w);
-
-        Boolean SetVertexWithTextureCoordinates(int key, double[] vertex);
-
-        Boolean SetVertex(ITopologicVertex vertex);
-
-        Boolean SetTextureCoordinates(int key, double u, double v, double w);
-
-        Boolean SetTextureCoordinates(int key, double[] vertex);
-
-        Boolean DeleteVertex(int key);
-
-        Boolean DeleteVertex(ITopologicVertex vertex);
-
-        void DeleteVertices(IEnumerable<ITopologicVertex> vertex);
+        void DeleteVertices(IEnumerable<ITopologicVertex> vertices);
 
         void DeleteVertices(IEnumerable<int> keys);
 
-        Boolean DeleteTextureCoordinates(int key);
+        bool DeleteTextureCoordinates(int key);
 
         void Clean();
 
@@ -95,5 +49,9 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
         Boolean ContainsKey(int key);
 
         ITopologicVertex GetVertexWithKey(int key);
+
+        int FindNextKey();
+
+        void CullUnparsedNodes(IEnumerable<int> parsedNodes);
     }
 }

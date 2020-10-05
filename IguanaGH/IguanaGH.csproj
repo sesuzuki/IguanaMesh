@@ -63,9 +63,10 @@
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICylinderGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IEllipsoidGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IEllipticDupinCyclideGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettings\ILineConstraintGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettings\IMeshingQuadGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettings\IPointConstraintGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\ICurveConstraintGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingPrismGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IPointConstraintGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IFromRhinoMeshGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IHyperboloidOneSheetGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IParabolicCylinderGH.cs" />
@@ -78,10 +79,10 @@
     <Compile Include="IguanaMeshGH\IUtilsGH\IDeconstructorGH.cs" />
     <Compile Include="IguanaMeshGH\IDisplayGH\IFacesAsPolylinesGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IConstructMeshGH.cs" />
-    <Compile Include="IguanaMeshGH\IUtilsGH\IMeshFromSurfaceGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromSurfaceGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IMeshFromPolylineGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettings\IMeshingTriangleGH.cs" />
-    <Compile Include="IguanaMeshGH\IUtilsGH\IPatchMeshGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingTriangleGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromCurveGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IPolygonalFaceGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IHexahedronSolidGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\INakedEdgesGH.cs" />
@@ -90,7 +91,7 @@
     <Compile Include="IguanaMeshGH\ITopologyGH\IVertexAdjacentVertices.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IVertexIncidentElementsGH.cs" />
     <Compile Include="IguanaGHInfo.cs" />
-    <Compile Include="IguanaMeshGH\IUtilsGH\IVolumeMeshFromExtrusion.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromExtrusionGH.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

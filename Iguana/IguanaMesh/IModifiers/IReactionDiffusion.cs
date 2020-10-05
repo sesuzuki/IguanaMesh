@@ -143,7 +143,7 @@ namespace Iguana.IguanaMesh.IModifiers
 
                     vertex += n;
 
-                    nMesh.Vertices.AddVertex(vertex);
+                    nMesh.Vertices.AddVertex(vK, vertex);
                 }
 
                 nMesh.Elements.AddRangeElements(mesh.Elements.ElementsValues);

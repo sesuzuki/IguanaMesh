@@ -122,7 +122,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                 vertex.Normal = normal;
 
-                iM.Vertices.SetVertex(vertex);
+                iM.Vertices.SetVertex(vertexKey, vertex);
 
                 return true;
             }
