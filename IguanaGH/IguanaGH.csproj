@@ -57,6 +57,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromBrepGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromExtrusion.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromBrepGH.cs" />
     <Compile Include="IguanaMeshGH\IDisplayGH\I2DElementsAsSurfacesGH.cs" />
     <Compile Include="IguanaMeshGH\IDisplayGH\IEdgesAsLinesGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICubeGH.cs" />

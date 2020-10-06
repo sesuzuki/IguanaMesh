@@ -179,7 +179,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="sphereCenterTag"></param>
                 /// <param name="tag"> If `tag' is positive, set the tag explicitly; otherwise a new tag is selected  automatically. </param>
                 /// <returns></returns>
-                public static int AddSurfaceFilling(int wireTag, int sphereCenterTag, int tag = -1)
+                public static int AddSurfaceFilling(int wireTag, int sphereCenterTag=-1, int tag = -1)
                 {
                     return IWrappers.GmshModelGeoAddSurfaceFilling(new int[] { wireTag }, 1, tag, sphereCenterTag, ref _ierr);
                 }

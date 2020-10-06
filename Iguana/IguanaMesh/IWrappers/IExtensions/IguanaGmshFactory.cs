@@ -16,42 +16,69 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
     {
         public static int OCCSurfacePatch(NurbsCurve crv, List<Point3d> patchs=default, bool synchronize=false)
         {
-            crv.MakePiecewiseBezier(true);
-            NurbsCurvePointList pts = crv.Points;
-            NurbsCurveKnotList knots = crv.Knots;
-
-            int[] curvePts = new int[pts.Count];
-            double[] weightPts = new double[pts.Count];
-
             // 1._ Build Points
-            ControlPoint p1;
-            for (int i = 0; i < pts.Count - 1; i++)
+            double cParam = crv.Domain.Length / 4;
+            double[] cList = new double[] { cParam, cParam * 2, cParam * 3, cParam * 4 };
+            Curve[] cCrv = crv.Split(cList);
+
+            int count = 10;
+            int[] dup = new int[4];
+            int[] crvTags = new int[4];
+
+            for (int i = 0; i < cCrv.Length; i++)
             {
-                p1 = pts[i];
-                curvePts[i] = IguanaGmsh.Model.GeoOCC.AddPoint(p1.X, p1.Y, p1.Z);
-                weightPts[i] = pts.GetWeight(i);
+                Curve c = cCrv[i];
+                double t = c.Domain.Length / (count - 1);
+
+                int[] ptTags = new int[count];
+                for (int j = 0; j < count; j++)
+                {
+                    Point3d p = c.PointAt(j * t + c.Domain.T0);
+
+                    if (i == 0)
+                    {
+                        ptTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
+                        if (j == 0) dup[0] = ptTags[j];
+                        if (j == count - 1) dup[1] = ptTags[j];
+                    }
+                    else if (i == 3)
+                    {
+                        if (j == 0) ptTags[j] = dup[3];
+                        else if (j == count - 1) ptTags[j] = dup[0];
+                        else ptTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
+                    }
+                    else
+                    {
+                        if (j == 0) ptTags[j] = dup[i];
+                        else
+                        {
+                            ptTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
+                            if (j == count - 1) dup[i + 1] = ptTags[j];
+                        }
+                    }
+                }
+
+                crvTags[i] = IguanaGmsh.Model.GeoOCC.AddSpline(ptTags);
             }
-            weightPts[pts.Count - 1] = weightPts[0];
-            curvePts[pts.Count - 1] = curvePts[0];
 
             // 2._ Check points to patch
             if (patchs == default) patchs = new List<Point3d>();
             int[] patchPts = new int[patchs.Count];
 
-            Point3d p2;             
+            Point3d p2;
             for (int i = 0; i < patchs.Count; i++)
             {
                 p2 = patchs[i];
                 patchPts[i] = IguanaGmsh.Model.GeoOCC.AddPoint(p2.X, p2.Y, p2.Z);
             }
 
+
             // 3._ Build OCC Geometry
-            int occCurve = IguanaGmsh.Model.GeoOCC.AddBSpline(curvePts, crv.Degree, weightPts);
-            int occWire = IguanaGmsh.Model.GeoOCC.AddWire(new int[] { occCurve });
-            int surfaceTag = IguanaGmsh.Model.GeoOCC.AddSurfaceFilling(occWire, patchPts);
+            int wireTag = IguanaGmsh.Model.GeoOCC.AddCurveLoop(crvTags);
+            int surfaceTag = IguanaGmsh.Model.GeoOCC.AddSurfaceFilling(wireTag, patchPts);
 
             // 5._ Synchronize model
-            if(synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
+            if (synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
 
             return surfaceTag;
         }

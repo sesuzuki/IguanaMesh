@@ -1,24 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
+
 using Grasshopper.Kernel;
-using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
-using Rhino.Geometry;
-using Iguana.IguanaMesh.IWrappers.ISolver;
-using System.Collections.Generic;
+using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
+using Iguana.IguanaMesh.IWrappers.ISolver;
 using Rhino;
+using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.IUtilsGH
+namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 {
-    public class IMeshFromSurfaceGH : GH_Component
+    public class IMesh2DFromBrepGH : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the IMeshFromEdges class.
+        /// Initializes a new instance of the IMesh2DFromBrep class.
         /// </summary>
-        public IMeshFromSurfaceGH()
-          : base("iSurfacePatch", "iSrfPatch",
-              "Create a mesh from a surface patch.",
+        public IMesh2DFromBrepGH()
+          : base("iOpenBrep", "iOBrep",
+              "Create a mesh from a curve patch.",
               "Iguana", "Creators")
         {
         }
@@ -71,7 +72,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             solverOptions.MinimumCurvePoints = minPts;
 
             // Extract required data from base surface
-            if (!b.IsSolid && b.Faces.Count==1)
+            if (!b.IsSolid)
             {
                 // Boundary curve
                 Curve crv = b.DuplicateNakedEdgeCurves(true, false)[0];
@@ -139,8 +140,6 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
                 IguanaGmsh.FinalizeGmsh();
             }
-
-            DA.SetData(0, mesh);
         }
 
         /// <summary>
@@ -161,7 +160,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("927b9c99-ecc6-4b18-b1be-9be051361169"); }
+            get { return new Guid("8b5f141b-2d8d-485d-b353-12120803ef31"); }
         }
     }
 }
