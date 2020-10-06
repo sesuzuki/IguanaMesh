@@ -18,7 +18,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             // 1._ Build Points
             double cParam = crv.Domain.Length / 4;
-            double[] cList = new double[] { cParam, cParam * 2, cParam * 3, cParam * 4 };
+            double[] cList = new double[] { crv.Domain.T0 + cParam, crv.Domain.T0 + cParam * 2, crv.Domain.T0 + cParam * 3, crv.Domain.T0 + cParam * 4 };
             Curve[] cCrv = crv.Split(cList);
 
             int count = 10;
