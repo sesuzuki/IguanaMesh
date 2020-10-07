@@ -11,6 +11,58 @@ namespace Iguana.IguanaMesh.IUtils
 {
     public static class IRhinoGeometry
     {
+        public static Curve GetBrepFaceNakedBoundary(Brep b, int indexFace)
+        {
+            BrepFace face = b.Faces[indexFace];
+            int[] indexEdges = face.AdjacentEdges();
+            Curve[] edges = new Curve[indexEdges.Length];
+            for (int i = 0; i < indexEdges.Length; i++)
+            {
+                edges[i] = b.Edges[indexEdges[i]];
+            }
+
+            Curve c = Curve.JoinCurves(edges)[0];
+
+            return c;
+        }
+
+        public static bool GetBrepFaceMeshingData(Brep b, int indexFace, int count, out Curve nakedBoundary, out List<Point3d> patchingPoints)
+        {
+            nakedBoundary = null;
+            patchingPoints = new List<Point3d>();
+
+            try
+            {
+                nakedBoundary = GetBrepFaceNakedBoundary(b, indexFace);
+
+                // Surface points
+                Point3d p;
+                List<Point3d> pts = new List<Point3d>();
+                Interval UU = b.Surfaces[indexFace].Domain(0);
+                Interval VV = b.Surfaces[indexFace].Domain(1);
+                double u = Math.Abs(UU.Length) / count;
+                double v = Math.Abs(VV.Length) / count;
+                for (int i = 0; i <= count; i++)
+                {
+                    for (int j = 0; j <= count; j++)
+                    {
+                        p = b.Surfaces[0].PointAt(i * u, j * v);
+                        pts.Add(p);
+                    }
+                }
+
+                // Points to patch
+                Plane pl;
+                Plane.FitPlaneToPoints(pts, out pl);
+                patchingPoints = new List<Point3d>();
+                foreach (Point3d pt in pts)
+                {
+                    if (nakedBoundary.Contains(pt, pl, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == PointContainment.Inside) patchingPoints.Add(pt);
+                }
+                return true;
+            }
+            catch (Exception) { return false; }
+        }
 
         public static List<Line> GetEdgesAsLines(IMesh mesh)
         {

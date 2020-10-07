@@ -18,6 +18,16 @@ namespace Iguana.IguanaMesh.IUtils
             return list;
         }
 
+        public static Tuple<int, int>[] ToIntPair(long[] data)
+        {
+            Tuple<int, int>[] list = new Tuple<int, int>[data.Length / 2];
+            for (int i = 0; i < data.Length / 2; i++)
+            {
+                list[i] = Tuple.Create((int) data[i * 2], (int) data[i * 2 + 1]);
+            }
+            return list;
+        }
+
         public static int[] ToIntArray(Tuple<int, int>[] data)
         {
             int[] list = new int[data.Length * 2];

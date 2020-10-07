@@ -9,26 +9,63 @@ using Rhino.Geometry.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Rhino;
 
 namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
-    public static class IguanaGmshFactory
+    public static partial class IguanaGmshFactory
     {
-        public static int OCCSurfacePatch(NurbsCurve crv, List<Point3d> patchs=default, bool synchronize=false)
+        public static IMesh TryGetIMesh()
+        {
+            // Iguana mesh construction
+            IVertexCollection vertices;
+            IElementCollection elements;
+            HashSet<int> parsedNodes;
+            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
+            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
+            if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
+
+            // Iguana mesh construction
+            IMesh mesh = new IMesh(vertices, elements);
+            mesh.BuildTopology();
+
+            return mesh;
+        }
+
+        public static int OCCSpherePatch(Sphere sphere)
+        {
+            Point3d c = sphere.Center;
+            int srfTag = IguanaGmsh.Model.GeoOCC.AddSphere(c.X, c.Y, c.Z, sphere.Radius, -Math.PI / 2, Math.PI / 2, 2 * Math.PI);
+            return srfTag;
+        }
+
+        public static int OCCSurfacePatch(Curve crv, List<Point3d> patchs=default, bool synchronize=false)
         {
             // 1._ Build Points
             double cParam = crv.Domain.Length / 4;
             double[] cList = new double[] { crv.Domain.T0 + cParam, crv.Domain.T0 + cParam * 2, crv.Domain.T0 + cParam * 3, crv.Domain.T0 + cParam * 4 };
             Curve[] cCrv = crv.Split(cList);
 
-            int count = 10;
             int[] dup = new int[4];
             int[] crvTags = new int[4];
 
             for (int i = 0; i < cCrv.Length; i++)
             {
                 Curve c = cCrv[i];
-                double t = c.Domain.Length / (count - 1);
+
+                PolyCurve pc = crv.ToArcsAndLines(RhinoDoc.ActiveDoc.ModelAbsoluteTolerance, RhinoDoc.ActiveDoc.ModelAngleToleranceRadians, 0.1, 1e33);
+
+                int count = pc.SegmentCount;
+                int[] ptsTags = new int[count + 1];
+                Point3d p;
+                for (int j = 0; j < count; j++)
+                {
+                    p = pc.SegmentCurve(j).PointAtStart;
+                    ptsTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
+                }
+                ptsTags[count] = ptsTags[0];
+
+                /*double t = c.Domain.Length / (count - 1);
 
                 int[] ptTags = new int[count];
                 for (int j = 0; j < count; j++)
@@ -56,9 +93,9 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             if (j == count - 1) dup[i + 1] = ptTags[j];
                         }
                     }
-                }
+                }*/
 
-                crvTags[i] = IguanaGmsh.Model.GeoOCC.AddSpline(ptTags);
+                crvTags[i] = IguanaGmsh.Model.GeoOCC.AddSpline(ptsTags);
             }
 
             // 2._ Check points to patch

@@ -92,6 +92,15 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetPhysicalName")]
             internal static extern void GmshModelSetPhysicalName(int dim, int tag, [MarshalAs(UnmanagedType.LPStr)] string name, ref int ierr);
 
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetEntities")]
+            internal static extern void GmshModelGetEntities(out IntPtr dimTags, out long dimTags_n, int dim, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetBoundary")]
+            internal static extern void GmshModelGetBoundary(int[] dimTags, long dimTags_n, out IntPtr outDimTags, out long outDimTags_n, int combined, int oriented, int recursive, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////
@@ -539,6 +548,33 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshReclassifyNodes")]
             internal static extern void GmshModelMeshReclassifyNodes(ref int ierr);
+
+            /* Add nodes classified on the model entity of dimension `dim' and tag `tag'.
+ * `nodeTags' contains the node tags (their unique, strictly positive
+ * identification numbers). `coord' is a vector of length 3 times the length
+ * of `nodeTags' that contains the x, y, z coordinates of the nodes,
+ * concatenated: [n1x, n1y, n1z, n2x, ...]. The optional `parametricCoord'
+ * vector contains the parametric coordinates of the nodes, if any. The length
+ * of `parametricCoord' can be 0 or `dim' times the length of `nodeTags'. If
+ * the `nodeTags' vector is empty, new tags are automatically assigned to the
+ * nodes. */
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddNodes")]
+            internal static extern void GmshModelMeshAddNodes(int dim, int tag, [In, Out] int[] nodeTags, long nodeTags_n, [In,Out] double[] coord, long coord_n, [In,Out] double[] parametricCoord, long parametricCoord_n, ref int ierr);
+
+            /* Add elements classified on the entity of dimension `dim' and tag `tag'.
+ * `types' contains the MSH types of the elements (e.g. `2' for 3-node
+ * triangles: see the Gmsh reference manual). `elementTags' is a vector of the
+ * same length as `types'; each entry is a vector containing the tags (unique,
+ * strictly positive identifiers) of the elements of the corresponding type.
+ * `nodeTags' is also a vector of the same length as `types'; each entry is a
+ * vector of length equal to the number of elements of the given type times
+ * the number N of nodes per element, that contains the node tags of all the
+ * elements of the given type, concatenated: [e1n1, e1n2, ..., e1nN, e2n1,
+ * ...]. */
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddElements")]
+            internal static extern void GmshModelMeshAddElements(int dim, int tag, int[] elementTypes, long elementTypes_n, IntPtr elementTags, IntPtr elementTags_n, long elementTags_nn, IntPtr nodeTags, IntPtr nodeTags_n, long nodeTags_nn, ref int ierr);
 
             #endregion
 

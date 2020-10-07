@@ -74,16 +74,13 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
             if (crv.IsClosed)
             {
-                NurbsCurve nCrv = crv.ToNurbsCurve();
-                nCrv.Rebuild(minPts, nCrv.Degree, true);
-
                 IguanaGmsh.Initialize();
 
                 bool synchronize = true;
                 if (constraints.Count > 0) synchronize = false;
 
                 // Suface construction
-                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(nCrv, default, synchronize);
+                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(crv, default, synchronize);
 
                 // Embed constraints
                 if (!synchronize) IguanaGmshFactory.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, true);
@@ -96,16 +93,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 IguanaGmsh.Model.Mesh.Generate(2);
 
                 // Iguana mesh construction
-                IVertexCollection vertices;
-                IElementCollection elements;
-                HashSet<int> parsedNodes;
-                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-                IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
-                if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
-
-                // Iguana mesh construction
-                mesh = new IMesh(vertices, elements);
-                mesh.BuildTopology();
+                mesh = IguanaGmshFactory.TryGetIMesh();
 
                 IguanaGmsh.FinalizeGmsh();
             }

@@ -8,6 +8,7 @@ using Iguana.IguanaMesh.IWrappers.ISolver;
 using System.Collections.Generic;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino;
+using Iguana.IguanaMesh.IUtils;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -73,37 +74,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             // Extract required data from base surface
             if (!b.IsSolid && b.Faces.Count==1)
             {
-                // Boundary curve
-                Curve crv = b.DuplicateNakedEdgeCurves(true, false)[0];
-
-                // Surface points
-                int count = minPts;
-                Point3d p;
-                List<Point3d> pts = new List<Point3d>();
-                Interval UU = b.Surfaces[0].Domain(0);
-                Interval VV = b.Surfaces[0].Domain(1);
-                double u = Math.Abs(UU.Length) / count;
-                double v = Math.Abs(VV.Length) / count;
-                for (int i = 0; i <= count; i++)
-                {
-                    for (int j = 0; j <= count; j++)
-                    {
-                        p = b.Surfaces[0].PointAt(i * u, j * v);
-                        pts.Add(p);
-                    }
-                }
-
-                // Points to patch
-                Plane pl;
-                Plane.FitPlaneToPoints(pts, out pl);
-                List<Point3d> patch = new List<Point3d>();
-                foreach (Point3d pt in pts)
-                {
-                    if (crv.Contains(pt, pl, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == PointContainment.Inside) patch.Add(pt);
-                }
-
-                /////////////////
-                NurbsCurve nCrv = crv.ToNurbsCurve();
+                Curve crv;
+                List<Point3d> patch;
+                IRhinoGeometry.GetBrepFaceMeshingData(b, 0, minPts, out crv, out patch);
 
                 IguanaGmsh.Initialize();
 
@@ -111,7 +84,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 if (constraints.Count > 0) synchronize = false;
 
                 // Suface construction
-                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(nCrv, patch, synchronize);
+                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(crv, patch, synchronize);
 
                 // Embed constraints
                 if (!synchronize) IguanaGmshFactory.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, true);
@@ -126,16 +99,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 IguanaGmsh.Model.Mesh.Generate(2);
 
                 // Iguana mesh construction
-                IVertexCollection vertices;
-                IElementCollection elements;
-                HashSet<int> parsedNodes;
-                IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-                IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
-                if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
-
-                // Iguana mesh construction
-                mesh = new IMesh(vertices, elements);
-                mesh.BuildTopology();
+                mesh = IguanaGmshFactory.TryGetIMesh();
 
                 IguanaGmsh.FinalizeGmsh();
             }

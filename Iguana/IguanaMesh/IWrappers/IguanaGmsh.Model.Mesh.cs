@@ -1,6 +1,7 @@
 ﻿using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.ITypes.IElements;
+using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using System;
 using System.Collections.Generic;
@@ -310,7 +311,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// </summary>
                 /// <param name="quality"> Quality of the surface. </param>
                 /// <param name="tag"> If `tag' < 0, split quadrangles in all surfaces. </param>
-                public static void MeshSplitQuadrangles(double quality, int tag=-1) {
+                public static void SplitQuadrangles(double quality, int tag=-1) {
                     IguanaGmsh.IWrappers.GmshModelMeshSplitQuadrangles(quality, tag, ref _ierr);
                 }
 
@@ -319,9 +320,10 @@ namespace Iguana.IguanaMesh.IWrappers
                     /// </summary>
                     /// <param name="dimTags"></param>
                     /// <param name="size"></param>
-                public static void MeshSetSize(int[] dimTags, double size)
+                public static void SetSize(Tuple<int,int>[] dimTags, double size)
                 {
-                    IWrappers.GmshModelMeshSetSize(dimTags, dimTags.LongLength, size, ref _ierr);
+                    int[] dimTags_flatten = IHelpers.ToIntArray(dimTags);
+                    IWrappers.GmshModelMeshSetSize(dimTags_flatten, dimTags_flatten.LongLength, size, ref _ierr);
                 }
 
                 /// <summary>
@@ -720,6 +722,35 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshModelMeshReclassifyNodes(ref _ierr);
                 }
 
+                /// <summary>
+                /// Add nodes classified on the model entity of dimension `dim' and tag `tag'.
+                /// `nodeTags' contains the node tags (their unique, strictly positive
+                /// identification numbers). `coord' is a vector of length 3 times the length
+                /// of `nodeTags' that contains the x, y, z coordinates of the nodes,
+                /// concatenated: [n1x, n1y, n1z, n2x, ...]. The optional `parametricCoord'
+                /// vector contains the parametric coordinates of the nodes, if any.The length
+                /// of `parametricCoord' can be 0 or `dim' times the length of `nodeTags'. If
+                /// the `nodeTags' vector is empty, new tags are automatically assigned to the
+                /// nodes.
+                /// </summary>
+                public static void AddNodes(int dim, int tag, int[] nodeTags, double[] coord, double[] parametricCoord) {
+                    IWrappers.GmshModelMeshAddNodes(dim, tag, nodeTags, nodeTags.LongLength, coord, coord.LongLength, parametricCoord, parametricCoord.LongLength, ref _ierr);
+                }
+
+                /// <summary>
+                /// Add elements classified on the entity of dimension `dim' and tag `tag'.
+                /// `types' contains the MSH types of the elements (e.g. `2' for 3-node
+                /// triangles: see the Gmsh reference manual). `elementTags' is a vector of the
+                /// same length as `types'; each entry is a vector containing the tags (unique,
+                /// strictly positive identifiers) of the elements of the corresponding type.
+                /// `nodeTags' is also a vector of the same length as `types'; each entry is a
+                /// vector of length equal to the number of elements of the given type times
+                /// the number N of nodes per element, that contains the node tags of all the
+                /// elements of the given type, concatenated: [e1n1, e1n2, ..., e1nN, e2n1,...].
+                /// </summary>
+                public static void AddElements(int dim, int tag, int[] elementTypes, long elementTypes_n, IntPtr elementTags, IntPtr elementTags_n, long elementTags_nn, IntPtr nodeTags, IntPtr nodeTags_n) {
+                    IWrappers.GmshModelMeshAddElements(dim, tag, int[] elementTypes, long elementTypes_n, IntPtr elementTags, IntPtr elementTags_n, long elementTags_nn, IntPtr nodeTags, IntPtr nodeTags_n, long nodeTags_nn, ref _ierr);
+                }
             }
         }
     }

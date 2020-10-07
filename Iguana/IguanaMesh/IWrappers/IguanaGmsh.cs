@@ -7,7 +7,6 @@ namespace Iguana.IguanaMesh.IWrappers
     {
         internal static int _ierr = 0;
 
-
         /// <summary>
         /// Initialize IguanaGmsh. This must be called before any call to the other functions in the API.
         /// </summary>
