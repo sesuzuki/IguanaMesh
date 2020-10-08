@@ -9,6 +9,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Rhino.Geometry;
+using Rhino.Geometry.Collections;
 
 namespace Iguana.IguanaMesh.IWrappers
 {
@@ -42,49 +44,31 @@ namespace Iguana.IguanaMesh.IWrappers
                     long nodeTags_Number, coord_Number, parametricCoord_Number;
                     IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
-
-                    nodeTags_out = null;
-                    coord_out = null;
-                    parametricCoord_out = null;
+                    nodeTags_out = new int[nodeTags_Number];
+                    coord_out = new double[coord_Number][];
+                    parametricCoord_out = new double[parametricCoord_Number][];
 
                     // Tags
                     if (nodeTags_Number > 0)
                     {
-                        nodeTags_out = new int[nodeTags_Number];
-                        var temp = new long[nodeTags_Number];
-                        Marshal.Copy(nodeTags, temp, 0, (int)nodeTags_Number);
+                        // Coordinates
+                        var xyz = new double[coord_Number];
+                        Marshal.Copy(coord, xyz, 0, (int)coord_Number);
+                        // Keys
+                        var keys = new long[nodeTags_Number];
+                        Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
+                        // uvw
+                        var uvw = new double[parametricCoord_Number];
+                        Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
 
                         for (int i = 0; i < nodeTags_Number; i++)
                         {
-                            nodeTags_out[i] = (int)temp[i];
-                        }
-                    }
+                            coord_out[i] = new double[] { xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2] };
+                            nodeTags_out[i] = (int)keys[i];
 
-                    // Coordinates
-                    if (coord_Number > 0)
-                    {
-                        coord_out = new double[coord_Number / 3][];
-                        var temp = new double[coord_Number];
-                        Marshal.Copy(coord, temp, 0, (int)coord_Number);
-
-                        for (int i = 0; i < coord_Number / 3; i++)
-                        {
-                            coord_out[i] = new double[] { temp[i * 3], temp[i * 3 + 1], temp[i * 3 + 2] };
-                        }
-                    }
-
-                    // UVW coordinates
-                    if (parametricCoord_Number > 0 && dim > 0)
-                    {
-                        parametricCoord_out = new double[parametricCoord_Number / dim][];
-                        var temp = new double[parametricCoord_Number];
-                        Marshal.Copy(parametricCoord, temp, 0, (int)parametricCoord_Number);
-
-                        for (int i = 0; i < parametricCoord_Number / dim; i++)
-                        {
-                            if (dim == 1) parametricCoord_out[i] = new double[] { temp[i * dim] };
-                            else if (dim == 2) parametricCoord_out[i] = new double[] { temp[i * dim], temp[i * dim + 1] };
-                            else if (dim == 3) parametricCoord_out[i] = new double[] { temp[i * dim], temp[i * dim + 1], temp[i * dim + 2] };
+                            if (dim == 1) parametricCoord_out[i] = new double[] { uvw[i * dim] };
+                            else if (dim == 2) parametricCoord_out[i] = new double[] { uvw[i * dim], uvw[i * dim + 1] };
+                            else if (dim == 3) parametricCoord_out[i] = new double[] { uvw[i * dim], uvw[i * dim + 1], uvw[i * dim + 2] };
                         }
                     }
 
@@ -151,61 +135,36 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="nodeTags_n"></param>
                 /// <param name="nodeTags_nn"></param>
                 /// <param name="dim"> If `dim' is negative (default), get all the elements in the mesh.  </param>
-                public static void GetElements(out int[][][] elementTypes_out, int dim = -1)
+                public static void GetElements(out int[] elementTypes_out, out int[][] elementTags_out, out int[][] nodeTags_out, int dim = -1, int tag=-1)
                 {
                     IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
                     long elementTypes_Number, elementTags_NNumber, nodeTags_NNumber;
 
-                    int tag = -1;
-
                     IWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, tag, ref _ierr);
 
-                    var eTypes = new int[elementTypes_Number];
-                    var eTags_n = new long[elementTags_NNumber];
-                    var nTags_n = new long[nodeTags_NNumber];
+                    elementTypes_out = new int[elementTypes_Number];
+                    var eTags_n = new int[elementTags_NNumber];
+                    var nTags_n = new int[nodeTags_NNumber];
 
-                    Marshal.Copy(elementTypes, eTypes, 0, (int) elementTypes_Number);
+                    Marshal.Copy(elementTypes, elementTypes_out, 0, (int) elementTypes_Number);
                     Marshal.Copy(elementTags_n, eTags_n, 0, (int) elementTags_NNumber);
                     Marshal.Copy(nodeTags_n, nTags_n, 0, (int) nodeTags_NNumber);
 
-                    var nTags_ptr = new IntPtr[nodeTags_NNumber];
-                    var eTags_ptr = new IntPtr[elementTags_NNumber];
-
-                    Marshal.Copy(nodeTags, nTags_ptr, 0, (int)nodeTags_NNumber);
-                    Marshal.Copy(elementTags, eTags_ptr, 0, (int)elementTags_NNumber);
-
-                    var eTags_val = new long[elementTags_NNumber][];
-                    var nTags_val = new long[nodeTags_NNumber][];
-                    elementTypes_out = new int[elementTags_NNumber][][];
-
-                  
+                    elementTags_out = new int[elementTags_NNumber][];
+                    nodeTags_out = new int[nodeTags_NNumber][];
 
                     for (int i = 0; i < elementTags_NNumber; i++)
                     {
                         // Initializing containers
-                        eTags_val[i] = new long[eTags_n[i]];
-                        nTags_val[i] = new long[nTags_n[i]];
+                        elementTags_out[i] = new int[eTags_n[i]];
+                        nodeTags_out[i] = new int[nTags_n[i]];
 
                         // Marshalling
-                        Marshal.Copy(eTags_ptr[i], eTags_val[i], 0, (int)eTags_n[i]);
-                        Marshal.Copy(nTags_ptr[i], nTags_val[i], 0, (int)nTags_n[i]);
+                        int start = 0;
+                        if (i >0 ) start = i * (int) eTags_n[i-1];
+                        Marshal.Copy(elementTags, elementTags_out[i], start, start + (int) eTags_n[i]);
+                        Marshal.Copy(nodeTags, nodeTags_out[i], start, start + (int) nTags_n[i]);
 
-
-                        // Building elements
-                        int element_type = eTypes[i];
-                        int nodes_per_element = (int) (nTags_n[i] / eTags_n[i]);
-                        int number_of_elements = nTags_val[i].Length / nodes_per_element;
-                        elementTypes_out[i] = new int[number_of_elements][];
-
-                        for (int j = 0; j < number_of_elements; j++)
-                        {
-                            elementTypes_out[i][j] = new int[nodes_per_element];
-
-                            for (int k=0; k<nodes_per_element; k++)
-                            {
-                                elementTypes_out[i][j][k] = (int) nTags_val[i][j * nodes_per_element + k];
-                            }
-                        }
                     }
 
                     // Delete unmanaged allocated memory
@@ -214,9 +173,6 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshFree(nodeTags);
                     IWrappers.GmshFree(elementTags_n);
                     IWrappers.GmshFree(nodeTags_n);
-
-                    foreach (IntPtr ptr in nTags_ptr) IWrappers.GmshFree(ptr);
-                    foreach (IntPtr ptr in eTags_ptr) IWrappers.GmshFree(ptr);
                 }
 
                 /// <summary>
@@ -322,7 +278,7 @@ namespace Iguana.IguanaMesh.IWrappers
                     /// <param name="size"></param>
                 public static void SetSize(Tuple<int,int>[] dimTags, double size)
                 {
-                    int[] dimTags_flatten = IHelpers.ToIntArray(dimTags);
+                    int[] dimTags_flatten = IHelpers.FlattenIntTupleArray(dimTags);
                     IWrappers.GmshModelMeshSetSize(dimTags_flatten, dimTags_flatten.LongLength, size, ref _ierr);
                 }
 
@@ -733,8 +689,40 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// the `nodeTags' vector is empty, new tags are automatically assigned to the
                 /// nodes.
                 /// </summary>
-                public static void AddNodes(int dim, int tag, int[] nodeTags, double[] coord, double[] parametricCoord) {
-                    IWrappers.GmshModelMeshAddNodes(dim, tag, nodeTags, nodeTags.LongLength, coord, coord.LongLength, parametricCoord, parametricCoord.LongLength, ref _ierr);
+                public static void AddNodes(int dim, int tag, int[] nodeTags, double[][] coord, double[][] parametricCoord=default)
+                {
+                    double[] coord_flatten = IHelpers.FlattenDoubleArray(coord);
+                    IntPtr coord_parse = Marshal.AllocCoTaskMem(coord_flatten.Length);
+
+                    if (parametricCoord == default) parametricCoord = new double[0][];
+                    double[] parametricCoord_flatten = IHelpers.FlattenDoubleArray(parametricCoord);
+                    IntPtr parametricCoord_parse = Marshal.AllocCoTaskMem(parametricCoord_flatten.Length);
+
+                    IWrappers.GmshModelMeshAddNodes(dim, tag, nodeTags, nodeTags.LongLength, coord_parse, coord_flatten.LongLength, parametricCoord_parse, parametricCoord_flatten.LongLength, ref _ierr);
+
+                    Marshal.FreeCoTaskMem(coord_parse);
+                    Marshal.FreeCoTaskMem(parametricCoord_parse);
+                }
+
+                /// <summary>
+                /// Add nodes classified on the model entity of dimension `dim' and tag `tag'.
+                /// `nodeTags' contains the node tags (their unique, strictly positive
+                /// identification numbers). `coord' is a vector of length 3 times the length
+                /// of `nodeTags' that contains the x, y, z coordinates of the nodes,
+                /// concatenated: [n1x, n1y, n1z, n2x, ...]. The optional `parametricCoord'
+                /// vector contains the parametric coordinates of the nodes, if any.The length
+                /// of `parametricCoord' can be 0 or `dim' times the length of `nodeTags'. If
+                /// the `nodeTags' vector is empty, new tags are automatically assigned to the
+                /// nodes.
+                /// </summary>
+                public static void AddNodes(int tag, MeshVertexList vertices, MeshTextureCoordinateList textures)
+                {
+                    int[] nodeTags;
+                    double[][] coord;
+                    IHelpers.ParseRhinoVertices(vertices, out coord, out nodeTags);
+                    double[][] parametricCoord = IHelpers.ParseRhinoTextures(textures);
+
+                    AddNodes(2, tag, nodeTags, coord, parametricCoord);
                 }
 
                 /// <summary>
@@ -748,8 +736,14 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// the number N of nodes per element, that contains the node tags of all the
                 /// elements of the given type, concatenated: [e1n1, e1n2, ..., e1nN, e2n1,...].
                 /// </summary>
-                public static void AddElements(int dim, int tag, int[] elementTypes, long elementTypes_n, IntPtr elementTags, IntPtr elementTags_n, long elementTags_nn, IntPtr nodeTags, IntPtr nodeTags_n) {
-                    IWrappers.GmshModelMeshAddElements(dim, tag, int[] elementTypes, long elementTypes_n, IntPtr elementTags, IntPtr elementTags_n, long elementTags_nn, IntPtr nodeTags, IntPtr nodeTags_n, long nodeTags_nn, ref _ierr);
+                public static void AddElements(int dim, int tag, int[] elementTypes, int[][] elementTags, int[][] nodeTags)
+                {
+                    int[] elementTags_flatten = IHelpers.FlattenIntArray(elementTags);
+                    int[] nodesTags_flatten = IHelpers.FlattenIntArray(nodeTags);
+                    IntPtr elementTags_parse = Marshal.AllocCoTaskMem(elementTags_flatten.Length);
+                    IntPtr nodesTags_parse = Marshal.AllocCoTaskMem(nodesTags_flatten.Length);
+
+                    IWrappers.GmshModelMeshAddElements(dim, tag, elementTypes, elementTypes.LongLength, elementTags_parse, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_parse, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
                 }
             }
         }

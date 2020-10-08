@@ -753,8 +753,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="removeTool"></param>
                 public static void Cut(Tuple<int, int>[] objectDimTags, Tuple<int, int>[] toolDimTags, out Tuple<int,int>[] dimTags, int tag = -1, bool removeObject = true, bool removeTool = true)
                 {
-                    int[] objectDimTags_flatten = IHelpers.ToIntArray(objectDimTags);
-                    int[] toolDimTags_flatten = IHelpers.ToIntArray(toolDimTags);
+                    int[] objectDimTags_flatten = IHelpers.FlattenIntTupleArray(objectDimTags);
+                    int[] toolDimTags_flatten = IHelpers.FlattenIntTupleArray(toolDimTags);
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
                     IWrappers.GmshModelOccCut(objectDimTags_flatten, objectDimTags_flatten.LongLength, toolDimTags_flatten, toolDimTags_flatten.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
@@ -763,7 +763,7 @@ namespace Iguana.IguanaMesh.IWrappers
                     {
                         var temp = new long[outDimTags_n];
                         Marshal.Copy(outDimTags, temp, 0, (int)outDimTags_n);
-                        dimTags = IHelpers.ToIntPair(temp);
+                        dimTags = IHelpers.GraftIntTupleArray(temp);
                     }         
 
                     IWrappers.GmshFree(outDimTags);
@@ -786,8 +786,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="removeTool"></param>
                 public static void Fragment(Tuple<int, int>[] objectDimTags, Tuple<int, int>[] toolDimTags, out Tuple<int, int>[] dimTags, int tag = -1, bool removeObject = true, bool removeTool = true)
                 {
-                    int[] objectDimTags_flatten = IHelpers.ToIntArray(objectDimTags);
-                    int[] toolDimTags_flatten = IHelpers.ToIntArray(toolDimTags);
+                    int[] objectDimTags_flatten = IHelpers.FlattenIntTupleArray(objectDimTags);
+                    int[] toolDimTags_flatten = IHelpers.FlattenIntTupleArray(toolDimTags);
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
                     IWrappers.GmshModelOccFragment(objectDimTags_flatten, objectDimTags_flatten.LongLength, toolDimTags_flatten, toolDimTags_flatten.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
@@ -796,7 +796,7 @@ namespace Iguana.IguanaMesh.IWrappers
                     {
                         var temp = new int[outDimTags_n];
                         Marshal.Copy(outDimTags, temp, 0, (int)outDimTags_n);
-                        dimTags = IHelpers.ToIntPair(temp);
+                        dimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(outDimTags);

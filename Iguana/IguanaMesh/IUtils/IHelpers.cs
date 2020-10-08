@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Rhino.Geometry;
+using Rhino.Geometry.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,7 @@ namespace Iguana.IguanaMesh.IUtils
 {
     public static class IHelpers
     {
-        public static Tuple<int, int>[] ToIntPair(int[] data)
+        public static Tuple<int, int>[] GraftIntTupleArray(int[] data)
         {
             Tuple<int, int>[] list = new Tuple<int, int>[data.Length / 2];
             for (int i = 0; i < data.Length / 2; i++)
@@ -18,7 +20,7 @@ namespace Iguana.IguanaMesh.IUtils
             return list;
         }
 
-        public static Tuple<int, int>[] ToIntPair(long[] data)
+        public static Tuple<int, int>[] GraftIntTupleArray(long[] data)
         {
             Tuple<int, int>[] list = new Tuple<int, int>[data.Length / 2];
             for (int i = 0; i < data.Length / 2; i++)
@@ -28,7 +30,7 @@ namespace Iguana.IguanaMesh.IUtils
             return list;
         }
 
-        public static int[] ToIntArray(Tuple<int, int>[] data)
+        public static int[] FlattenIntTupleArray(Tuple<int, int>[] data)
         {
             int[] list = new int[data.Length * 2];
             int idx = 0;
@@ -37,6 +39,57 @@ namespace Iguana.IguanaMesh.IUtils
                 list[idx] = pair.Item1;
                 list[idx + 1] = pair.Item2;
                 idx += 2;
+            }
+            return list;
+        }
+
+        public static double[] FlattenDoubleArray(double[][] data)
+        {
+            List<double> list = new List<double>();
+            for(int i=0;i<data.Length; i++)
+            {
+                for(int j=0; j< data[i].Length; j++)
+                {
+                    list.Add(data[i][j]);
+                }
+            }
+            return list.ToArray();
+        }
+
+        public static int[] FlattenIntArray(int[][] data)
+        {
+            List<int> list = new List<int>();
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[i].Length; j++)
+                {
+                    list.Add(data[i][j]);
+                }
+            }
+            return list.ToArray();
+        }
+
+        public static void ParseRhinoVertices(MeshVertexList vertices, out double[][] coord, out int[] nodeTags)
+        {
+            coord = new double[vertices.Count][];
+            nodeTags = new int[vertices.Count];
+            Point3d p;
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                p = vertices[i];
+                coord[i] = new double[] { p.X, p.Y, p.Z };
+                nodeTags[i] = i;
+            }
+        }
+
+        public static double[][] ParseRhinoTextures(MeshTextureCoordinateList textures)
+        {
+            double[][] list = new double[textures.Count][];
+            Point2f uv;
+            for (int i = 0; i < textures.Count; i++)
+            {
+                uv = textures[i];
+                list[i] = new double[] { uv.X, uv.Y };
             }
             return list;
         }

@@ -72,10 +72,10 @@ namespace Iguana.IguanaMesh.IWrappers
                 // Tags
                 if (dimTags_n > 0)
                 {
-                    var temp = new long[dimTags_n];
+                    var temp = new int[dimTags_n];
                     Marshal.Copy(dimTags_parse, temp, 0, (int)dimTags_n);
 
-                    dimTags = IHelpers.ToIntPair(temp);
+                    dimTags = IHelpers.GraftIntTupleArray(temp);
                 }
 
                 // Delete unmanaged allocated memory
@@ -93,7 +93,7 @@ namespace Iguana.IguanaMesh.IWrappers
             /// </summary>
             public static void GetBoundary(Tuple<int, int>[] dimTags, out Tuple<int, int>[] outDimTags, bool combined = false, bool oriented = false, bool recursive = false)
             {
-                int[] dimTags_flatten = IHelpers.ToIntArray(dimTags);
+                int[] dimTags_flatten = IHelpers.FlattenIntTupleArray(dimTags);
                 IntPtr outDimTags_parse;
                 long outDimTags_n;
                 IWrappers.GmshModelGetBoundary(dimTags_flatten, dimTags_flatten.LongLength, out outDimTags_parse, out outDimTags_n, Convert.ToInt32(combined), Convert.ToInt32(oriented), Convert.ToInt32(recursive), ref _ierr);
@@ -103,7 +103,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 {
                     var temp = new int[outDimTags_n];
                     Marshal.Copy(outDimTags_parse, temp, 0, (int)outDimTags_n);
-                    outDimTags = IHelpers.ToIntPair(temp);
+                    outDimTags = IHelpers.GraftIntTupleArray(temp);
                 }
 
                 IWrappers.GmshFree(outDimTags_parse);

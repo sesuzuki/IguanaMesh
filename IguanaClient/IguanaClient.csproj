@@ -46,6 +46,10 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Example.T12.cs" />
+    <Compile Include="Example.T16.cs" />
+    <Compile Include="Example.T5.cs" />
+    <Compile Include="Example.T1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
