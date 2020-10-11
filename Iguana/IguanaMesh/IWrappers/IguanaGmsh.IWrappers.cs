@@ -101,6 +101,18 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetBoundary")]
             internal static extern void GmshModelGetBoundary(int[] dimTags, long dimTags_n, out IntPtr outDimTags, out long outDimTags_n, int combined, int oriented, int recursive, ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelAddDiscreteEntity")]
+            internal static extern void GmshModelAddDiscreteEntity(int dim, int tag, [In] long[] boundary, long boundary_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemoveEntities")]
+            internal static extern void GmshModelRemoveEntities([In] long[] dimTags, long dimTags_n, int recursive, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetCoordinates")]
+            internal static extern void GmshModelSetCoordinates(int tag, double x, double y, double z, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////
@@ -491,7 +503,7 @@ namespace Iguana.IguanaMesh.IWrappers
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshCreateGeometry")]
-            internal static extern void GmshModelMeshCreateGeometry([In,Out] int[] dimTags, long dimTags_n, ref int ierr);
+            internal static extern void GmshModelMeshCreateGeometry([In,Out] long[] dimTags, long dimTags_n, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshCreateTopology")]
@@ -551,11 +563,15 @@ namespace Iguana.IguanaMesh.IWrappers
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddNodes")]
-            internal static extern void GmshModelMeshAddNodes(int dim, int tag, [In] int[] nodeTags, long nodeTags_n, IntPtr coord, long coord_n, IntPtr parametricCoord, long parametricCoord_n, ref int ierr);
+            internal static extern void GmshModelMeshAddNodes(int dim, int tag, [In] long[] nodeTags, long nodeTags_n, [In] double[] coord, long coord_n, [In] double[] parametricCoord, long parametricCoord_n, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddElements")]
-            internal static extern void GmshModelMeshAddElements(int dim, int tag, int[] elementTypes, long elementTypes_n, IntPtr elementTags, long elementTags_n, long elementTags_nn, IntPtr nodeTags, long nodeTags_n, long nodeTags_nn, ref int ierr);
+            internal static extern void GmshModelMeshAddElements(int dim, int tag, long[] elementTypes, long elementTypes_n, IntPtr elementTags, long elementTags_n, long elementTags_nn, IntPtr nodeTags, long nodeTags_n, long nodeTags_nn, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddElementsByType")]
+            internal static extern void GmshModelMeshAddElementsByType(int tag, int elementType, [In] long[] elementTags, long elementTags_n, [In] long[] nodeTags, long nodeTags_n, ref int ierr);
 
             #endregion
 

@@ -10,6 +10,18 @@ namespace Iguana.IguanaMesh.IUtils
 {
     public static class IHelpers
     {
+        public static int[] ToIntArray(long[] data)
+        {
+            int[] arr = new int[data.Length];
+            for(int i=0; i<data.Length; i++)
+            {
+                arr[i] = (int)data[i]; // Convert.ToInt32(data[i]);
+            }
+
+            return arr;
+        }
+
+
         public static Tuple<int, int>[] GraftIntTupleArray(int[] data)
         {
             Tuple<int, int>[] list = new Tuple<int, int>[data.Length / 2];
@@ -69,29 +81,32 @@ namespace Iguana.IguanaMesh.IUtils
             return list.ToArray();
         }
 
-        public static void ParseRhinoVertices(MeshVertexList vertices, out double[][] coord, out int[] nodeTags)
+        public static void ParseRhinoVertices(MeshVertexList vertices, out double[] coord, out long[] nodeTags)
         {
-            coord = new double[vertices.Count][];
-            nodeTags = new int[vertices.Count];
+            coord = new double[vertices.Count*3];
+            nodeTags = new long[vertices.Count];
             Point3d p;
             for (int i = 0; i < vertices.Count; i++)
             {
                 p = vertices[i];
-                coord[i] = new double[] { p.X, p.Y, p.Z };
                 nodeTags[i] = i;
+                coord[i*3] = p.X;
+                coord[i*3+1] = p.Y;
+                coord[i*3+1] = p.Z;
             }
         }
 
-        public static double[][] ParseRhinoTextures(MeshTextureCoordinateList textures)
+        public static void ParseRhinoTextures(MeshTextureCoordinateList textures, out double[] parametricCoord)
         {
-            double[][] list = new double[textures.Count][];
+            parametricCoord = new double[textures.Count * 2];
             Point2f uv;
             for (int i = 0; i < textures.Count; i++)
             {
                 uv = textures[i];
-                list[i] = new double[] { uv.X, uv.Y };
+                parametricCoord[i * 2] = uv.X;
+                parametricCoord[i * 2] = uv.Y;
             }
-            return list;
+
         }
 
         public static string HighOrder2DElementsToString(string element_type, int[] vertices, int order=2)

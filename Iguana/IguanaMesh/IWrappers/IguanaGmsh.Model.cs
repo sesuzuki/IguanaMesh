@@ -108,6 +108,36 @@ namespace Iguana.IguanaMesh.IWrappers
 
                 IWrappers.GmshFree(outDimTags_parse);
             }
+
+            /// <summary>
+            /// Add a discrete model entity (defined by a mesh) of dimension `dim' in the
+            /// current model.Return the tag of the new discrete entity, equal to `tag' if
+            /// `tag' is positive, or a new tag if `tag' < 0. `boundary' specifies the tags
+            /// of the entities on the boundary of the discrete entity, if any.Specifying
+            /// `boundary' allows Gmsh to construct the topology of the overall model.
+            /// </summary>
+            public static void AddDiscreteEntity(int dim, int tag, long[] boundary = default)
+            {
+                if (boundary == default) boundary = new long[0];
+                IWrappers.GmshModelAddDiscreteEntity(dim, tag, boundary, boundary.LongLength, ref _ierr);
+            }
+
+            /// <summary>
+            /// Remove the entities `dimTags' of the current model. If `recursive' is true,
+            /// remove all the entities on their boundaries, down to dimension 0.
+            /// </summary>
+            public static void RemoveEntities(long[] dimTags, bool recursive)
+            {
+                IWrappers.GmshModelRemoveEntities(dimTags, dimTags.LongLength, Convert.ToInt32(recursive), ref _ierr);
+            }
+
+            /// <summary>
+            /// Set the `x', `y', `z' coordinates of a geometrical point.
+            /// </summary>
+            public static void SetCoordinates(int tag, double x, double y, double z)
+            {
+                IWrappers.GmshModelSetCoordinates(tag, x, y, z, ref _ierr);
+            }
         }
     }
 }

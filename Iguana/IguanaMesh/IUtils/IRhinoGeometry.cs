@@ -6,24 +6,26 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 using Rhino;
 using Rhino.Geometry;
+using Rhino.Geometry.Collections;
 
 namespace Iguana.IguanaMesh.IUtils
 {
     public static class IRhinoGeometry
     {
-        public static Curve GetBrepFaceNakedBoundary(Brep b, int indexFace)
+        public static void GetBrepFaceNakedBoundaries(Brep b, int index, out Curve[] crv)
         {
-            BrepFace face = b.Faces[indexFace];
-            int[] indexEdges = face.AdjacentEdges();
-            Curve[] edges = new Curve[indexEdges.Length];
-            for (int i = 0; i < indexEdges.Length; i++)
+            BrepLoopList loops = b.Faces[index].Loops;
+            crv = new Curve[loops.Count];
+            for (int i = 0; i < loops.Count; i++)
             {
-                edges[i] = b.Edges[indexEdges[i]];
+                crv[i] = loops[i].To3dCurve();
             }
+        }
 
-            Curve c = Curve.JoinCurves(edges)[0];
-
-            return c;
+        public static void GetBrepFaceOuterNakedBoundary(Brep b, int index, out Curve crv)
+        {
+            BrepLoopList loops = b.Faces[index].Loops;
+            crv = loops[0].To3dCurve();
         }
 
         public static bool GetBrepFaceMeshingData(Brep b, int indexFace, int count, out Curve nakedBoundary, out List<Point3d> patchingPoints)
@@ -33,7 +35,7 @@ namespace Iguana.IguanaMesh.IUtils
 
             try
             {
-                nakedBoundary = GetBrepFaceNakedBoundary(b, indexFace);
+                GetBrepFaceOuterNakedBoundary(b, indexFace, out nakedBoundary);
 
                 // Surface points
                 Point3d p;

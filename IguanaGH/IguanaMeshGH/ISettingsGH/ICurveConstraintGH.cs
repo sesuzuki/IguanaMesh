@@ -76,7 +76,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
                         if (flag) c = new IguanaGmshConstraint(1, pl, sizes[i]);
                         else
                         {
-                            c = new IguanaGmshConstraint(2, crv[i].ToNurbsCurve(), sizes[i]);
+                            c = new IguanaGmshConstraint(2, crv[i], sizes[i]);
                         }
                         constraints.Add(c);
                     }
@@ -91,7 +91,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
                         if (flag) c = new IguanaGmshConstraint(1, pl, s);
                         else
                         {
-                            c = new IguanaGmshConstraint(2, crv[i].ToNurbsCurve(), s);
+                            c = new IguanaGmshConstraint(2, crv[i], s);
                         }
                         constraints.Add(c);
                     }

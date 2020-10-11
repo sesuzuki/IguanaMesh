@@ -1,4 +1,5 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.ITypes.ICollections;
+using Iguana.IguanaMesh.IWrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,7 +171,7 @@ namespace IguanaClient
             // based on OpenCASCADE, and `demos/api' for more.
 
             // Print Node Data
-            int[] nodeTags;
+            /*int[] nodeTags;
             double[][] coord;
             double[][] parametricCoord;
             IguanaGmsh.Model.Mesh.GetNodes(out nodeTags, out coord, out parametricCoord);
@@ -185,7 +186,7 @@ namespace IguanaClient
             // Print Element Data
             int[] elementTypes;
             int[][] elementTags, nTags;
-            IguanaGmsh.Model.Mesh.GetElements(out elementTypes, out elementTags, out nTags);
+            IguanaGmsh.Model.Mesh.GetElements(out elementTypes, out elementTags, out nTags, 2);
             for(int i=0; i<elementTypes.Length; i++)
             {
                 int t = elementTypes[i];
@@ -198,12 +199,21 @@ namespace IguanaClient
                     Console.Write(":: " + eT[j] + " ::");
                 }
                 Console.Write("\n");
-                for (int j = 0; j < eT.Length; j++)
+                for (int j = 0; j < nT.Length; j++)
                 {
-                    Console.Write(":: " + eT[j] + " ::");
+                    Console.Write(":: " + nT[j] + " ::");
                 }
-            }
+            }*/
 
+            IVertexCollection vertices;
+            IElementCollection elements;
+            HashSet<int> parsedNodes;
+            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
+            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
+            if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
+
+            Console.WriteLine("Number of Parsed Vertices => " + vertices.Count);
+            Console.WriteLine("Number of Parsed Elements => " + elements.Count);
 
 
             // This should be called when you are done using the Gmsh C++ API:        
