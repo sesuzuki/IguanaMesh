@@ -60,6 +60,16 @@ namespace Iguana.IguanaMesh.IWrappers
             IWrappers.GmshClear(ref _ierr);
         }
 
+        /// <summary>
+        /// Merge a file. Equivalent to the `File->Merge' menu in the Gmsh app.
+        /// Handling of the file depends on its extension and/or its contents.Merging
+        /// a file with model data will add the data to the current model.
+        /// </summary>
+        /// <param name="fileName"></param>
+        public static void Merge(string fileName) {
+            IWrappers.GmshMerge(fileName, ref _ierr);
+        }
+
 
         public static partial class Option
         {

@@ -62,6 +62,10 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshOptionGetNumber")]
             internal static extern void GmshOptionGetNumber([In, Out] string name, IntPtr value, ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshMerge")]
+            internal static extern void GmshMerge([In] string fileName, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////
@@ -103,7 +107,7 @@ namespace Iguana.IguanaMesh.IWrappers
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelAddDiscreteEntity")]
-            internal static extern void GmshModelAddDiscreteEntity(int dim, int tag, [In] long[] boundary, long boundary_n, ref int ierr);
+            internal static extern int GmshModelAddDiscreteEntity(int dim, int tag, [In] long[] boundary, long boundary_n, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemoveEntities")]
@@ -567,7 +571,7 @@ namespace Iguana.IguanaMesh.IWrappers
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddElements")]
-            internal static extern void GmshModelMeshAddElements(int dim, int tag, long[] elementTypes, long elementTypes_n, IntPtr elementTags, long elementTags_n, long elementTags_nn, IntPtr nodeTags, long nodeTags_n, long nodeTags_nn, ref int ierr);
+            internal static extern void GmshModelMeshAddElements(int dim, int tag, long[] elementTypes, long elementTypes_n, [In] int[] elementTags, long elementTags_n, long elementTags_nn, [In] int[] nodeTags, long nodeTags_n, long nodeTags_nn, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddElementsByType")]
@@ -594,6 +598,39 @@ namespace Iguana.IguanaMesh.IWrappers
             }
             #endregion
 
+            /////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////////////
+            ////// LOGGER
+            /////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////////////
+
+            #region Logger
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshLoggerWrite")]
+            internal static extern void GmshLoggerWrite([In]string message, [In] string level, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshLoggerStart")]
+            internal static extern void GmshLoggerStart(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshLoggerGet")]
+            internal static extern void GmshLoggerGet(out IntPtr log, out long log_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshLoggerStop")]
+            internal static extern void GmshLoggerStop(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshLoggerGetWallTime")]
+            internal static extern double GmshLoggerGetWallTime(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshLoggerGetCpuTime")]
+            internal static extern double GmshLoggerGetCpuTime(ref int ierr);
+
+            #endregion
         }
     }
 }

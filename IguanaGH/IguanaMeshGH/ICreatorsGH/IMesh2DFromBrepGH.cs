@@ -29,7 +29,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddBrepParameter("Surface", "Srf", "Base surface.", GH_ParamAccess.item);
+            pManager.AddBrepParameter("Brep", "B", "Brep to mesh.", GH_ParamAccess.item);
             pManager.AddIntegerParameter("MeshingPoints", "M", "Minimum number of points used to mesh edge-surfaces. Default value is 10.", GH_ParamAccess.item, 10);
             pManager.AddGenericParameter("iConstraints", "iC", "Constraints for mesh generation.", GH_ParamAccess.item);
             pManager.AddGenericParameter("iSettings", "iS2D", "Two-dimensional meshing settings", GH_ParamAccess.item);
@@ -69,7 +69,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
             }
 
             IMesh mesh = null;
-            solverOptions.MinimumCurvePoints = minPts;
+            solverOptions.MinimumCurvePoints = minPts;            
 
             // Extract required data from base surface
             if (!b.IsSolid)

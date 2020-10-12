@@ -571,78 +571,6 @@ namespace Iguana.IguanaMesh.IWrappers
                 }
 
                 /// <summary>
-                /// Add a new mesh size field of type `fieldType'. 
-                /// If `tag' is positive, assign the tag explicitly; otherwise a new tag is assigned automatically.Return the field tag.
-                /// </summary>
-                /// <param name="fieldType"></param>
-                /// <param name="tag"></param>
-                /// <returns></returns>
-                public static int MeshFieldAdd(string fieldType, int tag = -1)
-                {
-                    return IWrappers.GmshModelMeshFieldAdd(fieldType, tag, ref _ierr);
-                }
-
-                /// <summary>
-                /// Remove the field with tag `tag'.
-                /// </summary>
-                /// <param name="tag"></param>
-                public static void MeshFieldRemove(int tag)
-                {
-                    IWrappers.GmshModelMeshFieldRemove(tag, ref _ierr);
-                }
-
-                /// <summary>
-                /// Set the numerical option `option' to value `value' for field `tag'.
-                /// </summary>
-                /// <param name="tag"></param>
-                /// <param name="option"></param>
-                /// <param name="value"></param>
-                public static void MeshFieldSetNumber(int tag, string option, double value)
-                {
-                    IWrappers.GmshModelMeshFieldSetNumber(tag, option, value, ref _ierr);
-                }
-
-                /// <summary>
-                /// Set the string option `option' to value `value' for field `tag'.
-                /// </summary>
-                /// <param name="tag"></param>
-                /// <param name="option"></param>
-                /// <param name="value"></param>
-                public static void MeshFieldSetString(int tag, string option, string value)
-                {
-                    IWrappers.GmshModelMeshFieldSetString(tag, option, value, ref _ierr);
-                }
-
-                /// <summary>
-                /// Set the numerical list option `option' to value `value' for field `tag'.
-                /// </summary>
-                /// <param name="tag"></param>
-                /// <param name="option"></param>
-                /// <param name="value"></param>
-                public static void MeshFieldSetNumbers(int tag, string option, double[] value)
-                {
-                    IWrappers.GmshModelMeshFieldSetNumbers(tag, option, value, value.LongLength, ref _ierr);
-                }
-
-                /// <summary>
-                /// Set the field `tag' as the background mesh size field. 
-                /// </summary>
-                /// <param name="tag"></param>
-                public static void MeshFieldSetAsBackgroundMesh(int tag)
-                {
-                    IWrappers.GmshModelMeshFieldSetAsBackgroundMesh(tag, ref _ierr);
-                }
-
-                /// <summary>
-                /// Set the field `tag' as a boundary layer size field.
-                /// </summary>
-                /// <param name="tag"></param>
-                public static void MeshFieldSetAsBoundaryLayer(int tag)
-                {
-                    IWrappers.GmshModelMeshFieldSetAsBoundaryLayer(tag, ref _ierr);
-                }
-
-                /// <summary>
                 /// Refine the mesh of the current model by uniformly splitting the elements.
                 /// </summary>
                 public static void Refine()
@@ -745,10 +673,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 {
                     int[] elementTags_flatten = IHelpers.FlattenIntArray(elementTags);
                     int[] nodesTags_flatten = IHelpers.FlattenIntArray(nodeTags);
-                    IntPtr elementTags_parse = Marshal.AllocCoTaskMem(elementTags_flatten.Length);
-                    IntPtr nodesTags_parse = Marshal.AllocCoTaskMem(nodesTags_flatten.Length);
 
-                    IWrappers.GmshModelMeshAddElements(dim, tag, elementTypes, elementTypes.LongLength, elementTags_parse, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_parse, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
+                    IWrappers.GmshModelMeshAddElements(dim, tag, elementTypes, elementTypes.LongLength, elementTags_flatten, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_flatten, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
                 }
 
                 /// <summary>
@@ -792,10 +718,8 @@ namespace Iguana.IguanaMesh.IWrappers
 
                     int[] elementTags_flatten = tagsT.Concat(tagsQ).ToArray();
                     int[] nodesTags_flatten = nodesT.Concat(nodesQ).ToArray();
-                    IntPtr elementTags_parse = Marshal.AllocCoTaskMem(elementTags_flatten.Length);
-                    IntPtr nodesTags_parse = Marshal.AllocCoTaskMem(nodesTags_flatten.Length);
 
-                    IWrappers.GmshModelMeshAddElements(2, tag, elementTypes, elementTypes.LongLength, elementTags_parse, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_parse, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
+                    IWrappers.GmshModelMeshAddElements(2, tag, elementTypes, elementTypes.LongLength, elementTags_flatten, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_flatten, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
                 }
 
                 /// <summary>
