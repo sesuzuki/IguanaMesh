@@ -669,10 +669,10 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// the number N of nodes per element, that contains the node tags of all the
                 /// elements of the given type, concatenated: [e1n1, e1n2, ..., e1nN, e2n1,...].
                 /// </summary>
-                public static void AddElements(int dim, int tag, long[] elementTypes, int[][] elementTags, int[][] nodeTags)
+                public static void AddElements(int dim, int tag, int[] elementTypes, long[][] elementTags, long[][] nodeTags)
                 {
-                    int[] elementTags_flatten = IHelpers.FlattenIntArray(elementTags);
-                    int[] nodesTags_flatten = IHelpers.FlattenIntArray(nodeTags);
+                    long[] elementTags_flatten = IHelpers.FlattenLongArray(elementTags);
+                    long[] nodesTags_flatten = IHelpers.FlattenLongArray(nodeTags);
 
                     IWrappers.GmshModelMeshAddElements(dim, tag, elementTypes, elementTypes.LongLength, elementTags_flatten, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_flatten, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
                 }
@@ -691,10 +691,10 @@ namespace Iguana.IguanaMesh.IWrappers
                 public static void AddElements(int tag, MeshFaceList faces)
                 {
                     MeshFace f;
-                    List<int> tagsT = new List<int>();
-                    List<int> nodesT = new List<int>();
-                    List<int> tagsQ = new List<int>();
-                    List<int> nodesQ = new List<int>();
+                    List<long> tagsT = new List<long>();
+                    List<long> nodesT = new List<long>();
+                    List<long> tagsQ = new List<long>();
+                    List<long> nodesQ = new List<long>();
 
                     for (int i = 0; i < faces.Count; i++)
                     {
@@ -702,22 +702,22 @@ namespace Iguana.IguanaMesh.IWrappers
                         if (f.IsTriangle)
                         {
                             tagsT.Add(i);
-                            nodesT.AddRange(new int[] { f.A, f.B, f.C });
+                            nodesT.AddRange(new long[] { f.A, f.B, f.C });
                         }
                         else if (f.IsQuad)
                         {
                             tagsQ.Add(i);
-                            nodesQ.AddRange(new int[] { f.A, f.B, f.C, f.D });
+                            nodesQ.AddRange(new long[] { f.A, f.B, f.C, f.D });
                         }
                     }
 
-                    long[] elementTypes = new long[0];
-                    if (tagsT.Count > 0 && tagsQ.Count > 0) elementTypes = new long[] { 2, 3 };
-                    else if (tagsT.Count > 0 && tagsQ.Count == 0) elementTypes = new long[] { 2 };
-                    else if (tagsT.Count == 0 && tagsQ.Count > 0) elementTypes = new long[] { 3 };
+                    int[] elementTypes = new int[0];
+                    if (tagsT.Count > 0 && tagsQ.Count > 0) elementTypes = new int[] { 2, 3 };
+                    else if (tagsT.Count > 0 && tagsQ.Count == 0) elementTypes = new int[] { 2 };
+                    else if (tagsT.Count == 0 && tagsQ.Count > 0) elementTypes = new int[] { 3 };
 
-                    int[] elementTags_flatten = tagsT.Concat(tagsQ).ToArray();
-                    int[] nodesTags_flatten = nodesT.Concat(nodesQ).ToArray();
+                    long[] elementTags_flatten = tagsT.Concat(tagsQ).ToArray();
+                    long[] nodesTags_flatten = nodesT.Concat(nodesQ).ToArray();
 
                     IWrappers.GmshModelMeshAddElements(2, tag, elementTypes, elementTypes.LongLength, elementTags_flatten, elementTypes.LongLength, elementTags_flatten.LongLength, nodesTags_flatten, elementTypes.LongLength, nodesTags_flatten.LongLength, ref _ierr);
                 }

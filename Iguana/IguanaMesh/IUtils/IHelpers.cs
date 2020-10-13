@@ -15,7 +15,7 @@ namespace Iguana.IguanaMesh.IUtils
             int[] arr = new int[data.Length];
             for(int i=0; i<data.Length; i++)
             {
-                arr[i] = (int)data[i]; // Convert.ToInt32(data[i]);
+                arr[i] = (int)data[i];
             }
 
             return arr;
@@ -71,6 +71,19 @@ namespace Iguana.IguanaMesh.IUtils
         public static int[] FlattenIntArray(int[][] data)
         {
             List<int> list = new List<int>();
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[i].Length; j++)
+                {
+                    list.Add(data[i][j]);
+                }
+            }
+            return list.ToArray();
+        }
+
+        public static long[] FlattenLongArray(long[][] data)
+        {
+            List<long> list = new List<long>();
             for (int i = 0; i < data.Length; i++)
             {
                 for (int j = 0; j < data[i].Length; j++)

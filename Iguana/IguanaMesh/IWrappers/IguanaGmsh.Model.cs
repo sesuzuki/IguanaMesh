@@ -116,9 +116,9 @@ namespace Iguana.IguanaMesh.IWrappers
             /// of the entities on the boundary of the discrete entity, if any.Specifying
             /// `boundary' allows Gmsh to construct the topology of the overall model.
             /// </summary>
-            public static int AddDiscreteEntity(int dim, int tag, long[] boundary = default)
+            public static int AddDiscreteEntity(int dim, int tag, int[] boundary = default)
             {
-                if (boundary == default) boundary = new long[0];
+                if (boundary == default) boundary = new int[0];
                 return IWrappers.GmshModelAddDiscreteEntity(dim, tag, boundary, boundary.LongLength, ref _ierr);
             }
 

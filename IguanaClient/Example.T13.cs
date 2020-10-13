@@ -44,7 +44,8 @@ namespace IguanaClient
             IguanaGmsh.Model.Mesh.CreateGeometry();
 
             Tuple<int,int>[] s;
-            IguanaGmsh.Model.GetEntities(out s, 2);
+            IguanaGmsh.Model.GetEntities(out s);
+
             var sl = s.Select(ss => ss.Item2).ToArray();
             var l = IguanaGmsh.Model.Geo.AddSurfaceLoop(sl);
 

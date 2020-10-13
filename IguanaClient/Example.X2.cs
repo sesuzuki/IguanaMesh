@@ -81,13 +81,13 @@ namespace IguanaClient
             // Create 4 discrete bounding curves, with their boundary points:
             for (int i = 1; i <= 4; i++)
             {
-                long next = i + 1;
+                int next = i + 1;
                 if (i == 4) next = 1;
-                int tag2 = IguanaGmsh.Model.AddDiscreteEntity(1, i, new long[] { i,next });
+                int tag2 = IguanaGmsh.Model.AddDiscreteEntity(1, i, new int[] { i,next });
             }
 
             // Create one discrete surface, with its bounding curves:
-            int tag3 = IguanaGmsh.Model.AddDiscreteEntity(2, 1, new long[] { 1, 2, 3, 4 });
+            int tag3 = IguanaGmsh.Model.AddDiscreteEntity(2, 1, new int[] { 1, 2, -3, -4 });
 
             // Add all the nodes on the surface (for simplicity... see below):
             IguanaGmsh.Model.Mesh.AddNodes(2, 1, nodes.ToArray(), coords.ToArray());
@@ -115,7 +115,7 @@ namespace IguanaClient
             // boundaries afterwards.
 
             // Create other CAD entities to form one volume below the terrain surface:
-            /*int p1 = IguanaGmsh.Model.Geo.AddPoint(0, 0, -0.5);
+            int p1 = IguanaGmsh.Model.Geo.AddPoint(0, 0, -0.5);
             int p2 = IguanaGmsh.Model.Geo.AddPoint(1, 0, -0.5);
             int p3 = IguanaGmsh.Model.Geo.AddPoint(1, 1, -0.5);
             int p4 = IguanaGmsh.Model.Geo.AddPoint(0, 1, -0.5);
@@ -138,7 +138,7 @@ namespace IguanaClient
             int ll6 = IguanaGmsh.Model.Geo.AddCurveLoop(new[] { c4, c10, 4, -c13 });
             int s6 = IguanaGmsh.Model.Geo.AddPlaneSurface(new[] { ll6 });
             int sl1 = IguanaGmsh.Model.Geo.AddSurfaceLoop(new[] { s1, s3, s4, s5, s6, 1 });
-            int v1 = IguanaGmsh.Model.Geo.AddVolume(new[] { sl1 });*/
+            int v1 = IguanaGmsh.Model.Geo.AddVolume(new[] { sl1 });
 
             IguanaGmsh.Model.Geo.Synchronize();
 
@@ -147,7 +147,7 @@ namespace IguanaClient
 
             if (transfinite)
             {
-                /*int NN = 30;
+                int NN = 30;
                 Tuple<int, int>[] tmp;
                 IguanaGmsh.Model.GetEntities(out tmp, 1);
                 for (int i = 0; i < tmp.Length; i++)
@@ -162,7 +162,7 @@ namespace IguanaClient
                     IguanaGmsh.Model.Mesh.SetRecombine(tmp[i].Item1, tmp[i].Item2);
                     IguanaGmsh.Model.Mesh.SetSmoothing(tmp[i].Item1, tmp[i].Item2, 100);
                 }
-                IguanaGmsh.Model.Mesh.SetTransfiniteVolume(v1);*/
+                IguanaGmsh.Model.Mesh.SetTransfiniteVolume(v1);
             }
             else
             {
