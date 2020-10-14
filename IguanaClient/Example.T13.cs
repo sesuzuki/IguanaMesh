@@ -44,12 +44,12 @@ namespace IguanaClient
             IguanaGmsh.Model.Mesh.CreateGeometry();
 
             Tuple<int,int>[] s;
-            IguanaGmsh.Model.GetEntities(out s);
+            IguanaGmsh.Model.GetEntities(out s, 2);
 
             var sl = s.Select(ss => ss.Item2).ToArray();
             var l = IguanaGmsh.Model.Geo.AddSurfaceLoop(sl);
 
-            IguanaGmsh.Model.Geo.AddVolume(new[] { l });
+            var v = IguanaGmsh.Model.Geo.AddVolume(new[] { l });
             IguanaGmsh.Model.Geo.Synchronize();
 
             bool funny = true;

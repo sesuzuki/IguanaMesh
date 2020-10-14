@@ -97,10 +97,10 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                 if (constraints.Count > 0) synchronize = false;
 
                 // Suface construction
-                int surfaceTag = IguanaGmshFactory.OCCSurfacePatch(crv, patch, synchronize);
+                int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(crv, solverOptions, patch, synchronize);
 
                 // Embed constraints
-                if (!synchronize) IguanaGmshFactory.OCCEmbedConstraintsOnSurface(constraints, surfaceTag, true);
+                if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
 
                 // Extrude
                 int[] ov;
@@ -116,7 +116,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                 IguanaGmsh.Model.Mesh.Generate(3);
 
                 // Iguana mesh construction
-                mesh = IguanaGmshFactory.TryGetIMesh();
+                mesh = IguanaGmshFactory.TryGetIMesh(3);
 
                 IguanaGmsh.FinalizeGmsh();
             }

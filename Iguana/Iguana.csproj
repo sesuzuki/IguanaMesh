@@ -60,6 +60,8 @@
     <Compile Include="IguanaMesh\ITypes\IMesh.IGH_Goo.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.Preview.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshConstraint.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.Geo.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.GeoOCC.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Logger.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.Geo.cs" />

@@ -138,6 +138,30 @@ namespace Iguana.IguanaMesh.IWrappers
             {
                 IWrappers.GmshModelSetCoordinates(tag, x, y, z, ref _ierr);
             }
+
+
+            /// <summary>
+            /// Evaluate the parametrization of the entity of dimension `dim' and tag `tag'
+            /// at the parametric coordinates `parametricCoord'. Only valid for `dim' equal
+            /// to 0 (with empty `parametricCoord'), 1 (with `parametricCoord' containing
+            /// parametric coordinates on the curve) or 2 (with `parametricCoord'
+            /// containing pairs of u, v parametric coordinates on the surface,
+            /// concatenated: [p1u, p1v, p2u, ...]). Return triplets of x, y, z coordinates
+            /// in `coord', concatenated: [p1x, p1y, p1z, p2x, ...].
+            /// </summary>
+            public static void GetValue(int dim, int tag, out double[] coord, double[] parametricCoord = default) {
+                IntPtr coord_parse;
+                long coord_n;
+                if (parametricCoord == default) parametricCoord = new double[0];
+                IWrappers.GmshModelGetValue(dim, tag, parametricCoord, parametricCoord.LongLength, out coord_parse, out coord_n, ref _ierr);
+
+                coord = new double[0];
+                if (coord_n>0)
+                {
+                    coord = new double[coord_n];
+                    Marshal.Copy(coord_parse, coord, 0, (int)coord_n);
+                }
+            }
         }
     }
 }

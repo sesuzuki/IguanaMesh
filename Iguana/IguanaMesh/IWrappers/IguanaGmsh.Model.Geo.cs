@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -221,20 +222,22 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.  </param>
                 /// <param name="recombine"></param>
-                public static void Extrude(int[] dimTags, double dx, double dy, double dz, out int[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
+                public static void Extrude(Tuple<int,int>[] dimTags, double dx, double dy, double dz, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
                 {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
                     IntPtr out_DimTags;
                     long outDimTags_n;
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    IWrappers.GmshModelGeoExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    IWrappers.GmshModelGeoExtrude(arr, arr.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
-                    outDimTags = null;
+                    outDimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(out_DimTags, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(out_DimTags);
@@ -260,20 +263,22 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.</param>
                 /// <param name="recombine"></param>
-                public static void Revolve(int[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
+                public static void Revolve(Tuple<int,int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    IWrappers.GmshModelGeoRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    IWrappers.GmshModelGeoRevolve(arr, arr.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
-                    outDimTags = null;
+                    outDimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(out_DimTags, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(out_DimTags);
@@ -298,20 +303,22 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1. </param>
                 /// <param name="recombine"></param>
-                public static void Twist(int[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
+                public static void Twist(Tuple<int,int>[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    IWrappers.GmshModelGeoTwist(dimTags, dimTags.LongLength, x, y, z, dx, dy, dz, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    IWrappers.GmshModelGeoTwist(arr, arr.LongLength, x, y, z, dx, dy, dz, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
 
-                    outDimTags = null;
+                    outDimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(out_DimTags, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(out_DimTags);
@@ -418,6 +425,43 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshModelGeoSynchronize(ref _ierr);
                 }
 
+                /// <summary>
+                /// Translate the model entities `dimTags' along (`dx', `dy', `dz').
+                /// </summary>
+                public static void Translate(Tuple<int,int>[] dimTags, double dx, double dy, double dz) {
+                    var tagsArr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoTranslate(tagsArr, tagsArr.LongLength, dx, dy, dz, ref _ierr);
+                }
+
+                /// <summary>
+                /// Rotate the model entities `dimTags' of `angle' radians around the axis of
+                /// revolution defined by the point(`x', `y', `z') and the direction (`ax',`ay', `az').
+                /// </summary>
+                public static void Rotate(Tuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle) {
+                    var tagsArr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoRotate(tagsArr, tagsArr.LongLength, x, y, z, ax, ay, az, angle, ref _ierr);
+                }
+
+                /// <summary>
+                /// Copy the entities `dimTags'; the new entities are returned in `outDimTags'. 
+                /// </summary>
+                /// <param name="dimTags"></param>
+                /// <param name="outDimTags"></param>
+                public static void Copy(Tuple<int,int>[] dimTags, out Tuple<int,int>[] outDimTags) {
+                    IntPtr dimTags_parse;
+                    long outDimTags_n;
+                    var tagsArr = IHelpers.FlattenIntTupleArray(dimTags);
+
+                    IWrappers.GmshModelGeoCopy(tagsArr, tagsArr.LongLength, out dimTags_parse, out outDimTags_n, ref _ierr);
+
+                    outDimTags = new Tuple<int, int>[0];
+                    if (outDimTags_n>0)
+                    {
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dimTags_parse, temp, 0, (int) outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
+                    }
+                }
             }
         }
     }

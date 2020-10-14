@@ -15,6 +15,8 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
 
     public abstract class IguanaGmshSolver
     {
+        private List<double> _sizes = new List<double>() { 1.0 };
+
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
         ////// BASIC SETUP
@@ -125,7 +127,7 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
         /// Target mesh size at input nodes. If the number of size values is not equal to the number of nodes, the first item of the size value list is assigned to all nodes.
         /// Default favlue is 1.0;
         /// </summary>
-        public List<double> TargetMeshSizeAtNodes { get; set; }
+        public List<double> TargetMeshSizeAtNodes { get => _sizes ; set => _sizes = value; }
 
         /// <summary>
         /// Factor applied to all mesh element sizes.

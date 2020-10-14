@@ -117,6 +117,10 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetCoordinates")]
             internal static extern void GmshModelSetCoordinates(int tag, double x, double y, double z, ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetValue")]
+            internal static extern void GmshModelGetValue(int dim, int tag, [In] double[] parametricCoord, long parametricCoord_n, out IntPtr coord, out long coord_n, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////
@@ -231,6 +235,18 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoSynchronize")]
             internal static extern void GmshModelGeoSynchronize(ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoTranslate")]
+            internal static extern void GmshModelGeoTranslate([In] int[] dimTags, long dimTags_n, double dx, double dy, double dz, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoRotate")]
+            internal static extern void GmshModelGeoRotate([In] int[] dimTags, long dimTags_n, double x, double y, double z, double ax, double ay, double az, double angle, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoCopy")]
+            internal static extern void GmshModelGeoCopy([In] int[] dimTags, long dimTags_n, out IntPtr outDimTags, out long outDimTags_n, ref int ierr);
+            
             #endregion
 
             #region Geo-OpenCASCADE

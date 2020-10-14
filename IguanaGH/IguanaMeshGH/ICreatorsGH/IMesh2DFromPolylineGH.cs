@@ -10,19 +10,17 @@ using Iguana.IguanaMesh.IWrappers.ISolver;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 
-namespace IguanaGH.IguanaMeshGH.IUtilsGH
+namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 {
-    public class IMeshFromPolylineGH : GH_Component
+    public class IMesh2DFromPolylineGH : GH_Component
     {
-        IMesh mesh;
-
         /// <summary>
         /// Initializes a new instance of the IMeshFromPolyline class.
         /// </summary>
-        public IMeshFromPolylineGH()
-          : base("iMesh Planar", "iMeshBoundary",
-              "Create a planar mesh from a closed boundary polyline and a collection of internal boundraies polylines.",
-              "Iguana", "Utils")
+        public IMesh2DFromPolylineGH()
+          : base("iPolylinePatch", "iPoly",
+              "Create a two-dimensional mesh from a closed polyline.",
+              "Iguana", "Creators")
         {
         }
 
@@ -33,9 +31,13 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             pManager.AddCurveParameter("Outer boundary", "Outer", "External boundary", GH_ParamAccess.item);
             pManager.AddCurveParameter("Inner boundaries", "Inner", "Holes as polylines", GH_ParamAccess.list);
-            pManager.AddGenericParameter("Meshing Settings", "Settings", "Meshing settings", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("MeshingPoints", "M", "Minimum number of points used to mesh edge-surfaces. Default value is 10.", GH_ParamAccess.item, 10);
+            pManager.AddGenericParameter("iConstraints", "iC", "Constraints for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iSettings", "iS2D", "Two-dimensional meshing settings.", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
+            pManager[3].Optional = true;
+            pManager[4].Optional = true;
         }
 
         /// <summary>
@@ -54,46 +56,41 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             Curve _outer = null;
             List<Curve> _inner = new List<Curve>();
-            IguanaGmshSolver2D solverOpt = new IguanaGmshSolver2D();
-
+            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
+            int minPts = 10;
             //Retrieve vertices and elements
             DA.GetData(0, ref _outer);
             DA.GetDataList(1, _inner);
-            DA.GetData(2, ref solverOpt);
+            DA.GetData(2, ref minPts);
+            DA.GetData(4, ref solverOptions);
 
-            mesh = null;
+            List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
+            foreach (var obj in base.Params.Input[3].VolatileData.AllData(true))
+            {
+                IguanaGmshConstraint c;
+                obj.CastTo<IguanaGmshConstraint>(out c);
+                constraints.Add(c);
+            }
 
             IguanaGmsh.Initialize();
 
-            int[] crv_tags = new int[_inner.Count + 1];
-            crv_tags[0] = IguanaGmshFactory.GmshCurveLoop(_outer, solverOpt);
+            bool synchronize = true;
+            if (constraints.Count > 0) synchronize = false;
 
-            for (int i = 0; i < _inner.Count; i++)
-            {
-                crv_tags[i + 1] = IguanaGmshFactory.GmshCurveLoop(_inner[i], solverOpt);
-            }
+            int surfaceTag = IguanaGmshFactory.Geo.GmshPlaneSurface(_outer, _inner, solverOptions);
 
-            IguanaGmsh.Model.Geo.AddPlaneSurface(crv_tags);
-
-            IguanaGmsh.Model.Geo.Synchronize();
+            // Embed constraints
+            if (!synchronize) IguanaGmshFactory.Geo.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
+            else IguanaGmsh.Model.Geo.Synchronize();
 
             //solver options
-            solverOpt.ApplyBasic2DSettings();
+            solverOptions.ApplyBasic2DSettings();
+            solverOptions.ApplyAdvanced2DSettings();
 
             IguanaGmsh.Model.Mesh.Generate(2);
 
-            solverOpt.ApplyAdvanced2DSettings();
-
             // Iguana mesh construction
-            IVertexCollection vertices;
-            IElementCollection elements;
-            HashSet<int> parsedNodes;
-            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
-            if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
-
-            mesh = new IMesh(vertices, elements);
-            mesh.BuildTopology();
+            IMesh mesh = IguanaGmshFactory.TryGetIMesh();
 
             IguanaGmsh.FinalizeGmsh();
 

@@ -9,7 +9,7 @@ using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettings
+namespace IguanaGH.IguanaMeshGH.IConstraintsGH
 {
     public class IPointConstraintGH : GH_Component
     {
@@ -19,7 +19,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         public IPointConstraintGH()
           : base("iPointConstraint", "iPtC",
               "Point constraint for mesh generation.",
-              "Iguana", "Settings")
+              "Iguana", "Constraints")
         {
         }
 

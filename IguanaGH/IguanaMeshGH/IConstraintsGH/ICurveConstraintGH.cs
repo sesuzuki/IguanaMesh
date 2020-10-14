@@ -5,7 +5,7 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettings
+namespace IguanaGH.IguanaMeshGH.IConstraintsGH
 {
     public class ILineConstraintGH : GH_Component
     {
@@ -15,7 +15,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         public ILineConstraintGH()
           : base("iCurveConstraint", "iCrvC",
               "Curve constraint for mesh generation.",
-              "Iguana", "Settings")
+              "Iguana", "Constraints")
         {
         }
 

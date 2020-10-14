@@ -66,10 +66,10 @@
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICylinderGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IEllipsoidGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IEllipticDupinCyclideGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettingsGH\ICurveConstraintGH.cs" />
+    <Compile Include="IguanaMeshGH\IConstraintsGH\ICurveConstraintGH.cs" />
     <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingPrismGH.cs" />
     <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettingsGH\IPointConstraintGH.cs" />
+    <Compile Include="IguanaMeshGH\IConstraintsGH\IPointConstraintGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IFromRhinoMeshGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IHyperboloidOneSheetGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IParabolicCylinderGH.cs" />
@@ -83,7 +83,7 @@
     <Compile Include="IguanaMeshGH\IDisplayGH\IFacesAsPolylinesGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IConstructMeshGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromSurfaceGH.cs" />
-    <Compile Include="IguanaMeshGH\IUtilsGH\IMeshFromPolylineGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromPolylineGH.cs" />
     <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingTriangleGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromCurveGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IPolygonalFaceGH.cs" />

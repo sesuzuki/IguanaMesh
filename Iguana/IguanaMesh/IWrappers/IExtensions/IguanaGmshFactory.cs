@@ -15,14 +15,17 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
     public static partial class IguanaGmshFactory
     {
-        public static IMesh TryGetIMesh()
+        public static IMesh TryGetIMesh(int dim=2)
         {
+            if (dim > 3) dim = 3;
+            else if (dim < 2) dim = 2;
+
             // Iguana mesh construction
             IVertexCollection vertices;
             IElementCollection elements;
             HashSet<int> parsedNodes;
             IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
+            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, dim);
             if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
 
             // Iguana mesh construction
@@ -32,291 +35,70 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             return mesh;
         }
 
-        public static int OCCSpherePatch(Sphere sphere)
+        public static void GetConstructiveDataFromMeshes(Mesh[] meshes, out List<long> nodes, out List<long> triangles, out List<double> xyz)
         {
-            Point3d c = sphere.Center;
-            int srfTag = IguanaGmsh.Model.GeoOCC.AddSphere(c.X, c.Y, c.Z, sphere.Radius, -Math.PI / 2, Math.PI / 2, 2 * Math.PI);
-            return srfTag;
-        }
+            nodes = new List<long>();
+            triangles = new List<long>();
+            xyz = new List<double>();
 
-        public static int OCCCurveLoopFromRhinoCurve(Curve crv) 
-        {
-            int[] crvTags = OCCSplinesFromRhinoCurve(crv);
-            int wireTag = IguanaGmsh.Model.GeoOCC.AddWire(crvTags);
-            return wireTag;
-        }
-
-        public static int[] OCCLinesFromRhinoPolyline(Polyline poly, double size, ref List<int> ptsTags, PointCloud ptsCloud = default, double t = 0.001)
-        { 
+            int count = meshes.Length;
+            Mesh m;
             Point3d p;
-            int tag;
-            int[] crvTags = new int[poly.SegmentCount];
+            long key = 1;
 
-            if (ptsCloud == default)
+            PointCloud cloud = new PointCloud();
+            int idx;
+
+            for (int i = 0; i < count; i++)
             {
-                int[] tempTags = new int[poly.Count];
-                int idx;
-                for (int j = 0; j < poly.Count; j++)
-                {
-                    p = poly[j];
-                    idx = EvaluatePoint(ptsCloud, p, t);
 
-                    if (idx == -1)
+                m = meshes[i];
+                m.Faces.ConvertQuadsToTriangles();
+
+                long[] temp = new long[m.Vertices.Count];
+
+                for (int j = 0; j < m.Vertices.Count; j++)
+                {
+
+                    p = m.Vertices[j];
+                    idx = cloud.ClosestPoint(p);
+
+                    bool flag = false;
+
+                    if (idx == -1) flag = true;
+                    else if (cloud[idx].Location.DistanceTo(p) > RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) flag = true;
+
+                    if (flag)
                     {
-                        tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, size);
-                        ptsTags.Add(tag);
-                        ptsCloud.Add(p);
-                        idx = ptsCloud.Count - 1;
+                        nodes.Add(key);
+                        xyz.AddRange(new double[] { p.X, p.Y, p.Z });
+                        cloud.Add(p);
+                        idx = nodes.Count - 1;
+                        key++;
                     }
-
-                    tempTags[j] = idx;
+                    temp[j] = nodes[idx];
                 }
 
-                for (int j = 0; j < poly.SegmentCount; j++)
+                for (int j = 0; j < m.Faces.Count; j++)
                 {
-                    crvTags[j] = IguanaGmsh.Model.GeoOCC.AddLine(ptsTags[tempTags[j]], ptsTags[tempTags[j + 1]]);
+                    MeshFace f = m.Faces[j];
+                    triangles.AddRange(new long[] { temp[f.A], temp[f.B], temp[f.C] });
                 }
             }
-            else {
-
-                for (int j = 0; j < poly.Count; j++)
-                {
-                    p = poly[j];
-                    tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, size);
-                    ptsTags.Add(tag);
-                }
-                
-                for (int j = 0; j < poly.SegmentCount; j++)
-                {
-                    crvTags[j] = IguanaGmsh.Model.GeoOCC.AddLine(ptsTags[j], ptsTags[j + 1]);
-                }
-            }
-
-            return crvTags;
         }
 
-        public static int[] OCCSplinesFromRhinoCurve(Curve crv)
+        public static void GetConstructiveDataFromBrep(Brep b, out List<long> nodes, out List<long> triangles, out List<double> xyz)
         {
-            bool closed = false;
-            if (crv.IsClosed) closed = true;
-            // 1 Covert curve into polycurve
-            PolyCurve pc = crv.ToArcsAndLines(Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance, Rhino.RhinoDoc.ActiveDoc.ModelAngleToleranceRadians, 0, 1);
-
-            // 3 Divide points into 4 groups and create splines
-            int remain = pc.SegmentCount % 4;
-            int count = (pc.SegmentCount - remain) / 4;
-
-            int[] dup = new int[4];
-            int[] crvTags = new int[4];
-
-            int idx = 0;
-            /*for (int i = 0; i < 4; i++)
-            {
-
-                if (i == 3) count += remain;
-                int[] ptTags = new int[count];
-
-                for (int j = 0; j < count; j++)
-                {
-                    Point3d p = pc.SegmentCurve(idx).PointAtStart;
-                    idx++;
-
-                    if (i == 0)
-                    {
-                        ptTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
-                        if (j == 0) dup[0] = ptTags[j];
-                        if (j == count - 1) dup[1] = ptTags[j];
-                    }
-                    else if (i == 3)
-                    {
-                        if (j == 0) ptTags[j] = dup[3];
-                        else if (j == count - 1 && closed) ptTags[j] = dup[0];
-                        else ptTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
-                    }
-                    else
-                    {
-                        if (j == 0) ptTags[j] = dup[i];
-                        else
-                        {
-                            ptTags[j] = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
-                            if (j == count - 1) dup[i + 1] = ptTags[j];
-                        }
-                    }
-                }
-
-
-                crvTags[i] = IguanaGmsh.Model.GeoOCC.AddSpline(ptTags);
-            }*/
-
-            int sIdx = 0, pIdx, tag;
-            PointCloud ptsCloud = new PointCloud();
-            List<int> allTags = new List<int>();
-            Point3d p;
-
-            for (int i = 0; i < 4; i++)
-            {
-
-                if (i == 3) count += remain;
-                int[] ptTags = new int[count + 1];
-
-                for (int j = 0; j < count; j++)
-                {
-                    p = pc.SegmentCurve(sIdx).PointAtStart;
-                    pIdx = EvaluatePoint(ptsCloud, p, 0.0001);
-
-                    if (pIdx == -1)
-                    {
-                        tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
-                        ptsCloud.Add(p);
-                        allTags.Add(tag);
-                    }
-                    else tag = allTags[pIdx];
-
-                    ptTags[j] = tag;
-
-                    if (j == count - 1)
-                    {
-                        p = pc.SegmentCurve(sIdx).PointAtEnd;
-                        pIdx = EvaluatePoint(ptsCloud, p, 0.001);
-
-                        if (pIdx == -1)
-                        {
-                            tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z);
-                            ptsCloud.Add(p);
-                            allTags.Add(tag);
-                        }
-                        else tag = allTags[pIdx];
-
-                        ptTags[j+1] = tag;
-                    }
-                    sIdx++;
-                }
-
-                crvTags[i] = IguanaGmsh.Model.GeoOCC.AddSpline(ptTags);
-            }
-
-
-            return crvTags;
+            Mesh[] meshes = Mesh.CreateFromBrep(b, MeshingParameters.Default);
+            GetConstructiveDataFromMeshes(meshes, out nodes, out triangles, out xyz);
         }
 
-        public static int OCCSurfacePatch(Curve crv, List<Point3d> patchs=default, bool synchronize=false)
-        {
-            // 1._ Check points to patch
-            if (patchs == default) patchs = new List<Point3d>();
-            int[] patchPts = new int[patchs.Count];
 
-            Point3d p2;
-            for (int i = 0; i < patchs.Count; i++)
-            {
-                p2 = patchs[i];
-                patchPts[i] = IguanaGmsh.Model.GeoOCC.AddPoint(p2.X, p2.Y, p2.Z);
-            }
-
-
-            // 3._ Build OCC Geometry
-            int wireTag = OCCCurveLoopFromRhinoCurve(crv);
-            int surfaceTag = IguanaGmsh.Model.GeoOCC.AddSurfaceFilling(wireTag, patchPts);
-
-            // 5._ Synchronize model
-            if (synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
-
-            return surfaceTag;
-        }
-
-        internal static int EvaluatePoint(PointCloud pts, Point3d p, double t)
+            internal static int EvaluatePoint(PointCloud pts, Point3d p, double t)
         {
             int idx = pts.ClosestPoint(p);
             if (idx != -1 && p.DistanceTo(pts[idx].Location) > t) idx = -1;
             return idx;
-        }
-
-        public static void OCCEmbedConstraintsOnSurface(List<IguanaGmshConstraint> constraints, int surfaceTag, bool synchronize=false)
-        {
-            int count = constraints.Count;
-
-            if (count > 0)
-            {
-                List<int> ptsTags = new List<int>();
-                List<int> crvTags = new List<int>();
-
-                PointCloud pts = new PointCloud();
-
-                IguanaGmshConstraint data;
-                Point3d p;
-                Polyline poly;
-                Curve crv;
-                double t = 0.0001;
-                int tag, idx;
-
-                for (int i = 0; i < count; i++)
-                {
-                    data = constraints[i];
-
-                    switch (data.Dim)
-                    {
-                        case 0:
-                            p = (Point3d)data.RhinoGeometry;
-                            idx = EvaluatePoint(pts, p, t);
-
-                            if (idx == -1)
-                            {
-                                tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Size);
-                                ptsTags.Add(tag);
-                                pts.Add(p);
-                            }
-
-                            break;
-
-                        case 1:
-                            poly = (Polyline)data.RhinoGeometry;
-                            crvTags.AddRange(OCCLinesFromRhinoPolyline(poly, data.Size, ref ptsTags, pts, t));
-                            break;
-
-                        case 2:
-                            crv = (Curve)data.RhinoGeometry;
-                            crvTags.AddRange(OCCSplinesFromRhinoCurve(crv));
-                            break;
-                    }
-                }
-
-                if (synchronize) IguanaGmsh.Model.GeoOCC.Synchronize();
-
-                if( ptsTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(0, ptsTags.ToArray(), 2, surfaceTag);
-                if( crvTags.Count > 0 ) IguanaGmsh.Model.Mesh.Embed(1, crvTags.ToArray(), 2, surfaceTag);
-            }
-        }
-
-        public static int GmshCurveLoop(Curve crv, IguanaGmshSolver2D solverOpt)
-        {
-            Polyline poly;
-            crv.TryGetPolyline(out poly);
-
-            // Close the polyline if not closed
-            if (!poly.IsClosed) poly.Add(poly[0]);
-
-            int count = poly.Count - 1;
-            int[] ln_tags = new int[count];
-
-            Point3d pt = poly[0];
-            double size = solverOpt.TargetMeshSizeAtNodes[0];
-            int init = IguanaGmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
-            int next, prev=init;
-            for (int i = 1; i < count; i++)
-            {
-                pt = poly[i];
- 
-                if (solverOpt.TargetMeshSizeAtNodes.Count == count) size = solverOpt.TargetMeshSizeAtNodes[i];
-
-                // Add points
-                next = IguanaGmsh.Model.Geo.AddPoint(pt.X, pt.Y, pt.Z, size);
-
-                // Add lines
-                ln_tags[i-1] = IguanaGmsh.Model.Geo.AddLine(prev, next);
-                prev = next;
-            }
-            ln_tags[count-1] = IguanaGmsh.Model.Geo.AddLine(prev, init);
-
-            return IguanaGmsh.Model.Geo.AddCurveLoop(ln_tags);
         }
     }
 }
