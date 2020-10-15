@@ -757,6 +757,14 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetNodesForPhysicalGroup")]
             internal static extern void GmshModelMeshGetNodesForPhysicalGroup(int dim, int tag, out IntPtr nodeTags, out long nodeTags_n, out IntPtr coord, out long coord_n, ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRelocateNodes")]
+            internal static extern void GmshModelMeshRelocateNodes(int dim, int tag, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetElement")]
+            internal static extern void GmshModelMeshGetElement(long elementTag, out int elementType, out IntPtr nodeTags, out long nodeTags_n, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////

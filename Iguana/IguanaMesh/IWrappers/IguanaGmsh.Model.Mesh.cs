@@ -38,13 +38,13 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="coord_out"> `coord' is a two-dimensional array that contains the x, y, z coordinates of the nodes. </param>
                 /// <param name="parametricCoord_out"> If `dim' >= 0, `parametricCoord' contains the parametric coordinates([u1, u2, ...] or [u1, v1, u2, ...]) of the nodes, if available. </param>
                 /// <param name="dim"/> If `dim' is negative (default), get all the nodes in the mesh. </param>
-                public static void GetNodes(out int[] nodeTags_out, out double[][] coord_out, out double[][] parametricCoord_out, int dim = -1, int tag = -1)
+                public static void GetNodes(out long[] nodeTags_out, out double[][] coord_out, out double[][] parametricCoord_out, int dim = -1, int tag = -1)
                 {
                     IntPtr nodeTags, coord, parametricCoord;
                     long nodeTags_Number, coord_Number, parametricCoord_Number;
                     IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
-                    nodeTags_out = new int[nodeTags_Number];
+                    nodeTags_out = new long[nodeTags_Number];
                     coord_out = new double[coord_Number][];
                     parametricCoord_out = new double[parametricCoord_Number][];
 
@@ -135,7 +135,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="nodeTags_n"></param>
                 /// <param name="nodeTags_nn"></param>
                 /// <param name="dim"> If `dim' is negative (default), get all the elements in the mesh.  </param>
-                public static void GetElements(out int[] elementTypes_out, out int[][] elementTags_out, out int[][] nodeTags_out, int dim = -1, int tag = -1)
+                public static void GetElements(out int[] elementTypes_out, out long[][] elementTags_out, out long[][] nodeTags_out, int dim = -1, int tag = -1)
                 {
                     IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
                     long elementTypes_Number, elementTags_NNumber, nodeTags_NNumber;
@@ -156,22 +156,19 @@ namespace Iguana.IguanaMesh.IWrappers
                     Marshal.Copy(nodeTags, nTags_ptr, 0, (int)nodeTags_NNumber);
                     Marshal.Copy(elementTags, eTags_ptr, 0, (int)elementTags_NNumber);
 
-                    elementTags_out = new int[elementTags_NNumber][];
-                    nodeTags_out = new int[nodeTags_NNumber][];
+                    elementTags_out = new long[elementTags_NNumber][];
+                    nodeTags_out = new long[nodeTags_NNumber][];
                     elementTypes_out = IHelpers.ToIntArray(types_temp);
 
                     for (int i = 0; i < elementTags_NNumber; i++)
                     {
                         // Initializing containers
-                        var temp1 = new long[eTags_n[i]];
-                        var temp2 = new long[nTags_n[i]];
+                        elementTags_out[i] = new long[eTags_n[i]];
+                        nodeTags_out[i] = new long[nTags_n[i]];
 
                         // Marshalling
-                        Marshal.Copy(eTags_ptr[i], temp1, 0, (int)eTags_n[i]);
-                        Marshal.Copy(nTags_ptr[i], temp2, 0, (int)nTags_n[i]);
-
-                        elementTags_out[i] = IHelpers.ToIntArray(temp1);
-                        nodeTags_out[i] = IHelpers.ToIntArray(temp2);
+                        Marshal.Copy(eTags_ptr[i], elementTags_out[i], 0, (int)eTags_n[i]);
+                        Marshal.Copy(nTags_ptr[i], nodeTags_out[i], 0, (int)nTags_n[i]);
                     }
 
                     // Delete unmanaged allocated memory
@@ -844,6 +841,32 @@ namespace Iguana.IguanaMesh.IWrappers
 
                     IguanaGmsh.Free(ntP);
                     IguanaGmsh.Free(cP);
+                }
+
+                /// <summary>
+                /// Relocate the nodes classified on the entity of dimension `dim' and tag
+                /// `tag' using their parametric coordinates. If `tag' < 0, relocate the nodes
+                /// for all entities of dimension `dim'. If `dim' and `tag' are negative,
+                /// relocate all the nodes in the mesh.
+                /// </summary>
+                public static void RelocateNodes(int dim, int tag) {
+                    IWrappers.GmshModelMeshRelocateNodes(dim, tag, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the type and node tags of the element with tag `tag'. This function
+                /// relies on an internal cache(a vector in case of dense element numbering, a
+                /// map otherwise); for large meshes accessing elements in bulk is often preferable.
+                /// </summary>
+                public static void GetElement(long elementTag, out int elementType, out long[] nodeTags) {
+                    IntPtr ntP;
+                    long nodeTags_n;
+                    IWrappers.GmshModelMeshGetElement(elementTag, out elementType, out ntP, out nodeTags_n, ref _ierr);
+
+                    nodeTags = new long[nodeTags_n];
+                    Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
+
+                    IguanaGmsh.Free(ntP);
                 }
             }
         }

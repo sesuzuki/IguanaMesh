@@ -154,23 +154,7 @@ GMSH_API void gmshModelMeshGetLastNodeError(size_t ** nodeTags, size_t * nodeTag
 
 
 
-/* Relocate the nodes classified on the entity of dimension `dim' and tag
- * `tag' using their parametric coordinates. If `tag' < 0, relocate the nodes
- * for all entities of dimension `dim'. If `dim' and `tag' are negative,
- * relocate all the nodes in the mesh. */
-GMSH_API void gmshModelMeshRelocateNodes(const int dim,
-                                         const int tag,
-                                         int * ierr);
 
-
-/* Get the type and node tags of the element with tag `tag'. This function
- * relies on an internal cache (a vector in case of dense element numbering, a
- * map otherwise); for large meshes accessing elements in bulk is often
- * preferable. */
-GMSH_API void gmshModelMeshGetElement(const size_t elementTag,
-                                      int * elementType,
-                                      size_t ** nodeTags, size_t * nodeTags_n,
-                                      int * ierr);
 
 /* Search the mesh for an element located at coordinates (`x', `y', `z'). This
  * function performs a search in a spatial octree. If an element is found,
