@@ -90,7 +90,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="curveTags"> `curveTags' should contain (signed) tags of model enties of dimension 1 forming a closed loop: a negative tag signifies that the underlying curve is considered with reversed orientation. </param>
                 /// <param name="tag"> Polyline Tag. If `tag' is positive, set the tag explicitly; otherwise a new tag is selected automatically. </param>
                 /// <returns></returns>
-                public static int AddCurveLoop(int[] curveTags, int tag=-1)
+                public static int AddCurveLoop(int[] curveTags, int tag = -1)
                 {
                     int tag_crv = IWrappers.GmshModelGeoAddCurveLoop(curveTags, curveTags.Length, tag, ref _ierr);
                     return tag_crv;
@@ -180,7 +180,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="sphereCenterTag"></param>
                 /// <param name="tag"> If `tag' is positive, set the tag explicitly; otherwise a new tag is selected  automatically. </param>
                 /// <returns></returns>
-                public static int AddSurfaceFilling(int wireTag, int sphereCenterTag=-1, int tag = -1)
+                public static int AddSurfaceFilling(int wireTag, int sphereCenterTag = -1, int tag = -1)
                 {
                     return IWrappers.GmshModelGeoAddSurfaceFilling(new int[] { wireTag }, 1, tag, sphereCenterTag, ref _ierr);
                 }
@@ -222,7 +222,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.  </param>
                 /// <param name="recombine"></param>
-                public static void Extrude(Tuple<int,int>[] dimTags, double dx, double dy, double dz, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
+                public static void Extrude(Tuple<int, int>[] dimTags, double dx, double dy, double dz, out Tuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
                 {
                     var arr = IHelpers.FlattenIntTupleArray(dimTags);
                     IntPtr out_DimTags;
@@ -263,7 +263,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.</param>
                 /// <param name="recombine"></param>
-                public static void Revolve(Tuple<int,int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
+                public static void Revolve(Tuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out Tuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
@@ -303,7 +303,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1. </param>
                 /// <param name="recombine"></param>
-                public static void Twist(Tuple<int,int>[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights=default, bool recombine=false)
+                public static void Twist(Tuple<int, int>[] dimTags, double x, double y, double z, double dx, double dy, double dz, double ax, double ay, double az, double angle, out Tuple<int, int>[] outDimTags, int[] numElements = default, double[] heights = default, bool recombine = false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
@@ -390,7 +390,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"></param>
                 /// <param name="val"> If `val' is true, the mesh orientation will be reversed with respect to the natural mesh orientation(i.e.the orientation consistent with the orientation of the geometry).
                 /// If `val' is false, the mesh is left as-is. </param>
-                public static void SetReverse(int dim, int tag, bool val) {
+                public static void SetReverse(int dim, int tag, bool val)
+                {
                     IWrappers.GmshModelGeoMeshSetReverse(dim, tag, Convert.ToInt32(val), ref _ierr);
                 }
 
@@ -401,7 +402,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="dim"></param>
                 /// <param name="tag"></param>
                 /// <param name="val"></param>
-                public static void SetAlgorithm(int dim, int tag, int val) {
+                public static void SetAlgorithm(int dim, int tag, int val)
+                {
                     IWrappers.GmshModelGeoMeshSetAlgorithm(dim, tag, val, ref _ierr);
                 }
 
@@ -412,7 +414,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="dim"></param>
                 /// <param name="tag"></param>
                 /// <param name="val"></param>
-                public static void SetSizeFromBoundary(int dim, int tag, int val) {
+                public static void SetSizeFromBoundary(int dim, int tag, int val)
+                {
                     IWrappers.GmshModelGeoMeshSetSizeFromBoundary(dim, tag, val, ref _ierr);
                 }
 
@@ -428,7 +431,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <summary>
                 /// Translate the model entities `dimTags' along (`dx', `dy', `dz').
                 /// </summary>
-                public static void Translate(Tuple<int,int>[] dimTags, double dx, double dy, double dz) {
+                public static void Translate(Tuple<int, int>[] dimTags, double dx, double dy, double dz)
+                {
                     var tagsArr = IHelpers.FlattenIntTupleArray(dimTags);
                     IWrappers.GmshModelGeoTranslate(tagsArr, tagsArr.LongLength, dx, dy, dz, ref _ierr);
                 }
@@ -437,7 +441,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// Rotate the model entities `dimTags' of `angle' radians around the axis of
                 /// revolution defined by the point(`x', `y', `z') and the direction (`ax',`ay', `az').
                 /// </summary>
-                public static void Rotate(Tuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle) {
+                public static void Rotate(Tuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle)
+                {
                     var tagsArr = IHelpers.FlattenIntTupleArray(dimTags);
                     IWrappers.GmshModelGeoRotate(tagsArr, tagsArr.LongLength, x, y, z, ax, ay, az, angle, ref _ierr);
                 }
@@ -447,7 +452,8 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// </summary>
                 /// <param name="dimTags"></param>
                 /// <param name="outDimTags"></param>
-                public static void Copy(Tuple<int,int>[] dimTags, out Tuple<int,int>[] outDimTags) {
+                public static void Copy(Tuple<int, int>[] dimTags, out Tuple<int, int>[] outDimTags)
+                {
                     IntPtr dimTags_parse;
                     long outDimTags_n;
                     var tagsArr = IHelpers.FlattenIntTupleArray(dimTags);
@@ -455,12 +461,79 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshModelGeoCopy(tagsArr, tagsArr.LongLength, out dimTags_parse, out outDimTags_n, ref _ierr);
 
                     outDimTags = new Tuple<int, int>[0];
-                    if (outDimTags_n>0)
+                    if (outDimTags_n > 0)
                     {
                         var temp = new int[outDimTags_n];
-                        Marshal.Copy(dimTags_parse, temp, 0, (int) outDimTags_n);
+                        Marshal.Copy(dimTags_parse, temp, 0, (int)outDimTags_n);
                         outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
+
+                    IguanaGmsh.Free(dimTags_parse);
+                }
+
+
+                /// <summary>
+                /// Scale the model entities `dimTag' by factors `a', `b' and `c' along the
+                /// three coordinate axes; use(`x', `y', `z') as the center of the homothetic transformation.
+                /// </summary>
+                public static void Dilate(Tuple<int, int>[] dimTags, double x, double y, double z, double a, double b, double c)
+                {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoDilate(arr, arr.LongLength, x, y, z, a, b, c, ref _ierr);
+                }
+
+
+                /// <summary>
+                /// Mirror the model entities `dimTag', with respect to the plane of equation
+                /// `a' * x + `b' * y + `c' * z + `d' = 0. 
+                /// </summary>
+                public static void Mirror(Tuple<int, int>[] dimTags, double a, double b, double c, double d)
+                {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoMirror(arr, arr.LongLength, a, b, c, d, ref _ierr);
+                }
+
+                /// <summary>
+                /// Mirror the model entities `dimTag', with respect to the plane of equation
+                /// `a' * x + `b' * y + `c' * z + `d' = 0. (This is a synonym for `mirror',
+                /// which will be deprecated in a future release.)
+                /// </summary>
+                public static void Symmetrize(Tuple<int, int>[] dimTags, double a, double b, double c, double d)
+                {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoSymmetrize(arr, arr.LongLength, a, b, c, d, ref _ierr);
+                }
+
+                /// <summary>
+                /// Remove the entities `dimTags'. If `recursive' is true, remove all the entities on their boundaries, down to dimension 0.
+                /// </summary>
+                public static void Remove(Tuple<int, int>[] dimTags, bool recursive=false) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoRemove(arr, arr.LongLength, Convert.ToInt32(recursive), ref _ierr);
+                }
+
+                /// <summary>
+                /// Remove all duplicate entities (different entities at the same geometrical location).
+                /// </summary>
+                public static void RemoveAllDuplicates()
+                {
+                    IWrappers.GmshModelGeoRemoveAllDuplicates(ref _ierr);
+                }
+
+                /// <summary>
+                /// Split the model curve of tag `tag' on the control points `pointTags'.
+                /// Return the tags `curveTags' of the newly created curves.
+                /// </summary>
+                public static void SplitCurve(int tag, int[] pointTags, out int[] curveTags) {
+                    IntPtr cP;
+                    long curveTags_n;
+
+                    IWrappers.GmshModelGeoSplitCurve(tag, pointTags, pointTags.LongLength, out cP, out curveTags_n, ref _ierr);
+
+                    curveTags = new int[curveTags_n];
+                    Marshal.Copy(cP, curveTags, 0, (int) curveTags_n);
+
+                    IguanaGmsh.Free(cP);
                 }
             }
         }

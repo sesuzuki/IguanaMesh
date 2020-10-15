@@ -52,8 +52,10 @@
     <Compile Include="Example.T16.cs" />
     <Compile Include="Example.T2.cs" />
     <Compile Include="Example.T3.cs" />
+    <Compile Include="Example.T4.cs" />
     <Compile Include="Example.T5.cs" />
     <Compile Include="Example.T1.cs" />
+    <Compile Include="Example.T6.cs" />
     <Compile Include="Example.X2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

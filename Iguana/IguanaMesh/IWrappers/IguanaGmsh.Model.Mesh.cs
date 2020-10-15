@@ -311,10 +311,6 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// types are "Progression" (geometrical progression with power `coef') and
                 /// "Bump" (refinement toward both extremities of the curve).
                 /// </summary>
-                /// <param name="tag"></param>
-                /// <param name="numNodes"></param>
-                /// <param name="meshType"></param>
-                /// <param name="coef"></param>
                 public static void SetTransfiniteCurve(int tag, int numNodes, string meshType = "Progression", double coef = 1)
                 {
                     IWrappers.GmshModelMeshSetTransfiniteCurve(tag, numNodes, meshType, coef, ref _ierr);
@@ -329,9 +325,6 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// specifying the corners explicitly is mandatory if the surface has more that
                 /// 3 or 4 points on its boundary.
                 /// </summary>
-                /// <param name="tag"></param>
-                /// <param name="arrangement"></param>
-                /// <param name="cornerTags"></param>
                 public static void SetTransfiniteSurface(int tag, string arrangement = "Left", int[] cornerTags = default)
                 {
                     if (cornerTags == default) cornerTags = new int[0];
@@ -354,8 +347,6 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// `dim' and tag `tag'. Currently only entities of dimension 2 (to recombine
                 /// triangles into quadrangles) are supported.
                 /// </summary>
-                /// <param name="dim"></param>
-                /// <param name="tag"></param>
                 public static void SetRecombine(int dim, int tag)
                 {
                     IWrappers.GmshModelMeshSetRecombine(dim, tag, ref _ierr);
@@ -733,6 +724,126 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// </summary>
                 public static void AddElementsByType(int tag, int elementType, long[] elementTags, long[] nodeTags) {
                     IWrappers.GmshModelMeshAddElementsByType(tag, elementType, elementTags, elementTags.LongLength, nodeTags, nodeTags.LongLength, ref _ierr);
+                }
+
+                /// <summary>
+                /// Partition the mesh of the current model into `numPart' partitions.
+                /// </summary>
+                public static void Partition(int numPart) {
+                    IWrappers.GmshModelMeshPartition(numPart, ref _ierr);
+                }
+
+                /// <summary>
+                /// Unpartition the mesh of the current model.
+                /// </summary>
+                public static void Unpartition()
+                {
+                    IWrappers.GmshModelMeshUnpartition(ref _ierr);
+                }
+
+                /// <summary>
+                /// Set the order of the elements in the mesh of the current model to `order'.
+                /// </summary>
+                public static void SetOrder(int order) {
+                    IWrappers.GmshModelMeshSetOrder(order, ref _ierr);
+                }
+
+                /// <summary>
+                /// Clear the mesh, i.e. delete all the nodes and elements, for the entities
+                /// `dimTags'. if `dimTags' is empty, clear the whole mesh.Note that the mesh
+                /// of an entity can only be cleared if this entity is not on the boundary of
+                /// another entity with a non-empty mesh.
+                /// </summary>
+                public static void Clear(Tuple<int,int>[] dimTags) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelMeshClear(arr, arr.LongLength, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the nodes classified on the entity of tag `tag', for all the elements
+                /// of type `elementType'. The other arguments are treated as in `getNodes'.
+                /// </summary>
+                public static void GetNodesByElementType(int elementType, out long[] nodeTags, out double[] coord, out double[] parametricCoord, int tag, bool returnParametricCoord) {
+                    IntPtr ntP, cP, pcP;
+                    long nodeTags_n, coord_n, parametricCoord_n;
+                    IWrappers.GmshModelMeshGetNodesByElementType(elementType, out ntP, out nodeTags_n, out cP, out coord_n, out pcP, out parametricCoord_n, tag, Convert.ToInt32(returnParametricCoord), ref _ierr);
+
+                    nodeTags = new long[nodeTags_n];
+                    coord = new double[coord_n];
+                    parametricCoord = new double[parametricCoord_n];
+                    Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
+                    Marshal.Copy(cP, coord, 0, (int) coord_n);
+                    Marshal.Copy(pcP, parametricCoord, 0, (int)parametricCoord_n);
+
+                    IguanaGmsh.Free(ntP);
+                    IguanaGmsh.Free(cP);
+                    IguanaGmsh.Free(pcP);
+                }
+
+                /// <summary>
+                /// Get the coordinates and the parametric coordinates (if any) of the node
+                /// with tag `tag'. This function relies on an internal cache (a vector in case
+                /// of dense node numbering, a map otherwise); for large meshes accessing nodes
+                /// in bulk is often preferable.
+                /// </summary>
+                public static void GetNode(long nodeTag, out double[] coord, out double[] parametricCoord) {
+                    IntPtr cP, pcP;
+                    long coord_n, parametricCoord_n;
+
+                    IWrappers.GmshModelMeshGetNode(nodeTag, out cP, out coord_n, out pcP, out parametricCoord_n, ref _ierr);
+                    
+                    coord = new double[coord_n];
+                    parametricCoord = new double[parametricCoord_n];
+                    Marshal.Copy(cP, coord, 0, (int)coord_n);
+                    Marshal.Copy(pcP, parametricCoord, 0, (int)parametricCoord_n);
+
+                    IguanaGmsh.Free(cP);
+                    IguanaGmsh.Free(pcP);
+                }
+
+                /// <summary>
+                /// Set the coordinates and the parametric coordinates (if any) of the node
+                /// with tag `tag'. This function relies on an internal cache (a vector in case
+                /// of dense node numbering, a map otherwise); for large meshes accessing nodes
+                /// in bulk is often preferable.
+                /// </summary>
+                public static void SetNode(long nodeTag, double[] coord, double[] parametricCoord) {
+                    IWrappers.GmshModelMeshSetNode(nodeTag, coord, coord.LongLength, parametricCoord, parametricCoord.LongLength, ref _ierr);
+                }
+
+                /// <summary>
+                /// Rebuild the node cache.
+                /// </summary>
+                public static void RebuildNodeCache(bool onlyIfNecessary) {
+                    IWrappers.GmshModelMeshRebuildNodeCache(Convert.ToInt32(onlyIfNecessary), ref _ierr);
+                }
+
+                /// <summary>
+                /// Rebuild the element cache.
+                /// </summary>
+                public static void RebuildElementCache(bool onlyIfNecessary) {
+                    IWrappers.GmshModelMeshRebuildElementCache(Convert.ToInt32(onlyIfNecessary), ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the nodes from all the elements belonging to the physical group of
+                /// dimension `dim' and tag `tag'. `nodeTags' contains the node tags; `coord'
+                /// is a vector of length 3 times the length of `nodeTags' that contains the x,
+                /// y, z coordinates of the nodes, concatenated: [n1x, n1y, n1z, n2x, ...]. 
+                /// </summary>
+                public static void GetNodesForPhysicalGroup(int dim, int tag, out long[] nodeTags, out double[] coord) {
+                    IntPtr ntP, cP;
+                    long nodeTags_n, coord_n;
+
+                    IWrappers.GmshModelMeshGetNodesForPhysicalGroup(dim, tag, out ntP, out nodeTags_n, out cP, out coord_n, ref _ierr);
+
+                    nodeTags = new long[nodeTags_n];
+                    coord = new double[coord_n];
+                    Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
+                    Marshal.Copy(cP, coord, 0, (int)coord_n);
+
+                    IguanaGmsh.Free(ntP);
+                    IguanaGmsh.Free(cP);
                 }
             }
         }

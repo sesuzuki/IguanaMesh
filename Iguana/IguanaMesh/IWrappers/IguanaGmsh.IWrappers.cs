@@ -66,6 +66,22 @@ namespace Iguana.IguanaMesh.IWrappers
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshMerge")]
             internal static extern void GmshMerge([In] string fileName, ref int ierr);
 
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshOptionSetString")]
+            internal static extern void GmshOptionSetString([In] string name, [In] string value, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshOptionGetString")]
+            internal static extern void GmshOptionGetString([In] string name, out IntPtr value, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshOptionSetColor")]
+            internal static extern void GmshOptionSetColor([In] int[] name, int r, int g, int b, int a, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshOptionGetColor")]
+            internal static extern void GmshOptionGetColor([In] string name, out int r, out int g, out int b, out int a, ref int ierr);
+
             #endregion
 
             /////////////////////////////////////////////////////////////////////////
@@ -111,7 +127,7 @@ namespace Iguana.IguanaMesh.IWrappers
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemoveEntities")]
-            internal static extern void GmshModelRemoveEntities([In] long[] dimTags, long dimTags_n, int recursive, ref int ierr);
+            internal static extern void GmshModelRemoveEntities([In] int[] dimTags, long dimTags_n, int recursive, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetCoordinates")]
@@ -120,6 +136,90 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetValue")]
             internal static extern void GmshModelGetValue(int dim, int tag, [In] double[] parametricCoord, long parametricCoord_n, out IntPtr coord, out long coord_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetDerivative")]
+            internal static extern void GmshModelGetDerivative(int dim, int tag, [In] double[] parametricCoord, long parametricCoord_n, out IntPtr derivatives, out long derivatives_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetCurvature")]
+            internal static extern void GmshModelGetCurvature(int dim, int tag, [In] double[] parametricCoord, long parametricCoord_n, out IntPtr curvatures, out long curvatures_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetPrincipalCurvatures")]
+            internal static extern void GmshModelGetPrincipalCurvatures(int tag, [In] double[] parametricCoord, long parametricCoord_n, out IntPtr curvatureMax, out long curvatureMax_n, out IntPtr curvatureMin, out long curvatureMin_n, out IntPtr directionMax, out long directionMax_n, out IntPtr directionMin, out long directionMin_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetNormal")]
+            internal static extern void GmshModelGetNormal(int tag, [In] double[] parametricCoord, long parametricCoord_n, out IntPtr normals, out long normals_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetColor")]
+            internal static extern void GmshModelSetColor([In] int[] dimTags, long dimTags_n, int r, int g, int b, int a, int recursive, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetColor")]
+            internal static extern void GmshModelGetColor(int dim, int tag, out int r, out int g, out int b, out int a, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetCurrent")]
+            internal static extern void GmshModelGetCurrent(out IntPtr name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetCurrent")]
+            internal static extern void GmshModelSetCurrent([In] string name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelSetEntityName")]
+            internal static extern void GmshModelSetEntityName(int dim, int tag, [In] string name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetEntityName")]
+            internal static extern void GmshModelGetEntityName(int dim, int tag, out IntPtr name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetPhysicalGroups")]
+            internal static extern void GmshModelGetPhysicalGroups(out IntPtr dimTags, out long dimTags_n, int dim, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetEntitiesForPhysicalGroup")]
+            internal static extern void GmshModelGetEntitiesForPhysicalGroup(int dim, int tag, out IntPtr tags, out long tags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetPhysicalGroupsForEntity")]
+            internal static extern void GmshModelGetPhysicalGroupsForEntity(int dim, int tag, out IntPtr physicalTags, out long physicalTags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetBoundingBox")]
+            internal static extern void GmshModelGetBoundingBox(int dim, int tag, out double xmin, out double ymin, out double zmin, out double xmax, out double ymax, out double zmax, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetDimension")]
+            internal static extern int GmshModelGetDimension(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetPhysicalName")]
+            internal static extern void GmshModelGetPhysicalName(int dim, int tag, out IntPtr name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetEntitiesInBoundingBox")]
+            internal static extern void GmshModelGetEntitiesInBoundingBox(double xmin, double ymin, double zmin, double xmax, double ymax, double zmax, out IntPtr tags, out long tags_n, int dim, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemoveEntityName")]
+            internal static extern void GmshModelRemoveEntityName([In] string name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemovePhysicalGroups")]
+            internal static extern void GmshModelRemovePhysicalGroups([In] int[] dimTags, long dimTags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemovePhysicalName")]
+            internal static extern void GmshModelRemovePhysicalName([In] string name, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGetType")]
+            internal static extern void GmshModelGetType(int dim, int tag, out IntPtr entityType, ref int ierr);
 
             #endregion
 
@@ -246,6 +346,30 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoCopy")]
             internal static extern void GmshModelGeoCopy([In] int[] dimTags, long dimTags_n, out IntPtr outDimTags, out long outDimTags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoDilate")]
+            internal static extern void GmshModelGeoDilate([In] int[] dimTags, long dimTags_n, double x, double y, double z, double a, double b, double c, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoMirror")]
+            internal static extern void GmshModelGeoMirror([In] int[] dimTags, long dimTags_n, double a, double b, double c, double d, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoSymmetrize")]
+            internal static extern void GmshModelGeoSymmetrize([In] int[] dimTags, long dimTags_n, double a, double b, double c, double d, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoRemove")]
+            internal static extern void GmshModelGeoRemove([In] int[] dimTags, long dimTags_n, int recursive, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoRemoveAllDuplicates")]
+            internal static extern void GmshModelGeoRemoveAllDuplicates(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelGeoSplitCurve")]
+            internal static extern void GmshModelGeoSplitCurve(int tag, [In] int[] pointTags, long pointTags_n, out IntPtr curveTags, out long curveTags_n, ref int ierr);
             
             #endregion
 
@@ -592,6 +716,46 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshAddElementsByType")]
             internal static extern void GmshModelMeshAddElementsByType(int tag, int elementType, [In] long[] elementTags, long elementTags_n, [In] long[] nodeTags, long nodeTags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshPartition")]
+            internal static extern void GmshModelMeshPartition(int numPart, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshUnpartition")]
+            internal static extern void GmshModelMeshUnpartition(ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshSetOrder")]
+            internal static extern void GmshModelMeshSetOrder(int order, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshClear")]
+            internal static extern void GmshModelMeshClear([In] int[] dimTags, long dimTags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetNodesByElementType")]
+            internal static extern void GmshModelMeshGetNodesByElementType(int elementType, out IntPtr nodeTags, out long nodeTags_n, out IntPtr coord, out long coord_n, out IntPtr parametricCoord, out long parametricCoord_n, int tag, int returnParametricCoord, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetNode")]
+            internal static extern void GmshModelMeshGetNode(long nodeTag, out IntPtr coord, out long coord_n, out IntPtr parametricCoord, out long parametricCoord_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshSetNode")]
+            internal static extern void GmshModelMeshSetNode(long nodeTag, [In] double[] coord, long coord_n, [In] double[] parametricCoord, long parametricCoord_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRebuildNodeCache")]
+            internal static extern void GmshModelMeshRebuildNodeCache(int onlyIfNecessary, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshRebuildElementCache")]
+            internal static extern void GmshModelMeshRebuildElementCache(int onlyIfNecessary, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshGetNodesForPhysicalGroup")]
+            internal static extern void GmshModelMeshGetNodesForPhysicalGroup(int dim, int tag, out IntPtr nodeTags, out long nodeTags_n, out IntPtr coord, out long coord_n, ref int ierr);
 
             #endregion
 
