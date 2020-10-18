@@ -9,6 +9,14 @@ namespace IguanaClient
 {
     public static partial class Example
     {
+        // -----------------------------------------------------------------------------
+        //
+        //  Gmsh C++ extended tutorial 2
+        //
+        //  Mesh import, discrete entities, hybrid models, terrain meshing
+        //
+        // -----------------------------------------------------------------------------
+
         internal static long N = 100;
 
         public static void X2()

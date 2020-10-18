@@ -70,6 +70,14 @@ namespace Iguana.IguanaMesh.IWrappers
             IWrappers.GmshMerge(fileName, ref _ierr);
         }
 
+        /// <summary>
+        /// Draw all the OpenGL scenes.
+        /// </summary>
+        public static void GraphicsDraw()
+        {
+            IWrappers.GmshGraphicsDraw(ref _ierr);
+        }
+
 
         public static partial class Option
         {
@@ -91,13 +99,9 @@ namespace Iguana.IguanaMesh.IWrappers
             /// </summary>
             /// <param name="name"> `name' is of the form "category.option" or "category[num].option". Available categories and options are listed in the IguanaGmsh reference manual. </param>
             /// <returns></returns>
-            public static double GetNumber(string name)
+            public static void GetNumber(string name, out double number)
             {
-                IntPtr ptr = new IntPtr(0);
-                IWrappers.GmshOptionGetNumber(name, ptr, ref _ierr);
-                double val = IWrappers.IntPtrToDouble(ptr);
-                Marshal.FreeCoTaskMem(ptr);
-                return val;
+                IWrappers.GmshOptionGetNumber(name, out number, ref _ierr);
             }
 
             /// <summary>
@@ -127,7 +131,7 @@ namespace Iguana.IguanaMesh.IWrappers
             ///  form "category.option" or "category[num].option". Available categories and
             ///  options are listed in the Gmsh reference manual, with the "Color." middle string removed.
             /// </summary>
-            public static void SetColor(int[] name, int r, int g, int b, int a) {
+            public static void SetColor(string name, int r, int g, int b, int a=255) {
                 IWrappers.GmshOptionSetColor(name, r, g, b, a, ref _ierr);
             }
 

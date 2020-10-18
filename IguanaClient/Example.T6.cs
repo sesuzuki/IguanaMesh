@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace IguanaClient
 {
+    // -----------------------------------------------------------------------------
+    //
+    //  Gmsh C++ tutorial 6
+    //
+    //  Transfinite meshes
+    //
+    // -----------------------------------------------------------------------------
+
     public static partial class Example
     {
         public static void T6()

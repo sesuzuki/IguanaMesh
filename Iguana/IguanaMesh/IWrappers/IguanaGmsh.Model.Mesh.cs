@@ -590,10 +590,9 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <summary>
                 /// Remove embedded entities from the model entities `dimTags'. if `dim' is >= 0, only remove embedded entities of the given dimension (e.g.embedded points if `dim' == 0).
                 /// </summary>
-                /// <param name="dimTags"></param>
-                /// <param name="dim"></param>
-                public static void RemoveEmbedded(int[] dimTags, int dim) {
-                    IWrappers.GmshModelMeshRemoveEmbedded(dimTags, dimTags.LongLength, dim, ref _ierr);
+                public static void RemoveEmbedded(Tuple<int,int>[] dimTags, int dim) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelMeshRemoveEmbedded(arr, arr.LongLength, dim, ref _ierr);
                 }
 
                 /// <summary>
@@ -867,6 +866,344 @@ namespace Iguana.IguanaMesh.IWrappers
                     Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
 
                     IguanaGmsh.Free(ntP);
+                }
+
+                /// <summary>
+                /// Search the mesh for an element located at coordinates (`x', `y', `z'). This
+                /// function performs a search in a spatial octree.If an element is found,
+                /// return its tag, type and node tags, as well as the local coordinates(`u',
+                /// `v', `w') within the reference element corresponding to search location.If
+                /// `dim' is >= 0, only search for elements of the given dimension. If `strict'
+                /// is not set, use a tolerance to find elements near the search location.
+                /// </summary>
+                public static void GetElementByCoordinates(double x, double y, double z, out long elementTag, out int elementType, out long[] nodeTags, out double u, out double v, out double w, int dim, bool strict=false) {
+                    IntPtr ntP;
+                    long nodeTags_n;
+                    IWrappers.GmshModelMeshGetElementByCoordinates(x, y, z, out elementTag, out elementType, out ntP, out nodeTags_n, out u, out v, out w, dim, Convert.ToInt32(strict), ref _ierr);
+
+                    nodeTags = new long[nodeTags_n];
+                    Marshal.Copy(ntP, nodeTags, 0, (int) nodeTags_n);
+
+                    IguanaGmsh.Free(ntP);
+                }
+
+                /// <summary>
+                /// Search the mesh for element(s) located at coordinates (`x', `y', `z'). This
+                /// function performs a search in a spatial octree.Return the tags of all
+                /// found elements in `elementTags'. Additional information about the elements
+                /// can be accessed through `getElement' and `getLocalCoordinatesInElement'. If
+                /// `dim' is >= 0, only search for elements of the given dimension. If `strict'
+                /// is not set, use a tolerance to find elements near the search location.
+                /// </summary>
+                public static void GetElementsByCoordinates(double x, double y, double z, out long[] elementTags, int dim, bool strict=false) {
+                    IntPtr etP;
+                    long elementTags_n;
+                    IWrappers.GmshModelMeshGetElementsByCoordinates(x, y, z, out etP, out elementTags_n, dim, Convert.ToInt32(strict), ref _ierr);
+
+                    elementTags = new long[elementTags_n];
+                    Marshal.Copy(etP, elementTags, 0, (int)elementTags_n);
+
+                    IguanaGmsh.Free(etP);
+                }
+
+                /// <summary>
+                /// Return the local coordinates (`u', `v', `w') within the element
+                /// `elementTag' corresponding to the model coordinates (`x', `y', `z'). This
+                /// function relies on an internal cache(a vector in case of dense element
+                /// numbering, a map otherwise); for large meshes accessing elements in bulk is
+                /// often preferable.
+                /// </summary>
+                public static void GetLocalCoordinatesInElement(long elementTag, double x, double y, double z, out double u, out double v, out double w) {
+                    IWrappers.GmshModelMeshGetLocalCoordinatesInElement(elementTag, x, y, z, out  u, out v, out w, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the types of elements in the entity of dimension `dim' and tag `tag'.
+                /// If `tag' < 0, get the types for all entities of dimension `dim'. If `dim'
+                /// and `tag' are negative, get all the types in the mesh.
+                /// </summary>
+                public static void GetElementTypes(out long[] elementTypes, int dim, int tag) {
+                    IntPtr etP;
+                    long elementTypes_n;
+                    IWrappers.GmshModelMeshGetElementTypes(out etP, out elementTypes_n, dim, tag, ref _ierr);
+                    
+                    elementTypes = new long[elementTypes_n];
+                    Marshal.Copy(etP, elementTypes, 0, (int)elementTypes_n);
+
+                    IguanaGmsh.Free(etP);
+                }
+
+                /// <summary>
+                /// Return an element type given its family name `familyName' ("point", "line",
+                /// "triangle", "quadrangle", "tetrahedron", "pyramid", "prism", "hexahedron")
+                /// and polynomial order `order'. If `serendip' is true, return the
+                /// corresponding serendip element type(element without interior nodes).
+                /// </summary>
+                public static void GetElementType(string familyName, int order, bool serendip=false) {
+                    IWrappers.GmshModelMeshGetElementType(familyName, order, Convert.ToInt32(serendip), ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the properties of an element of type `elementType': its name
+                /// (`elementName'), dimension (`dim'), order(`order'), number of nodes
+                /// (`numNodes'), local coordinates of the nodes in the reference element
+                /// (`localNodeCoord' vector, of length `dim' times `numNodes') and number of
+                /// primary (first order) nodes (`numPrimaryNodes').
+                /// </summary>
+                public static void GetElementProperties(int elementType, string elementName, out int dim, out int order, out int numNodes, out double[] localNodeCoord, out int numPrimaryNodes) {
+                    IntPtr lcdP;
+                    long localNodeCoord_n;
+                    IWrappers.GmshModelMeshGetElementProperties(elementType, elementName, out dim, out order, out numNodes, out lcdP, out localNodeCoord_n, out numPrimaryNodes, ref _ierr);
+
+                    localNodeCoord = new double[localNodeCoord_n];
+                    Marshal.Copy(lcdP, localNodeCoord, 0, (int)localNodeCoord_n);
+
+                    IguanaGmsh.Free(lcdP);
+                }
+
+                /// <summary>
+                /// Get the elements of type `elementType' classified on the entity of tag
+                /// `tag'. If `tag' < 0, get the elements for all entities. `elementTags' is a
+                /// vector containing the tags (unique, strictly positive identifiers) of the
+                /// elements of the corresponding type. `nodeTags' is a vector of length equal
+                /// to the number of elements of the given type times the number N of nodes for
+                /// this type of element, that contains the node tags of all the elements of
+                /// the given type, concatenated: [e1n1, e1n2, ..., e1nN, e2n1, ...]. If
+                /// `numTasks' > 1, only compute and return the part of the data indexed by `task'.
+                /// </summary>
+                public static void GetElementsByType(int elementType, out long[] elementTags, out long[] nodeTags, int tag, long task, long numTasks) {
+                    IntPtr etP, ntP;
+                    long elementTags_n, nodeTags_n;
+                    IWrappers.GmshModelMeshGetElementsByType(elementType, out etP, out elementTags_n, out ntP, out nodeTags_n, tag, task, numTasks, ref _ierr);
+
+                    elementTags = new long[elementTags_n];
+                    nodeTags = new long[nodeTags_n];
+                    Marshal.Copy(etP, elementTags, 0, (int)elementTags_n);
+                    Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
+
+                    IguanaGmsh.Free(ntP);
+                    IguanaGmsh.Free(etP);
+                }
+
+                /// <summary>
+                /// Get the Jacobians of all the elements of type `elementType' classified on
+                /// the entity of tag `tag', at the G evaluation points `localCoord' given as
+                /// concatenated triplets of coordinates in the reference element[g1u, g1v,
+                /// g1w, ..., gGu, gGv, gGw]. Data is returned by element, with elements in the
+                /// same order as in `getElements' and `getElementsByType'. `jacobians'
+                /// contains for each element the 9 entries of the 3x3 Jacobian matrix at each
+                /// evaluation point.The matrix is returned by column: [e1g1Jxu, e1g1Jyu,
+                /// e1g1Jzu, e1g1Jxv, ..., e1g1Jzw, e1g2Jxu, ..., e1gGJzw, e2g1Jxu, ...], with
+                /// Jxu = dx / du, Jyu = dy / du, etc. `determinants' contains for each element the
+                /// determinant of the Jacobian matrix at each evaluation point: [e1g1, e1g2,
+                /// ... e1gG, e2g1, ...]. `coord' contains for each element the x, y, z
+                /// coordinates of the evaluation points.If `tag' < 0, get the Jacobian data
+                /// for all entities.If `numTasks' > 1, only compute and return the part of
+                /// the data indexed by `task'.
+                /// </summary>
+                public static void GetJacobians(int elementType, double[] localCoord, out double[] jacobians, out double[] determinants, out double[] coord, int tag, long task, long numTasks) {
+                    IntPtr jP, dP, cP;
+                    long jacobians_n, determinants_n, coord_n;
+                    IWrappers.GmshModelMeshGetJacobians(elementType, localCoord, localCoord.LongLength, out jP, out jacobians_n, out dP, out determinants_n, out cP, out coord_n, tag, task, numTasks, ref _ierr);
+                    
+                    jacobians = new double[jacobians_n];
+                    determinants = new double[determinants_n];
+                    coord = new double[coord_n];
+                    Marshal.Copy(jP, jacobians, 0, (int)jacobians_n);
+                    Marshal.Copy(dP, determinants, 0, (int)determinants_n);
+                    Marshal.Copy(cP, coord, 0, (int)coord_n);
+
+                    IguanaGmsh.Free(jP);
+                    IguanaGmsh.Free(dP);
+                    IguanaGmsh.Free(cP);
+                }
+
+                /// <summary>
+                ///  Get the Jacobian for a single element `elementTag', at the G evaluation
+                ///  points `localCoord' given as concatenated triplets of coordinates in the
+                ///  reference element[g1u, g1v, g1w, ..., gGu, gGv, gGw]. `jacobians' contains
+                ///  the 9 entries of the 3x3 Jacobian matrix at each evaluation point.The
+                ///  matrix is returned by column: [e1g1Jxu, e1g1Jyu, e1g1Jzu, e1g1Jxv, ...,
+                ///  e1g1Jzw, e1g2Jxu, ..., e1gGJzw, e2g1Jxu, ...], with Jxu = dx / du, Jyu = dy / du,
+                ///  etc. `determinants' contains the determinant of the Jacobian matrix at each
+                ///  evaluation point. `coord' contains the x, y, z coordinates of the
+                ///  evaluation points. This function relies on an internal cache(a vector in
+                ///  case of dense element numbering, a map otherwise); for large meshes
+                ///  accessing Jacobians in bulk is often preferable.
+                /// </summary>
+                public static void GetJacobian(long elementTag, double[] localCoord, out double[] jacobians, out double[] determinants, out double[] coord) {
+                    IntPtr jP, dP, cP;
+                    long jacobians_n, determinants_n, coord_n;
+
+                    IWrappers.GmshModelMeshGetJacobian(elementTag, localCoord, localCoord.LongLength, out jP, out jacobians_n, out dP, out determinants_n, out cP, out coord_n, ref _ierr);
+
+                    jacobians = new double[jacobians_n];
+                    determinants = new double[determinants_n];
+                    coord = new double[coord_n];
+                    Marshal.Copy(jP, jacobians, 0, (int)jacobians_n);
+                    Marshal.Copy(dP, determinants, 0, (int)determinants_n);
+                    Marshal.Copy(cP, coord, 0, (int)coord_n);
+
+                    IguanaGmsh.Free(jP);
+                    IguanaGmsh.Free(dP);
+                    IguanaGmsh.Free(cP);
+                }
+
+                /// <summary>
+                /// Get information about the `keys'. `infoKeys' returns information about the
+                /// functions associated with the `keys'. `infoKeys[0].first' describes the
+                /// type of function(0 for  vertex function, 1 for edge function, 2 for face
+                /// function and 3 for bubble function). `infoKeys[0].second' gives the order
+                /// of the function associated with the key.Warning: this is an experimental
+                /// feature and will probably change in a future release.
+                /// </summary>
+                public static void GetInformationForElements(int[] keys, int elementType, string functionSpaceType, out Tuple<int,int>[] infoKeys) {
+                    IntPtr ikP;
+                    long infoKeys_n;
+                    IWrappers.GmshModelMeshGetInformationForElements(keys, keys.LongLength, elementType, functionSpaceType, out ikP, out infoKeys_n, ref _ierr);
+
+                    var temp = new int[infoKeys_n];
+                    Marshal.Copy(ikP, temp, 0, (int) infoKeys_n);
+                    infoKeys = IHelpers.GraftIntTupleArray(temp);
+
+                    IguanaGmsh.Free(ikP);
+                }
+
+                /// <summary>
+                /// Get the barycenters of all elements of type `elementType' classified on the
+                /// entity of tag `tag'. If `primary' is set, only the primary nodes of the
+                /// elements are taken into account for the barycenter calculation.If `fast'
+                /// is set, the function returns the sum of the primary node coordinates
+                /// (without normalizing by the number of nodes). If `tag' < 0, get the
+                /// barycenters for all entities.If `numTasks' > 1, only compute and return
+                /// the part of the data indexed by `task'.
+                /// </summary>
+                public static void GetBarycenters(int elementType, int tag, bool fast, bool primary, out double[] barycenters, long task, long numTasks) {
+                    IntPtr bP;
+                    long barycenters_n;
+                    IWrappers.GmshModelMeshGetBarycenters(elementType, tag, Convert.ToInt32(fast), Convert.ToInt32(primary), out bP, out barycenters_n, task, numTasks, ref _ierr);
+                    
+                    barycenters = new double[barycenters_n];
+                    Marshal.Copy(bP, barycenters, 0, (int)barycenters_n);
+
+                    IguanaGmsh.Free(bP);
+
+                }
+
+                /// <summary>
+                /// Get the nodes on the edges of all elements of type `elementType' classified
+                /// on the entity of tag `tag'. `nodeTags' contains the node tags of the edges
+                /// for all the elements: [e1a1n1, e1a1n2, e1a2n1, ...]. Data is returned by
+                /// element, with elements in the same order as in `getElements' and
+                /// `getElementsByType'. If `primary' is set, only the primary(begin/end)
+                /// nodes of the edges are returned.If `tag' < 0, get the edge nodes for all
+                /// entities.If `numTasks' > 1, only compute and return the part of the data
+                /// indexed by `task'. 
+                /// </summary>
+                public static void GetElementEdgeNodes(int elementType, out long[] nodeTags, int tag, bool primary, long task, long numTasks) {
+                    IntPtr ntP;
+                    long nodeTags_n;
+                    IWrappers.GmshModelMeshGetElementEdgeNodes(elementType, out ntP, out nodeTags_n, tag, Convert.ToInt32(primary), task, numTasks, ref _ierr);
+
+                    nodeTags = new long[nodeTags_n];
+                    Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
+
+                    IguanaGmsh.Free(ntP);
+                }
+
+                /// <summary>
+                /// Get the nodes on the faces of type `faceType' (3 for triangular faces, 4
+                /// for quadrangular faces) of all elements of type `elementType' classified on
+                /// the entity of tag `tag'. `nodeTags' contains the node tags of the faces for
+                /// all elements: [e1f1n1, ..., e1f1nFaceType, e1f2n1, ...]. Data is returne
+                /// by element, with elements in the same order as in `getElements' and
+                /// `getElementsByType'. If `primary' is set, only the primary(corner) nodes
+                /// of the faces are returned.If `tag' < 0, get the face nodes for all
+                /// entities.If `numTasks' > 1, only compute and return the part of the data
+                /// indexed by `task'. 
+                /// </summary>
+                public static void GetElementFaceNodes(int elementType, int faceType, out long[] nodeTags, int tag, bool primary, long task, long numTasks) {
+                    IntPtr ntP;
+                    long nodeTags_n;
+                    IWrappers.GmshModelMeshGetElementFaceNodes(elementType, faceType, out ntP, out nodeTags_n, tag, Convert.ToInt32(primary), task, numTasks, ref _ierr);
+
+                    nodeTags = new long[nodeTags_n];
+                    Marshal.Copy(ntP, nodeTags, 0, (int)nodeTags_n);
+
+                    IguanaGmsh.Free(ntP);
+                }
+
+                /// <summary>
+                /// Reorder the elements of type `elementType' classified on the entity of tag `tag' according to `ordering'.
+                /// </summary>
+                public static void ReorderElements(int elementType, int tag, long[] ordering) {
+                    IWrappers.GmshModelMeshReorderElements(elementType, tag, ordering, ordering.LongLength, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the basis functions of the element of type `elementType' at the
+                /// evaluation points `localCoord' (given as concatenated triplets of
+                /// coordinates in the reference element[g1u, g1v, g1w, ..., gGu, gGv, gGw]),
+                /// for the function space `functionSpaceType' (e.g. "Lagrange" or
+                /// "GradLagrange" for Lagrange basis functions or their gradient, in the u, v,
+                /// w coordinates of the reference element; or "H1Legendre3" or
+                /// "GradH1Legendre3" for 3rd order hierarchical H1 Legendre functions).
+                /// `numComponents' returns the number C of components of a basis function.
+                /// `basisFunctions' returns the value of the N basis functions at the
+                /// evaluation points, i.e. [g1f1, g1f2, ..., g1fN, g2f1, ...] when C == 1 or
+                /// [g1f1u, g1f1v, g1f1w, g1f2u, ..., g1fNw, g2f1u, ...] when C == 3. For basis
+                /// functions that depend on the orientation of the elements, all values for
+                /// the first orientation are returned first, followed by values for the
+                /// second, etc. `numOrientations' returns the overall number of orientations.
+                /// If `wantedOrientations' is not empty, only return the values for the desired orientation indices.
+                /// </summary>
+                public static void GetBasisFunctions(int elementType, double[] localCoord, string functionSpaceType, out int numComponents, out double[] basisFunctions, out int numOrientations, int[] wantedOrientations) {
+                    IntPtr bfP;
+                    long basisFunctions_n;
+                    IWrappers.GmshModelMeshGetBasisFunctions(elementType, localCoord, localCoord.LongLength, functionSpaceType, out numComponents, out bfP, out basisFunctions_n, out numOrientations, wantedOrientations, wantedOrientations.LongLength, ref _ierr);
+
+                    basisFunctions = new double[0];
+                    if (basisFunctions_n > 0)
+                    {
+                        basisFunctions = new double[basisFunctions_n];
+                        Marshal.Copy(bfP, basisFunctions, 0, (int)basisFunctions_n);
+                    }
+
+                    IguanaGmsh.Free(bfP);
+                }
+
+                /// <summary>
+                /// Get the orientation index of the elements of type `elementType' in the
+                /// entity of tag `tag'. The arguments have the same meaning as in
+                /// `getBasisFunctions'. `basisFunctionsOrientation' is a vector giving for
+                /// each element the orientation index in the values returned by
+                /// `getBasisFunctions'. For Lagrange basis functions the call is superfluous
+                /// as it will return a vector of zeros.
+                /// </summary>
+                public static void GetBasisFunctionsOrientationForElements(int elementType, string functionSpaceType, out int[] basisFunctionsOrientation, int tag, long task, long numTasks) {
+                    IntPtr bP;
+                    long basisFunctionsOrientation_n;
+                    IWrappers.GmshModelMeshGetBasisFunctionsOrientationForElements(elementType, functionSpaceType, out bP, out basisFunctionsOrientation_n, tag, task, numTasks, ref _ierr);
+
+                    basisFunctionsOrientation = new int[basisFunctionsOrientation_n];
+                    Marshal.Copy(bP, basisFunctionsOrientation, 0, (int)basisFunctionsOrientation_n);
+
+                    IguanaGmsh.Free(bP);
+                }
+
+                /// <summary>
+                /// Get the orientation of a single element `elementTag'.
+                /// </summary>
+                public static void GetBasisFunctionsOrientationForElement(long elementTag, string functionSpaceType, out int basisFunctionsOrientation) {
+                    IWrappers.GmshModelMeshGetBasisFunctionsOrientationForElement(elementTag, functionSpaceType, out basisFunctionsOrientation, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the number of possible orientations for elements of type `elementType'
+                /// and function space named `functionSpaceType'.
+                /// </summary>
+                public static void GetNumberOfOrientations(int elementType, string functionSpaceType) {
+                    IWrappers.GmshModelMeshGetNumberOfOrientations(elementType, functionSpaceType, ref _ierr);
                 }
             }
         }

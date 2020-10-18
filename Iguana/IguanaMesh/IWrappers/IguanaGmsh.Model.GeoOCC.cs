@@ -1,5 +1,6 @@
 ﻿using Iguana.IguanaMesh.IUtils;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -70,7 +71,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="angle1"></param>
                 /// <param name="angle2"></param>
                 /// <returns></returns>
-                public static int AddCircleArc(double x, double y, double z, double r, double angle1 = -1, double angle2 = -1, int tag = -1)
+                public static int AddCircle(double x, double y, double z, double r, int tag = -1, double angle1 = 0, double angle2 = 2 * Math.PI)
                 {
                     return IWrappers.gmshModelOccAddCircle(x, y, z, r, tag, angle1, angle2, ref _ierr);
                 }
@@ -106,7 +107,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="angle1"></param>
                 /// <param name="angle2"></param>
                 /// <returns></returns>
-                public static int AddEllipse(double x, double y, double z, double r1, double r2, double angle1 = -1, double angle2 = -1, int tag = -1)
+                public static int AddEllipse(double x, double y, double z, double r1, double r2, int tag = -1, double angle1 = 0, double angle2 = 2 * Math.PI)
                 {
                     return IWrappers.GmshModelOccAddEllipse(x, y, z, r1, r2, tag, angle1, angle2, ref _ierr);
                 }
@@ -351,7 +352,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="angle2"></param>
                 /// <param name="angle3"></param>
                 /// <returns></returns>
-                public static int AddSphere(double xc, double yc, double zc, double radius, double angle1 = -Math.PI/2, double angle2 = Math.PI/2, double angle3 = 2*Math.PI, int tag=-1)
+                public static int AddSphere(double xc, double yc, double zc, double radius, int tag = -1, double angle1 = -Math.PI/2, double angle2 = Math.PI/2, double angle3 = 2*Math.PI)
                 {
                     return IWrappers.GmshModelOccAddSphere(xc, yc, zc, radius, tag, angle1, angle2, angle3, ref _ierr);
                 }
@@ -467,20 +468,22 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="makeRuled"> If the optional argument `makeRuled' is set, the surfaces created on the boundary are forced to be ruled surfaces.</param>
                 /// <param name="maxDegree"> If `maxDegree' is positive, set the maximal degree of resulting surface.</param>
                 /// <returns></returns>
-                public static void AddThruSections(int[] wireTags, out int[] outDimTags, bool makeSolid = false, bool makeRuled = true, int maxDegree = -1, int tag = -1)
+                public static void AddThruSections(int[] wireTags, out Tuple<int,int>[] dimTags, int tag, bool makeSolid = true, bool makeRuled = false, int maxDegree = -1)
                 {
-                    IntPtr dimTags;
+                    IntPtr dtP;
                     long outDimTags_n;
-                    IWrappers.GmshModelOccAddThruSections(wireTags, wireTags.LongLength, out dimTags, out outDimTags_n, tag, Convert.ToInt32(makeSolid), Convert.ToInt32(makeRuled), maxDegree, ref _ierr);
+                    IWrappers.GmshModelOccAddThruSections(wireTags, wireTags.LongLength, out dtP, out outDimTags_n, tag, Convert.ToInt32(makeSolid), Convert.ToInt32(makeRuled), maxDegree, ref _ierr);
 
-                    outDimTags = null;
+                    dimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(dimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int)outDimTags_n);
+
+                        dimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
-                    IWrappers.GmshFree(dimTags);
+                    IWrappers.GmshFree(dtP);
                 }
 
                 /// <summary>
@@ -492,7 +495,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="offset"></param>
                 /// <param name="outDimTags"></param>
                 /// <param name="tag"> If `tag' is positive, set the tag explicitly; otherwise a new tag is selected automatically. </param>
-                public static void AddThickSolid(int volumeTag, int[] excludeSurfaceTags, double offset, out int[] outDimTags, int tag = -1)
+                public static void AddThickSolid(int volumeTag, int[] excludeSurfaceTags, double offset, out Tuple<int,int>[] outDimTags, int tag = -1)
                 {
                     IntPtr dimTags;
                     long outDimTags_n;
@@ -501,8 +504,9 @@ namespace Iguana.IguanaMesh.IWrappers
                     outDimTags = null;
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(dimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dimTags, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
                     IWrappers.GmshFree(dimTags);
                 }
@@ -519,20 +523,21 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"> If `numElements' is not empty, also extrude the mesh: the entries in `numElements' give the number of elements in each layer. </param>
                 /// <param name="heights"> If `height' is not empty, it provides the (cumulative) height of the different layers, normalized to 1.</param>
                 /// <param name="recombine"></param>
-                public static void Extrude(int[] dimTags, double dx, double dy, double dz, out int[] outDimTags, int[] numElements=default, double[] heights = default, bool recombine = false)
+                public static void Extrude(Tuple<int,int>[] dimTags, double dx, double dy, double dz, out Tuple<int,int>[] outDimTags, int[] numElements=default, double[] heights = default, bool recombine = false)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-
-                    IWrappers.GmshModelOccExtrude(dimTags, dimTags.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
-                    outDimTags = null;
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccExtrude(arr, arr.LongLength, dx, dy, dz, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    outDimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(out_DimTags, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(out_DimTags);
@@ -567,19 +572,21 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="numElements"></param>
                 /// <param name="heights"> If `height' is not empty, it provides the(cumulative) height of the different layers, normalized to 1. </param>
                 /// <param name="recombine"></param>
-                public static void Revolve(int[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out int[] outDimTags, int[] numElements, double[] heights = null, bool recombine = true)
+                public static void Revolve(Tuple<int,int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle, out Tuple<int,int>[] outDimTags, int[] numElements, double[] heights = null, bool recombine = true)
                 {
                     IntPtr out_DimTags;
                     long outDimTags_n;
                     if (numElements == default) numElements = new int[0];
                     if (heights == default) heights = new double[0];
 
-                    IWrappers.GmshModelOccRevolve(dimTags, dimTags.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
-                    outDimTags = null;
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccRevolve(arr, arr.LongLength, x, y, z, ax, ay, az, angle, out out_DimTags, out outDimTags_n, numElements, numElements.LongLength, heights, heights.LongLength, Convert.ToInt32(recombine), ref _ierr);
+                    outDimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_DimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(out_DimTags, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(out_DimTags);
@@ -592,39 +599,46 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="dimTags"></param>
                 /// <param name="wireTag"></param>
                 /// <param name="outDimTags"></param>
-                public static void AddPipe(int[] dimTags, int wireTag, out int[] outDimTags)
+                public static void AddPipe(Tuple<int,int>[] dimTags, int wireTag, out Tuple<int, int>[] outDimTags)
                 {
                     IntPtr out_dimTags;
                     long outDimTags_n;
-                    IWrappers.GmshModelOccAddPipe(dimTags, dimTags.LongLength, wireTag, out out_dimTags, out outDimTags_n, ref _ierr);
-                    outDimTags = null;
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccAddPipe(arr, arr.LongLength, wireTag, out out_dimTags, out outDimTags_n, ref _ierr);
+                    outDimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(out_dimTags, temp, 0, (int)outDimTags_n);
+
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(out_dimTags);
                 }
-                /* Fillet the volumes `volumeTags' on the curves `curveTags' with radii
-                 * `radii'. The `radii' vector can either contain a single radius, as many
-                 * radii as `curveTags', or twice as many as `curveTags' (in which case
-                 * different radii are provided for the begin and end points of the curves).
-                 * Return the filleted entities in `outDimTags'. Remove the original volume if
-                 * `removeVolume' is set. */
-                public static void Fillet(int[] volumeTags, int[] curveTags, long curveTags_n, double[] radii, out int[] outDimTags, int removeVolume)
+
+                /// <summary>
+                /// Fillet the volumes `volumeTags' on the curves `curveTags' with radii
+                /// `radii'. The `radii' vector can either contain a single radius, as many
+                /// radii as `curveTags', or twice as many as `curveTags' (in which case
+                /// different radii are provided for the begin and end points of the curves).
+                /// Return the filleted entities in `outDimTags'. Remove the original volume if
+                /// `removeVolume' is set. 
+                /// </summary>    
+                public static void Fillet(int[] volumeTags, int[] curveTags, double[] radii, out Tuple<int,int>[] dimTags, bool removeVolume=false)
                 {
-                    IntPtr out_dimTags;
+                    IntPtr dtP;
                     long outDimTags_n;
-                    IWrappers.GmshModelOccFillet(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, radii, radii.LongLength, out out_dimTags, out outDimTags_n, removeVolume, ref _ierr);
-                    outDimTags = null;
+                    IWrappers.GmshModelOccFillet(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, radii, radii.LongLength, out dtP, out outDimTags_n, Convert.ToInt32(removeVolume), ref _ierr);
+                    dimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int)outDimTags_n);
+                        dimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
-                    IWrappers.GmshFree(out_dimTags);
+                    IWrappers.GmshFree(dtP);
                 }
 
                 /// <summary>
@@ -638,22 +652,24 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="curveTags"></param>
                 /// <param name="surfaceTags"></param>
                 /// <param name="distances"></param>
-                /// <param name="outDimTags"></param>
+                /// <param name="dimTags"></param>
                 /// <param name="removeVolume"> Remove the original volume if `removeVolume' is set. </param>
-                public static void Chamfer(int[] volumeTags, int[] curveTags, int[] surfaceTags, double[] distances, out int[] outDimTags, bool removeVolume = false)
+                public static void Chamfer(int[] volumeTags, int[] curveTags, int[] surfaceTags, double[] distances, out Tuple<int,int>[] dimTags, bool removeVolume = false)
                 {
-                    IntPtr out_dimTags;
+                    IntPtr dtP;
                     long outDimTags_n;
-                    IWrappers.GmshModelOccChamfer(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, surfaceTags, surfaceTags.LongLength, distances, distances.LongLength, out out_dimTags, out outDimTags_n, Convert.ToInt32(removeVolume), ref _ierr);
+                    IWrappers.GmshModelOccChamfer(volumeTags, volumeTags.LongLength, curveTags, curveTags.LongLength, surfaceTags, surfaceTags.LongLength, distances, distances.LongLength, out dtP, out outDimTags_n, Convert.ToInt32(removeVolume), ref _ierr);
 
-                    outDimTags = null;
+                    dimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags = new int[outDimTags_n];
-                        Marshal.Copy(out_dimTags, outDimTags, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int)outDimTags_n);
+
+                        dimTags = IHelpers.GraftIntTupleArray(temp);
                     }
 
-                    IWrappers.GmshFree(out_dimTags);
+                    IWrappers.GmshFree(dtP);
                 }
 
                 /// <summary>
@@ -690,17 +706,22 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"></param>
                 /// <param name="removeObject"></param>
                 /// <param name="removeTool"></param>
-                public static void Fuse(int[] objectDimTags, int[] toolDimTags, out int[] outDimTags_out, int tag=-1, bool removeObject=true, bool removeTool=true)
+                public static void Fuse(Tuple<int,int>[] objectDimTags, Tuple<int,int>[] toolDimTags, out Tuple<int,int>[] outDimTags_out, int tag=-1, bool removeObject=true, bool removeTool=true)
                 {
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
-                    IWrappers.GmshModelOccFuse(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
 
-                    outDimTags_out = null;
+                    var arrObj = IHelpers.FlattenIntTupleArray(objectDimTags);
+                    var arrTool = IHelpers.FlattenIntTupleArray(toolDimTags);
+                    IWrappers.GmshModelOccFuse(arrObj, arrObj.LongLength, arrTool, arrTool.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+
+                    outDimTags_out = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags_out = new int[outDimTags_n];
-                        Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(outDimTags, temp, 0, (int)outDimTags_n);
+
+                        outDimTags_out = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(outDimTags);
@@ -721,16 +742,21 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"></param>
                 /// <param name="removeObject"></param>
                 /// <param name="removeTool"></param>
-                public static void Intersect(int[] objectDimTags, int[] toolDimTags, out int[] outDimTags_out, int tag = -1, bool removeObject = true, bool removeTool = true)
+                public static void Intersect(Tuple<int,int>[] objectDimTags, Tuple<int,int>[] toolDimTags, out Tuple<int,int>[] outDimTags_out, int tag = -1, bool removeObject = true, bool removeTool = true)
                 {
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
-                    IWrappers.GmshModelOccIntersect(objectDimTags, objectDimTags.LongLength, toolDimTags, toolDimTags.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
-                    outDimTags_out = null;
+
+                    var arrObj = IHelpers.FlattenIntTupleArray(objectDimTags);
+                    var arrTool = IHelpers.FlattenIntTupleArray(toolDimTags);
+                    IWrappers.GmshModelOccIntersect(arrObj, arrObj.LongLength, arrTool, arrTool.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
+                    outDimTags_out = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
-                        outDimTags_out = new int[outDimTags_n];
-                        Marshal.Copy(outDimTags, outDimTags_out, 0, (int)outDimTags_n);
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(outDimTags, temp, 0, (int)outDimTags_n);
+
+                        outDimTags_out = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(outDimTags);
@@ -784,24 +810,255 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"></param>
                 /// <param name="removeObject"></param>
                 /// <param name="removeTool"></param>
-                public static void Fragment(Tuple<int, int>[] objectDimTags, Tuple<int, int>[] toolDimTags, out Tuple<int, int>[] dimTags, int tag = -1, bool removeObject = true, bool removeTool = true)
+                public static void Fragment(Tuple<int, int>[] objectDimTags, Tuple<int, int>[] toolDimTags, out Tuple<int, int>[] dimTags, out Tuple<int, int>[][] dimTagsMap, int tag = -1, bool removeObject = true, bool removeTool = true)
                 {
                     int[] objectDimTags_flatten = IHelpers.FlattenIntTupleArray(objectDimTags);
                     int[] toolDimTags_flatten = IHelpers.FlattenIntTupleArray(toolDimTags);
+
                     IntPtr outDimTags, outDimTagsMap, outDimTagsMap_n;
                     long outDimTags_n, outDimTagsMap_nn;
                     IWrappers.GmshModelOccFragment(objectDimTags_flatten, objectDimTags_flatten.LongLength, toolDimTags_flatten, toolDimTags_flatten.LongLength, out outDimTags, out outDimTags_n, out outDimTagsMap, out outDimTagsMap_n, out outDimTagsMap_nn, tag, Convert.ToInt32(removeObject), Convert.ToInt32(removeTool), ref _ierr);
-                    dimTags = null;
+                    
+                    dimTags = new Tuple<int, int>[0];
                     if (outDimTags_n > 0)
                     {
                         var temp = new int[outDimTags_n];
-                        Marshal.Copy(outDimTags, temp, 0, (int)outDimTags_n);
+                        Marshal.Copy(outDimTags, temp, 0, (int) outDimTags_n);
                         dimTags = IHelpers.GraftIntTupleArray(temp);
+                    }
+
+                    var tempMapSize = new long[outDimTagsMap_nn];
+                    var tempMap = new IntPtr[outDimTagsMap_nn];
+                    Marshal.Copy(outDimTagsMap_n, tempMapSize, 0, (int) outDimTagsMap_nn);
+                    Marshal.Copy(outDimTagsMap, tempMap, 0, (int) outDimTagsMap_nn);
+
+                    dimTagsMap = new Tuple<int,int>[outDimTagsMap_nn][];
+
+                    for (int i = 0; i < outDimTagsMap_nn; i++)
+                    {
+                        // Marshalling
+                        var temp = new int[tempMapSize[i]];
+                        Marshal.Copy(tempMap[i], temp, 0, (int) tempMapSize[i]);
+
+                        dimTagsMap[i] = IHelpers.GraftIntTupleArray(temp);
                     }
 
                     IWrappers.GmshFree(outDimTags);
                     IWrappers.GmshFree(outDimTagsMap);
                     IWrappers.GmshFree(outDimTagsMap_n);
+                }
+
+                /// <summary>
+                /// Translate the model entities `dimTags' along (`dx', `dy', `dz'). 
+                /// </summary>
+                public static void Translate(Tuple<int,int>[] dimTags, double dx, double dy, double dz) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccTranslate(arr, arr.LongLength, dx, dy, dz, ref _ierr);
+                }
+
+                /// <summary>
+                /// Rotate the model entities `dimTags' of `angle' radians around the axis of
+                /// revolution defined by the point(`x', `y', `z') and the direction (`ax', `ay', `az').
+                /// </summary>
+                public static void Rotate(Tuple<int, int>[] dimTags, double x, double y, double z, double ax, double ay, double az, double angle) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccRotate(arr, arr.LongLength, x, y, z, ax, ay, az, angle, ref _ierr);
+                }
+
+                /// <summary>
+                /// Scale the model entities `dimTag' by factors `a', `b' and `c' along the
+                /// three coordinate axes; use(`x', `y', `z') as the center of the homothetic transformation.
+                /// </summary>
+                public static void Dilate(Tuple<int, int>[] dimTags, double x, double y, double z, double a, double b, double c) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccDilate(arr, arr.LongLength, x, y, z, a, b, c, ref _ierr);
+                }
+
+                /// <summary>
+                /// Apply a symmetry transformation to the model entities `dimTag', with
+                /// respect to the plane of equation `a' * x + `b' * y + `c' * z + `d' = 0.
+                /// </summary>
+                public static void Mirror(Tuple<int, int>[] dimTags, double a, double b, double c, double d) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccMirror(arr, arr.LongLength, a, b, c, d, ref _ierr);
+                }
+
+                /// <summary>
+                /// Apply a symmetry transformation to the model entities `dimTag', with
+                /// respect to the plane of equation `a' * x + `b' * y + `c' * z + `d' = 0.
+                /// (This is a synonym for `mirror', which will be deprecated in a future release.) 
+                /// </summary>
+                public static void Symmetrize(Tuple<int, int>[] dimTags, double a, double b, double c, double d) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccSymmetrize(arr, arr.LongLength, a, b, c, d, ref _ierr);
+                }
+
+                /// <summary>
+                /// Apply a general affine transformation matrix `a' (16 entries of a 4x4
+                /// matrix, by row; only the 12 first can be provided for convenience) to the model entities `dimTag'. 
+                /// </summary>
+                public static void AffineTransfom(Tuple<int, int>[] dimTags, out double[] a) {
+                    IntPtr aP;
+                    long a_n;
+
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccAffineTransform(arr, arr.LongLength, out aP, out a_n, ref _ierr);
+
+                    a = new double[a_n];
+                    Marshal.Copy(aP, a, 0, (int)a_n);
+
+                    IguanaGmsh.Free(aP);
+                }
+
+                /// <summary>
+                /// Copy the entities `dimTags'; the new entities are returned in `outDimTags'.
+                /// </summary>
+                public static void Copy(Tuple<int, int>[] dimTags, out Tuple<int,int>[] outDimTags) {
+                    IntPtr dtP;
+                    long outDimTags_n;
+
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccCopy(arr, arr.LongLength, out dtP, out outDimTags_n, ref _ierr);
+
+                    outDimTags = new Tuple<int, int>[0];
+                    if (outDimTags_n > 0)
+                    {
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int) outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
+                    }
+
+                    IguanaGmsh.Free(dtP);
+                }
+
+                /// <summary>
+                /// Remove the entities `dimTags'. If `recursive' is true, remove all the
+                /// entities on their boundaries, down to dimension 0. 
+                /// </summary>
+                public static void Remove(Tuple<int,int>[] dimTags, bool recursive=false) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccRemove(arr, arr.LongLength, Convert.ToInt32(recursive), ref _ierr);
+                }
+
+                /// <summary>
+                /// Apply various healing procedures to the entities `dimTags' (or to all the
+                /// entities in the model if `dimTags' is empty). Return the healed entities in
+                /// `outDimTags'. Available healing options are listed in the Gmsh reference manual.
+                /// </summary>
+                public static void HealShapes(out Tuple<int,int>[] outDimTags, Tuple<int,int>[] dimTags, double tolerance, bool fixDegenerated, bool fixSmallEdges, bool fixSmallFaces, bool sewFaces, bool makeSolids) {
+                    IntPtr dtP;
+                    long outDimTags_n;
+
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccHealShapes(out dtP, out outDimTags_n, arr, arr.LongLength, tolerance, Convert.ToInt32(fixDegenerated), Convert.ToInt32(fixSmallEdges), Convert.ToInt32(fixSmallFaces), Convert.ToInt32(sewFaces), Convert.ToInt32(makeSolids), ref _ierr);
+                    
+                    outDimTags = new Tuple<int, int>[0];
+                    if (outDimTags_n > 0)
+                    {
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int)outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
+                    }
+
+                    IguanaGmsh.Free(dtP);
+                }
+
+                /// <summary>
+                /// Get all the OpenCASCADE entities. If `dim' is >= 0, return only the
+                /// entities of the specified dimension(e.g.points if `dim' == 0). The
+                /// entities are returned as a vector of (dim, tag) integer pairs.
+                /// </summary>
+                public static void GetEntities(out Tuple<int, int>[] dimTags, int dim) {
+                    IntPtr dtP;
+                    long dimTags_n;
+                    IWrappers.GmshModelOccGetEntities(out dtP, out dimTags_n, dim, ref _ierr);
+
+                    dimTags = new Tuple<int, int>[0];
+                    if (dimTags_n > 0)
+                    {
+                        var temp = new int[dimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int)dimTags_n);
+                        dimTags = IHelpers.GraftIntTupleArray(temp);
+                    }
+
+                    IguanaGmsh.Free(dtP);
+                }
+
+                /// <summary>
+                /// Get the OpenCASCADE entities in the bounding box defined by the two points
+                /// (`xmin', `ymin', `zmin') and (`xmax', `ymax', `zmax'). If `dim' is >= 0,
+                /// return only the entities of the specified dimension(e.g.points if `dim' == 0).
+                /// </summary>
+                public static void GetEntitiesInBoundingBox(double xmin, double ymin, double zmin, double xmax, double ymax, double zmax, out int[] tags, int dim) {
+                    IntPtr tP;
+                    long tags_n;
+                    IWrappers.GmshModelOccGetEntitiesInBoundingBox(xmin, ymin, zmin, xmax, ymax, zmax, out tP, out tags_n, dim, ref _ierr);
+
+                    tags = new int[tags_n];
+                    Marshal.Copy(tP, tags, 0, (int)tags_n);
+
+                    IguanaGmsh.Free(tP);
+                }
+
+                /// <summary>
+                /// Get the bounding box (`xmin', `ymin', `zmin'), (`xmax', `ymax', `zmax') of
+                /// the OpenCASCADE entity of dimension `dim' and tag `tag'.
+                /// </summary>
+                public static void GetBoundingBox(int dim, int tag, out double xmin, out double ymin, out double zmin, out double xmax, out double ymax, out double zmax) {
+                    IWrappers.GmshModelOccGetBoundingBox(dim, tag, out xmin, out ymin, out zmin, out xmax, out ymax, out zmax, ref _ierr);
+                }
+
+                /// <summary>
+                /// Set a mesh size constraint on the model entities `dimTags'. Currently only
+                /// entities of dimension 0 (points) are handled.
+                /// </summary>
+                public static void SetSize(Tuple<int,int>[] dimTags, double size) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelOccMeshSetSize(arr, arr.LongLength, size, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the mass of the OpenCASCADE entity of dimension `dim' and tag `tag'.
+                /// </summary>
+                public static void GetMass(int dim, int tag, out double mass) {
+                    IWrappers.GmshModelOccGetMass(dim, tag, out mass, ref _ierr);
+                }
+
+                /// <summary>
+                /// Get the matrix of inertia (by row) of the OpenCASCADE entity of dimension `dim' and tag `tag'.
+                /// </summary>
+                public static void GetMatrixOfInertia(int dim, int tag, out double[] mat) {
+                    IntPtr mP;
+                    long mat_n;
+                    IWrappers.GmshModelOccGetMatrixOfInertia(dim, tag, out mP, out mat_n, ref _ierr);
+
+                    mat = new double[mat_n];
+                    Marshal.Copy(mP, mat, 0, (int)mat_n);
+
+                    IguanaGmsh.Free(mP);
+                }
+
+                /// <summary>
+                /// Import BREP, STEP or IGES shapes from the file `fileName'. The imported
+                /// entities are returned in `outDimTags'. If the optional argument
+                /// `highestDimOnly' is set, only import the highest dimensional entities in
+                /// the file.The optional argument `format' can be used to force the format of
+                /// the file (currently "brep", "step" or "iges"). 
+                /// </summary>
+                public static void ImportShapes(string fileName, out Tuple<int,int>[] outDimTags, bool highestDimOnly=false, string format="step") {
+                    IntPtr dtP;
+                    long outDimTags_n;
+                    IWrappers.GmshModelOccImportShapes(fileName, out dtP, out outDimTags_n, Convert.ToInt32(highestDimOnly), format, ref _ierr);
+
+                    outDimTags = new Tuple<int, int>[0];
+                    if (outDimTags_n > 0)
+                    {
+                        var temp = new int[outDimTags_n];
+                        Marshal.Copy(dtP, temp, 0, (int) outDimTags_n);
+                        outDimTags = IHelpers.GraftIntTupleArray(temp);
+                    }
+
+                    IguanaGmsh.Free(dtP);
                 }
             }
         }

@@ -9,6 +9,14 @@ namespace IguanaClient
 {
     public static partial class Example
     {
+        // -----------------------------------------------------------------------------
+        //
+        //  Gmsh C++ tutorial 11
+        //
+        //  Unstructured quadrangular meshes
+        //
+        // -----------------------------------------------------------------------------
+
         public static void T11()
         {
             IguanaGmsh.Initialize();

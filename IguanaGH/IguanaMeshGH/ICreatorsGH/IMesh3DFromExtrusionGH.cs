@@ -103,8 +103,9 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                 if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
 
                 // Extrude
-                int[] ov;
-                IguanaGmsh.Model.GeoOCC.Extrude(new[] { 2, surfaceTag }, dir.X, dir.Y, dir.Z, out ov, divisions.ToArray(), lengths.ToArray(), true);
+                Tuple<int, int>[] ov;
+                Tuple<int, int>[] temp = new Tuple<int, int>[] { Tuple.Create(2, surfaceTag) }; ;
+                IguanaGmsh.Model.GeoOCC.Extrude(temp, dir.X, dir.Y, dir.Z, out ov, divisions.ToArray(), lengths.ToArray(), true);
 
                 IguanaGmsh.Model.GeoOCC.Synchronize();
 

@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace IguanaClient
 {
+    // -----------------------------------------------------------------------------
+    //
+    //  Gmsh C++ tutorial 2
+    //
+    //  Transformations, extruded geometries, volumes
+    //
+    // -----------------------------------------------------------------------------
+
     public static partial class Example
     {
         public static void T2()

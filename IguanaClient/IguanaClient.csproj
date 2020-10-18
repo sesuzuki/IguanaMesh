@@ -46,22 +46,33 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Example.T10.cs" />
     <Compile Include="Example.T11.cs" />
     <Compile Include="Example.T12.cs" />
     <Compile Include="Example.T13.cs" />
+    <Compile Include="Example.T14.cs" />
+    <Compile Include="Example.T15.cs" />
     <Compile Include="Example.T16.cs" />
+    <Compile Include="Example.T17.cs" />
+    <Compile Include="Example.T18.cs" />
+    <Compile Include="Example.T19.cs" />
     <Compile Include="Example.T2.cs" />
+    <Compile Include="Example.T20.cs" />
+    <Compile Include="Example.T21.cs" />
     <Compile Include="Example.T3.cs" />
     <Compile Include="Example.T4.cs" />
     <Compile Include="Example.T5.cs" />
     <Compile Include="Example.T1.cs" />
     <Compile Include="Example.T6.cs" />
+    <Compile Include="Example.T7.cs" />
+    <Compile Include="Example.T8.cs" />
     <Compile Include="Example.X2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Compile Include="Example.T9.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

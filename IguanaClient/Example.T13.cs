@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace IguanaClient
 {
+    // -----------------------------------------------------------------------------
+    //
+    //  Gmsh C++ tutorial 13
+    //
+    //  Remeshing an STL file without an underlying CAD model
+    //
+    // -----------------------------------------------------------------------------
     public static partial class Example
     {
         public static void T13()

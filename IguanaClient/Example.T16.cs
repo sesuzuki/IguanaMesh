@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace IguanaClient
 {
+    // -----------------------------------------------------------------------------
+    //
+    //  Gmsh C++ tutorial 16
+    //
+    //  Constructive Solid Geometry, OpenCASCADE geometry kernel
+    //
+    // -----------------------------------------------------------------------------
+
+    // Instead of constructing a model in a bottom-up fashion with Gmsh's built-in
+    // geometry kernel, starting with version 3 Gmsh allows you to directly use
+    // alternative geometry kernels. Here we will use the OpenCASCADE kernel.
     public static partial class Example
     {
         public static void T16()
@@ -38,7 +49,7 @@ namespace IguanaClient
             {
                 x += 0.166;
                 z += 0.166;
-                IguanaGmsh.Model.GeoOCC.AddSphere(x, y, z, r, -Math.PI / 2, Math.PI / 2, 2 * Math.PI, 3 + t);
+                IguanaGmsh.Model.GeoOCC.AddSphere(x, y, z, r, 3 + t, - Math.PI / 2, Math.PI / 2, 2 * Math.PI);
                 holes[t - 1] = Tuple.Create(3, 3 + t);
             }
 
@@ -46,7 +57,8 @@ namespace IguanaClient
             // want five spherical inclusions, whose mesh should be conformal with the
             // mesh of the cube: we thus use `fragment()', which intersects all volumes in
             // a conformal manner (without creating duplicate interfaces):
-            IguanaGmsh.Model.GeoOCC.Fragment(new Tuple<int, int>[] { Tuple.Create(3, 3) }, holes, out ov);
+            Tuple<int, int>[][] ovv;
+            IguanaGmsh.Model.GeoOCC.Fragment(new Tuple<int, int>[] { Tuple.Create(3, 3) }, holes, out ov, out ovv);
 
             IguanaGmsh.Model.GeoOCC.Synchronize();
 

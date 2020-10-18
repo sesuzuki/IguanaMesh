@@ -15,7 +15,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             public static int SpherePatch(Sphere sphere)
             {
                 Point3d c = sphere.Center;
-                int srfTag = IguanaGmsh.Model.GeoOCC.AddSphere(c.X, c.Y, c.Z, sphere.Radius, -Math.PI / 2, Math.PI / 2, 2 * Math.PI);
+                int srfTag = IguanaGmsh.Model.GeoOCC.AddSphere(c.X, c.Y, c.Z, sphere.Radius);
                 return srfTag;
             }
 

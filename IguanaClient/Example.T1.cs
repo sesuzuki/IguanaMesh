@@ -10,6 +10,16 @@ namespace IguanaClient
 {
     public static partial class Example
     {
+        // -----------------------------------------------------------------------------
+        //
+        //  Gmsh C++ tutorial 1
+        //
+        //  Geometry basics, elementary entities, physical groups
+        //
+        // -----------------------------------------------------------------------------
+
+        // The Gmsh C++ API is entirely defined in the `gmsh.h' header (which contains
+        // the full documentation of all the functions in the API):
         public static void T1()
         {
             // Before using any functions in the C++ API, Gmsh must be initialized:

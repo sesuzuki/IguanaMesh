@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace IguanaClient
 {
+    // -----------------------------------------------------------------------------
+    //
+    //  Gmsh C++ tutorial 4
+    //
+    //  Holes in surfaces, annotations, entity colors
+    //
+    // -----------------------------------------------------------------------------
     public static partial class Example
     {
         public static void T4()

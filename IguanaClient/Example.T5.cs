@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace IguanaClient
 {
+    // -----------------------------------------------------------------------------
+    //
+    //  Gmsh C++ tutorial 5
+    //
+    //  Characteristic lengths, holes in volumes
+    //
+    // -----------------------------------------------------------------------------
+
     public static partial class Example
     {
         public static void T5()

@@ -98,11 +98,12 @@ namespace Iguana.IguanaMesh.IWrappers
                 long outDimTags_n;
                 IWrappers.GmshModelGetBoundary(dimTags_flatten, dimTags_flatten.LongLength, out outDimTags_parse, out outDimTags_n, Convert.ToInt32(combined), Convert.ToInt32(oriented), Convert.ToInt32(recursive), ref _ierr);
 
-                outDimTags = null;
+                outDimTags = new Tuple<int, int>[0];
                 if (outDimTags_n > 0)
                 {
                     var temp = new int[outDimTags_n];
                     Marshal.Copy(outDimTags_parse, temp, 0, (int)outDimTags_n);
+
                     outDimTags = IHelpers.GraftIntTupleArray(temp);
                 }
 
@@ -126,7 +127,7 @@ namespace Iguana.IguanaMesh.IWrappers
             /// Remove the entities `dimTags' of the current model. If `recursive' is true,
             /// remove all the entities on their boundaries, down to dimension 0.
             /// </summary>
-            public static void RemoveEntities(Tuple<int, int>[] dimTags, bool recursive)
+            public static void RemoveEntities(Tuple<int, int>[] dimTags, bool recursive=false)
             {
                 var arr = IHelpers.FlattenIntTupleArray(dimTags);
                 IWrappers.GmshModelRemoveEntities(arr, arr.LongLength, Convert.ToInt32(recursive), ref _ierr);
@@ -422,14 +423,20 @@ namespace Iguana.IguanaMesh.IWrappers
             /// (`xmin', `ymin', `zmin') and (`xmax', `ymax', `zmax'). If `dim' is >= 0,
             /// return only the entities of the specified dimension(e.g.points if `dim'== 0).
             /// </summary>
-            public static void GetEntitiesInBoundingBox(double xmin, double ymin, double zmin, double xmax, double ymax, double zmax, out int[] tags, int dim = 0)
+            public static void GetEntitiesInBoundingBox(double xmin, double ymin, double zmin, double xmax, double ymax, double zmax, out Tuple<int,int>[] tags, int dim = 0)
             {
                 IntPtr tP;
                 long tags_n;
                 IWrappers.GmshModelGetEntitiesInBoundingBox(xmin, ymin, zmin, xmax, ymax, zmax, out tP, out tags_n, dim, ref _ierr);
 
-                tags = new int[tags_n];
-                Marshal.Copy(tP, tags, 0, (int)tags_n);
+                tags = new Tuple<int, int>[0];
+                if (tags_n > 0)
+                {
+                    var temp = new int[tags_n];
+                    Marshal.Copy(tP, temp, 0, (int)tags_n);
+
+                    tags = IHelpers.GraftIntTupleArray(temp);
+                }
 
                 IguanaGmsh.Free(tP);
             }
@@ -469,6 +476,32 @@ namespace Iguana.IguanaMesh.IWrappers
                 IguanaGmsh.Free(etP);
             }
 
+            /// <summary>
+            /// In a partitioned model, return the tags of the partition(s) to which the entity belongs.
+            /// </summary>
+            public static void GetPartitions(int dim, int tag, out int[] partitions) {
+                IntPtr p;
+                long partitions_n;
+                IWrappers.GmshModelGetPartitions(dim, tag, out p, out partitions_n, ref _ierr);
+
+                partitions = new int[0];
+                if (partitions_n>0)
+                {
+                    partitions = new int[partitions_n];
+                    Marshal.Copy(p, partitions, 0, (int) partitions_n);
+                }
+
+                IguanaGmsh.Free(p);
+            }
+
+            /// <summary>
+            /// In a partitioned model, get the parent of the entity of dimension `dim' and
+            /// tag `tag', i.e. from which the entity is a part of, if any. `parentDim' and
+            /// `parentTag' are set to -1 if the entity has no parent. 
+            /// </summary>
+            public static void GetParent(int dim, int tag, out int parentDim, out int parentTag) {
+                IWrappers.GmshModelGetParent(dim, tag, out parentDim, out parentTag, ref _ierr);
+            }
         }
     }
 }

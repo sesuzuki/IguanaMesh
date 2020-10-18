@@ -535,6 +535,15 @@ namespace Iguana.IguanaMesh.IWrappers
 
                     IguanaGmsh.Free(cP);
                 }
+
+                /// <summary>
+                /// Set a mesh size constraint on the model entities `dimTags'. Currently only
+                /// entities of dimension 0 (points) are handled.
+                /// </summary>
+                public static void SetSize(Tuple<int,int>[] dimTags, double size) {
+                    var arr = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelGeoMeshSetSize(arr, arr.LongLength, size, ref _ierr);
+                }
             }
         }
     }
