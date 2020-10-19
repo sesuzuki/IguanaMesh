@@ -37,7 +37,7 @@ namespace IguanaClient
             IguanaGmsh.Model.GeoOCC.Synchronize();
 
             // Merge a post-processing view containing the target anisotropic mesh sizes
-                IguanaGmsh.Merge("t17_bgmesh.pos");
+            IguanaGmsh.Merge("t17_bgmesh.pos");
 
             // Apply the view as the current background mesh
             int bg_field = IguanaGmsh.Model.MeshField.Add("PostView");

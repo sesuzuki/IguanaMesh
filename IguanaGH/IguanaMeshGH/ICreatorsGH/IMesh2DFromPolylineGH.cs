@@ -84,8 +84,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
             else IguanaGmsh.Model.Geo.Synchronize();
 
             //solver options
-            solverOptions.ApplyBasic2DSettings();
-            solverOptions.ApplyAdvanced2DSettings();
+            solverOptions.ApplySolverSettings();
 
             IguanaGmsh.Model.Mesh.Generate(2);
 

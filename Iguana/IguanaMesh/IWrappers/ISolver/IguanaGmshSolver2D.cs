@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Iguana.IguanaMesh.IWrappers.IExtensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -76,41 +77,46 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
 
         #endregion
 
-        public void ApplyBasic2DSettings()
+        public void ApplySolverSettings(IguanaGmshFieldCollection fields=default)
         {
             IguanaGmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
             IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
-            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);
-            IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", CharacteristicLengthMax);
             IguanaGmsh.Option.SetNumber("Mesh.MinimumCurvePoints", MinimumCurvePoints);
 
-            if (CharacteristicLengthFromCurvature)
+            if (fields!=default || fields.Count>0)
             {
-                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
-                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+                fields.ApplyFields();
             }
             else
             {
-                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
-                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
-            }
-        }
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthMax", CharacteristicLengthMax);
 
-        public void ApplyAdvanced2DSettings()
-        {
+                if (CharacteristicLengthFromCurvature)
+                {
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+                }
+                else
+                {
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
+                }
+            }
+
             if (RecombineAll)
             {
                 IguanaGmsh.Option.SetNumber("Mesh.RecombinationAlgorithm", (int) RecombinationAlgorithm);
                 IguanaGmsh.Option.SetNumber("Mesh.RecombineOptimizeTopology", OptimizationSteps);
                 IguanaGmsh.Option.SetNumber("Mesh.RecombineAll", 1);
                 IguanaGmsh.Model.Mesh.Recombine();
-            }else IguanaGmsh.Option.SetNumber("Mesh.RecombineAll", 0);
+            }
 
             if (Subdivide)
             {
                 IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
                 IguanaGmsh.Model.Mesh.Refine();
-            } else IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", 0);
+            }
 
             if (Optimize)
             {
@@ -119,7 +125,7 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
                 string method = OptimizationAlgorithm;
                 if (method == "Standard") method = "";
                 IguanaGmsh.Model.Mesh.Optimize(method, OptimizationSteps);
-            }else IguanaGmsh.Option.SetNumber("Mesh.Optimize", 0);
+            }
         }
     }
 }

@@ -97,7 +97,8 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                 if (constraints.Count > 0) synchronize = false;
 
                 // Suface construction
-                int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(crv, solverOptions, patch, synchronize);
+                int wireTag = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(crv, solverOptions.TargetMeshSizeAtNodes[0]);
+                int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(wireTag, solverOptions, patch, synchronize);
 
                 // Embed constraints
                 if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);

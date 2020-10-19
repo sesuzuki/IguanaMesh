@@ -137,7 +137,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                 return crvTags;
             }
 
-            public static int SurfacePatch(Curve crv, IguanaGmshSolver solverOptions, List<Point3d> patchs = default, bool synchronize = false)
+            public static int SurfacePatch(int wireTag, IguanaGmshSolver solverOptions, List<Point3d> patchs = default, bool synchronize = false)
             {
                 // 1._ Check points to patch
                 if (patchs == default) patchs = new List<Point3d>();
@@ -151,7 +151,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                 }
 
                 // 3._ Build OCC Geometry
-                int wireTag = CurveLoopFromRhinoCurve(crv, solverOptions.TargetMeshSizeAtNodes[0]);
+                //int wireTag = CurveLoopFromRhinoCurve(crv, solverOptions.TargetMeshSizeAtNodes[0]);
                 int surfaceTag = IguanaGmsh.Model.GeoOCC.AddSurfaceFilling(wireTag, patchPts);
 
                 // 5._ Synchronize model

@@ -62,6 +62,8 @@
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshConstraint.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.Geo.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.GeoOCC.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshField.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFieldCollection.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.FLTK.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Logger.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.cs" />

@@ -62,8 +62,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
             IguanaGmshFactory.Geo.GmshSurfaceFromBrep(b, true);
 
             // Preprocessing settings
-            solverOptions.ApplyBasic2DSettings();
-            solverOptions.ApplyAdvanced2DSettings();
+            solverOptions.ApplySolverSettings();
 
             //Tuple<int, int>[] nodes;
             //IguanaGmsh.Model.GetEntities(out nodes, 0);

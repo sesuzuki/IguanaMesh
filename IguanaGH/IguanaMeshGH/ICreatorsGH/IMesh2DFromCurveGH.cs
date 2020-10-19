@@ -31,7 +31,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddCurveParameter("Curve", "C", "Base closed curve.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("MeshingPoints", "M", "Minimum number of points used to mesh edge-surfaces. Default value is 10.", GH_ParamAccess.item, 10);
+            pManager.AddGenericParameter("MeshField", "F", "Field to specify the size of the mesh elements.", GH_ParamAccess.item);
+
+            //pManager.AddIntegerParameter("MeshingPoints", "M", "Minimum number of points used to mesh edge-surfaces. Default value is 10.", GH_ParamAccess.item, 10);
             pManager.AddGenericParameter("iConstraints", "iC", "Constraints for mesh generation.", GH_ParamAccess.item);
             pManager.AddGenericParameter("iSettings", "iS2D", "Two-dimensional meshing settings.", GH_ParamAccess.item);
             pManager[1].Optional = true;
@@ -55,10 +57,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             Curve crv = null;
             int minPts = 10;
-            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
+            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D(); 
 
             DA.GetData(0, ref crv);
-            DA.GetData(1, ref minPts);
             DA.GetData(3, ref solverOptions);
 
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
@@ -69,8 +70,16 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 constraints.Add(c);
             }
 
+            IguanaGmshFieldCollection fields = new IguanaGmshFieldCollection();
+            foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
+            {
+                IguanaGmshField f;
+                obj.CastTo<IguanaGmshField>(out f);
+                fields.AddField(f);
+            }
+
             IMesh mesh = null;
-            solverOptions.MinimumCurvePoints = minPts;
+            //solverOptions.MinimumCurvePoints = minPts;
 
             if (crv.IsClosed)
             {
@@ -80,14 +89,14 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 if (constraints.Count > 0) synchronize = false;
 
                 // Suface construction
-                int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(crv, solverOptions, default, synchronize);
+                int wireTag = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(crv, solverOptions.TargetMeshSizeAtNodes[0]);
+                int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(wireTag, solverOptions, default, synchronize);
 
                 // Embed constraints
                 if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
 
                 // Preprocessing settings
-                solverOptions.ApplyBasic2DSettings();
-                solverOptions.ApplyAdvanced2DSettings();
+                solverOptions.ApplySolverSettings(fields);
 
                 // 2d mesh generation
                 IguanaGmsh.Model.Mesh.Generate(2);
