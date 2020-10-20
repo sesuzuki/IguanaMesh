@@ -57,9 +57,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             Curve crv = null;
             int minPts = 10;
-            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D(); 
+            IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
+            IguanaGmshField field = default;
 
             DA.GetData(0, ref crv);
+            DA.GetData(1, ref field);
             DA.GetData(3, ref solverOptions);
 
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
@@ -68,14 +70,6 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 IguanaGmshConstraint c;
                 obj.CastTo<IguanaGmshConstraint>(out c);
                 constraints.Add(c);
-            }
-
-            IguanaGmshFieldCollection fields = new IguanaGmshFieldCollection();
-            foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
-            {
-                IguanaGmshField f;
-                obj.CastTo<IguanaGmshField>(out f);
-                fields.AddField(f);
             }
 
             IMesh mesh = null;
@@ -96,7 +90,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
 
                 // Preprocessing settings
-                solverOptions.ApplySolverSettings(fields);
+                solverOptions.ApplySolverSettings(field);
 
                 // 2d mesh generation
                 IguanaGmsh.Model.Mesh.Generate(2);

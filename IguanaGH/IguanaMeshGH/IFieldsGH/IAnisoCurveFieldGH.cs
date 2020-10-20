@@ -25,13 +25,13 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddIntegerParameter("Nodes", "N", "Number of nodes used to discretized a curve. Default value is 20.", GH_ParamAccess.item, 20);
-            pManager.AddNumberParameter("Maximum Distance", "MaxDist", "Maxmium distance, above this distance from the curves, prescribe the maximum mesh sizes. Default value is 0.5.", GH_ParamAccess.item, 0.5);
-            pManager.AddNumberParameter("Minimum Distance", "MinDist", "Minimum distance, below this distance from the curves, prescribe the minimum mesh sizes. Default value is 0.1.", GH_ParamAccess.item, 0.1);
-            pManager.AddNumberParameter("Maximum Normal", "MaxNormal", "Maximum mesh size in the direction normal to the closest curve. Default value is 0.5.", GH_ParamAccess.item, 0.5);
-            pManager.AddNumberParameter("Minimum Normal", "lMinNormal", "Minimum mesh size in the direction normal to the closest curve. Default value is 0.05.", GH_ParamAccess.item, 0.05);
-            pManager.AddNumberParameter("Maximum Tangent", "MaxTangent", "Maximum mesh size in the direction tangeant to the closest curve. Default value is 0.5.", GH_ParamAccess.item, 0.5);
-            pManager.AddNumberParameter("Minimum Tangent", "MinTangent", "Minimum mesh size in the direction tangeant to the closest curve. Default value is 0.05.", GH_ParamAccess.item, 0.05);
+            pManager.AddIntegerParameter("Nodes", "N", "Number of nodes used to discretized a curve. Default value is 20.", GH_ParamAccess.item, 1);
+            pManager.AddNumberParameter("Maximum Distance", "MaxDist", "Maxmium distance, above this distance from the curves, prescribe the maximum mesh sizes. Default value is 0.5.", GH_ParamAccess.item, 1);
+            pManager.AddNumberParameter("Minimum Distance", "MinDist", "Minimum distance, below this distance from the curves, prescribe the minimum mesh sizes. Default value is 0.1.", GH_ParamAccess.item, 0.5);
+            pManager.AddNumberParameter("Maximum Normal", "MaxNormal", "Maximum mesh size in the direction normal to the closest curve. Default value is 0.5.", GH_ParamAccess.item, 1);
+            pManager.AddNumberParameter("Minimum Normal", "lMinNormal", "Minimum mesh size in the direction normal to the closest curve. Default value is 0.05.", GH_ParamAccess.item, 0.5);
+            pManager.AddNumberParameter("Maximum Tangent", "MaxTangent", "Maximum mesh size in the direction tangeant to the closest curve. Default value is 0.5.", GH_ParamAccess.item, 1);
+            pManager.AddNumberParameter("Minimum Tangent", "MinTangent", "Minimum mesh size in the direction tangeant to the closest curve. Default value is 0.05.", GH_ParamAccess.item, 0.5);
         }
 
         /// <summary>
@@ -48,12 +48,12 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            int nnodesByEdge = 20;
-            double dMax = 0.5;
-            double dMin = 0.1;
-            double lMaxNormal = 0.5;
-            double lMaxTangent = 0.5;
-            double lMinNormal = 0.05;
+            int nnodesByEdge = 1;
+            double dMax = 1;
+            double dMin = 0.5;
+            double lMaxNormal = 1;
+            double lMaxTangent = 1;
+            double lMinNormal = 0.5;
             double lMinTangent = 0.5;
 
             DA.GetData(0, ref nnodesByEdge);

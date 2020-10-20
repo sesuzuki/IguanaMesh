@@ -10,6 +10,16 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
 {
     public class IguanaGmshSolver2D : IguanaGmshSolver
     {
+        public IguanaGmshSolver2D() : base()
+        {
+            CrossFieldClosestPoint = true;
+            SmoothRatio = 1.8;
+            RefineSteps = 10;
+            RecombinationAlgorithm = 0;
+            RecombineAll = false;
+            RecombineOptimizeTopology = 5;
+        }
+
         /// <summary>
         /// 2D mesh algorithm (1: MeshAdapt, 2: Automatic, 3: Initial mesh only, 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads, 9: Packing of Parallelograms). Default value: 6
         /// </summary>
@@ -27,21 +37,18 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
         /// Use closest point to compute 2D crossfield.
         /// Default value: true
         /// </summary>
-        [DefaultValue(true)]
         public bool CrossFieldClosestPoint { get; set; }
 
         /// <summary>
         /// Ratio between mesh sizes at nodes of a same edge (used in BAMG).
         /// Default value: 1.8
         /// </summary>
-        [DefaultValue(1.8)]
         public double SmoothRatio { get; set; }
 
         /// <summary>
         /// Number of refinement steps in the MeshAdapt-based 2D algorithms.
         /// Default value: 10
         /// </summary>
-        [DefaultValue(10)]
         public int RefineSteps { get; set; }
 
         #endregion
@@ -58,34 +65,32 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
         /// Mesh recombination algorithm for recombine the current mesh. 
         /// Default value: Simple
         /// </summary>
-        [DefaultValue(0)]
         public int RecombinationAlgorithm { get; set; }
 
         /// <summary>
         /// Apply recombination algorithm.
         /// Default value: false
         /// </summary>
-        [DefaultValue(false)]
         public bool RecombineAll { get; set; }
 
         /// <summary>
         /// Number of topological optimization passes (removal of diamonds, ...) of recombined surface meshes.
         /// Default value: 5
         /// </summary>
-        [DefaultValue(5)]
         public int RecombineOptimizeTopology { get; set; }
 
         #endregion
 
-        public void ApplySolverSettings(IguanaGmshFieldCollection fields=default)
+        public void ApplySolverSettings(IguanaGmshField field=default)
         {
             IguanaGmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
             IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
             IguanaGmsh.Option.SetNumber("Mesh.MinimumCurvePoints", MinimumCurvePoints);
 
-            if (fields!=default || fields.Count>0)
+            if (field!=default)
             {
-                fields.ApplyFields();
+                field.ApplyField();
+                IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(field.Tag);
             }
             else
             {

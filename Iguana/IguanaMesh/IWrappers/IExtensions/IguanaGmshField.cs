@@ -296,7 +296,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "BallField";
+                return "IBall-Field";
             }
         }
 
@@ -410,59 +410,63 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Box : IguanaGmshField
         {
+            public Box()
+            {
+                Thickness = 0;
+                VIn = 1;
+                VOut = 1;
+                XMax = 0.5;
+                XMin = -0.5;
+                YMax = 0.5;
+                YMin = -0.5;
+                ZMax = 0.5;
+                ZMin = -0.5;
+            }
+
             /// <summary>
             /// Thickness of a transition layer outside the box
             /// </summary>
-            [DefaultValue(0)]
-            double Thickness { get; set; }
+            public double Thickness { get; set; }
 
             /// <summary>
             /// Value inside the box
             /// </summary>
-            [DefaultValue(0)]
-            double VIn { get; set; }
+            public double VIn { get; set; }
 
             /// <summary>
             /// Value outside the box
             /// </summary>
-            [DefaultValue(0)]
-            double VOut { get; set; }
+            public double VOut { get; set; }
 
             /// <summary>
             /// Maximum X coordinate of the box
             /// </summary>
-            [DefaultValue(0)]
-            double XMax { get; set; }
+            public double XMax { get; set; }
 
             /// <summary>
             /// Minimum X coordinate of the box
             /// </summary>
-            [DefaultValue(0)]
-            double XMin { get; set; }
+            public double XMin { get; set; }
 
             /// <summary>
             /// Maximum Y coordinate of the box
             /// </summary>
-            [DefaultValue(0)]
-            double YMax { get; set; }
+            public double YMax { get; set; }
 
             /// <summary>
             /// Minimum Y coordinate of the box
             /// </summary>
-            [DefaultValue(0)]
-            double YMin { get; set; }
+            public double YMin { get; set; }
 
             /// <summary>
             /// Maximum Z coordinate of the box
             /// </summary>
-            [DefaultValue(0)]
-            double ZMax { get; set; }
+            public double ZMax { get; set; }
 
             /// <summary>
             /// Minimum Z coordinate of the box
             /// </summary>
-            [DefaultValue(0)]
-            double ZMin { get; set; }
+            public double ZMin { get; set; }
 
             public override void ApplyField()
             {
@@ -480,7 +484,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "BoxField";
+                return "IBox-Field";
             }
         }
 
@@ -524,60 +528,63 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Cylinder : IguanaGmshField
         {
+            public Cylinder()
+            {
+                Radius = 1;
+                VIn = 1;
+                VOut = 1;
+                XAxis = 0;
+                XCenter = 0;
+                YAxis = 0;
+                YCenter = 0;
+                ZAxis = 1;
+                ZCenter = 0;
+            }
 
             /// <summary>
             /// Radius
             /// </summary>
-            [DefaultValue(0)]
-            double Radius { get; set; }
+            public double Radius { get; set; }
 
             /// <summary>
             /// Value inside the cylinder
             /// </summary>
-            [DefaultValue(0)]
-            double VIn { get; set; }
+            public double VIn { get; set; }
 
             /// <summary>
             /// Value outside the cylinder
             /// </summary>
-            [DefaultValue(0)]
-            double VOut { get; set; }
+            public double VOut { get; set; }
 
             /// <summary>
             /// X component of the cylinder axis
             /// </summary>
-            [DefaultValue(0)]
-            double XAxis { get; set; }
+            public double XAxis { get; set; }
 
             /// <summary>
             /// X coordinate of the cylinder center
             /// </summary>
-            [DefaultValue(0)]
-            double XCenter { get; set; }
+            public double XCenter { get; set; }
 
             /// <summary>
             /// Y component of the cylinder axis
             /// </summary>
-            [DefaultValue(0)]
-            double YAxis { get; set; }
+            public double YAxis { get; set; }
 
             /// <summary>
             /// Y coordinate of the cylinder center
             /// </summary>
-            [DefaultValue(0)]
-            double YCenter { get; set; }
+            public double YCenter { get; set; }
 
             /// <summary>
             /// Z component of the cylinder axis
             /// </summary>
-            [DefaultValue(1)]
-            double ZAxis { get; set; }
+            public double ZAxis { get; set; }
 
             /// <summary>
             /// Z coordinate of the cylinder center
             /// </summary>
-            [DefaultValue(0)]
-            double ZCenter { get; set; }
+            public double ZCenter { get; set; }
 
             public override void ApplyField()
             {
@@ -595,7 +602,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "CylinderField";
+                return "ICylinder-Field";
             }
         }
 
@@ -918,21 +925,41 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class MathEval : IguanaGmshField
         {
+            public MathEval()
+            {
+                F = "";
+                Fields = new List<IguanaGmshField>();
+            }
+
             /// <summary>
             /// Mathematical function to evaluate.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string F { get; set; }
+            public string F { get; set; }
+
+            public List<IguanaGmshField> Fields { get; set; }
 
             public override void ApplyField()
             {
+                if (Fields != null)
+                {
+                    string temp;
+                    IguanaGmshField f;
+                    for(int i=0; i<Fields.Count; i++)
+                    {
+                        f = Fields[i];
+                        f.ApplyField();
+                        temp = F.Replace("F" + i, "F" + f.Tag);
+                        F = temp;
+                    }
+                }
+
                 fieldTag = IguanaGmsh.Model.MeshField.Add("MathEval");
                 IguanaGmsh.Model.MeshField.SetString(fieldTag, "F", F);
             }
 
             public override string ToString()
             {
-                return "MathEvalField";
+                return "IMath-Field";
             }
         }
 
@@ -941,41 +968,45 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class MathEvalAniso : IguanaGmshField
         {
+            public MathEvalAniso()
+            {
+                m11 = "F2 + Sin(z)";
+                m12 = "F2 + Sin(z)";
+                m13 = "F2 + Sin(z)";
+                m22 = "F2 + Sin(z)";
+                m23 = "F2 + Sin(z)";
+                m33 = "F2 + Sin(z)";
+            }
+
             /// <summary>
             /// element 11 of the metric tensor.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string m11 { get; set; }
+            public string m11 { get; set; }
 
             /// <summary>
             /// element 12 of the metric tensor.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string m12 { get; set; }
+            public string m12 { get; set; }
 
             /// <summary>
             /// element 13 of the metric tensor.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string m13 { get; set; }
+            public string m13 { get; set; }
 
             /// <summary>
             /// element 22 of the metric tensor.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string m22 { get; set; }
+            public string m22 { get; set; }
 
             /// <summary>
             /// element 23 of the metric tensor.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string m23 { get; set; }
+            public string m23 { get; set; }
 
             /// <summary>
             /// element 33 of the metric tensor.
             /// </summary>
-            [DefaultValue("F2 + Sin(z)")]
-            string m33 { get; set; }
+            public string m33 { get; set; }
 
             public override void ApplyField()
             {

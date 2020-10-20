@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettingsGH
+namespace IguanaGH.IguanaMeshGH.IFieldsGH
 {
-    public class ICylinderFieldGH : GH_Component
+    public class IMinAnisoFieldGH : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the ICylinderGH class.
+        /// Initializes a new instance of the IMinAnisoFieldGH class.
         /// </summary>
-        public ICylinderFieldGH()
-          : base("iCylinderField", "iCylF",
-              "Cylinder field to specify the size of the mesh elements.",
-              "Iguana", "Settings")
+        public IMinAnisoFieldGH()
+          : base("iMinAnisoField", "iAMinF",
+              "Min anisotropic field to specify the size of the mesh elements.",
+              "Iguana", "Fields")
         {
         }
 
@@ -58,7 +58,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("055c86da-6d86-49bc-9d18-c35425774670"); }
+            get { return new Guid("92f3186a-d3f5-42b2-90a9-3c34164e0f14"); }
         }
     }
 }

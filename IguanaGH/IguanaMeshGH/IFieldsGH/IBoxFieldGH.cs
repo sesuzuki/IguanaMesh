@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettingsGH
+namespace IguanaGH.IguanaMeshGH.IFieldsGH
 {
     public class IBoxFieldGH : GH_Component
     {
@@ -14,7 +15,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         public IBoxFieldGH()
           : base("iBoxField", "iBoxF",
               "Box field to specify the size of the mesh elements.",
-              "Iguana", "Settings")
+              "Iguana", "Fields")
         {
         }
 
@@ -23,6 +24,10 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddBoxParameter("Box", "B", "Base box.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Thickness", "T", "Thickness of a transition layer outside the ball. Default value is 1.", GH_ParamAccess.item, 1);
+            pManager.AddNumberParameter("Size Inside", "SI", "Element sizes inside the sphere. Default value is 1.", GH_ParamAccess.item, 1);
+            pManager.AddNumberParameter("Size Outside", "SE", "Element sizes outside the sphere. Default value is 1.", GH_ParamAccess.item, 1);
         }
 
         /// <summary>
@@ -30,6 +35,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("iMeshField", "iMF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -38,6 +44,29 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            Box b= new Box();
+            double Thickness = 1;
+            double VIn = 1;
+            double VOut = 1;
+
+            DA.GetData(0, ref b);
+            DA.GetData(1, ref Thickness);
+            DA.GetData(2, ref VIn);
+            DA.GetData(3, ref VOut);
+
+
+            IguanaGmshField.Box field = new IguanaGmshField.Box();
+            field.Thickness= Thickness;
+            field.VIn = VIn;
+            field.VOut = VOut;
+            field.XMax = b.X.Max;
+            field.XMin = b.X.Min;
+            field.YMax = b.Y.Max;
+            field.YMin = b.Y.Min;
+            field.ZMax = b.Z.Max;
+            field.ZMin = b.Z.Min;
+
+            DA.SetData(0, field);
         }
 
         /// <summary>

@@ -5,17 +5,17 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettingsGH
+namespace IguanaGH.IguanaMeshGH.IFieldsGH
 {
-    public class IBallFieldGH : GH_Component
+    public class IMathFieldGH : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the IBallFieldGH class.
+        /// Initializes a new instance of the IMathFieldGH class.
         /// </summary>
-        public IBallFieldGH()
-          : base("iBallField", "iBallF",
-              "Ball field to specify the size of the mesh elements.",
-              "Iguana", "Settings")
+        public IMathFieldGH()
+          : base("iMathField", "iMathF",
+              "Math field to specify the size of the mesh elements.",
+              "Iguana", "Fields")
         {
         }
 
@@ -24,10 +24,9 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddSurfaceParameter("Sphere", "S", "Base sphere.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Thickness", "T", "Thickness of a transition layer outside the ball. Default value is 1.", GH_ParamAccess.item, 1);
-            pManager.AddNumberParameter("Size Inside", "SI", "Element sizes inside the sphere. Default value is 1.", GH_ParamAccess.item, 1);
-            pManager.AddNumberParameter("Size Outside", "SE", "Element sizes outside the sphere. Default value is 1.", GH_ParamAccess.item, 1);
+            pManager.AddTextParameter("Expression", "E", "Mathematical expression to evaluate.The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and mathematical functions.\nThe expression is used to modulate the mesh element sizes. Default expression is Cos(x) * Sin(y)", GH_ParamAccess.item, "Cos(x) * Sin(y)");
+            pManager.AddGenericParameter("Fields", "F", "List of fields to evaluate.", GH_ParamAccess.item);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -44,31 +43,22 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            Surface srf = null;
-            double Thickness = 1;
-            double VIn = 1;
-            double VOut = 1;
+            string evalF = "Cos(x) * Sin(y)";
+            DA.GetData(0, ref evalF);
 
-            DA.GetData(0, ref srf);
-            DA.GetData(1, ref Thickness);
-            DA.GetData(2, ref VIn);
-            DA.GetData(3, ref VOut);
-
-            if (srf.IsSphere())
+            List<IguanaGmshField> fields = new List<IguanaGmshField>();
+            foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
             {
-                Sphere s;
-                srf.TryGetSphere(out s);
-                IguanaGmshField.Ball field = new IguanaGmshField.Ball();
-                field.XCenter = s.Center.X;
-                field.YCenter = s.Center.Y;
-                field.ZCenter = s.Center.Z;
-                field.Radius = s.Radius;
-                field.Thickness = Thickness;
-                field.VIn = VIn;
-                field.VOut = VOut;
-
-                DA.SetData(0, field);
+                IguanaGmshField f;
+                obj.CastTo<IguanaGmshField>(out f);
+                if(f!=null) fields.Add(f);
             }
+
+            IguanaGmshField.MathEval field = new IguanaGmshField.MathEval();
+            field.F = evalF;
+            field.Fields = fields;
+
+            DA.SetData(0, field);
         }
 
         /// <summary>
@@ -89,7 +79,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("8ecf1f78-fcb8-4b49-851b-2011dd4fe362"); }
+            get { return new Guid("c1284250-0b71-45c4-91b1-1ef7f94d0c3d"); }
         }
     }
 }
