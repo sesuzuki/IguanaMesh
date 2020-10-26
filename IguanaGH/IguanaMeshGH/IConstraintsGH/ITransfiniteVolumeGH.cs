@@ -5,19 +5,17 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.IFieldsGH
+namespace IguanaGH.IguanaMeshGH.IConstraintsGH
 {
-    public class ILaplacianFieldGH : GH_Component
+    public class ITransfiniteVolumeGH : GH_Component
     {
-        double delta = 0.1;
-
         /// <summary>
-        /// Initializes a new instance of the ILaplacianFieldGH class.
+        /// Initializes a new instance of the ITransfiniteVolumeGH class.
         /// </summary>
-        public ILaplacianFieldGH()
-          : base("iLaplacianField", "iLaplacF",
-              "Compute finite difference the Laplacian of Field:\nF = G(x+d, y, z) + G(x-d, y, z) + G(x, y+d, z) + G(x, y-d, z) + G(x, y, z+d) + G(x, y, z-d) - 6 * G(x, y, z),\nwhere G = Field and d = StepSize",
-              "Iguana", "Fields")
+        public ITransfiniteVolumeGH()
+          : base("iTransfiniteVolume", "iTransVol",
+              "Set a transfinite meshing constraint on the volume ID",
+              "Iguana", "Constraints")
         {
         }
 
@@ -26,8 +24,9 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Field", "iF", "Field to evaluate.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("StepSize", "S", "Step size of finite differences. Default is "+delta, GH_ParamAccess.item, delta);
+            pManager.AddIntegerParameter("VolumeID", "ID", "ID of the volume.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Corners", "C", "Specify the 6 or 8 corners of the transfinite interpolation explicitly.", GH_ParamAccess.list);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -35,7 +34,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iTransfinite", "iTransfinite", "Iguana constraint collector for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -44,20 +43,25 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IguanaGmshField auxfield = null;
-            DA.GetData(0, ref auxfield);
-            DA.GetData(1, ref delta);
+            int tag = -1;
+            List<int> corners = new List<int>();
+            DA.GetData(0, ref tag);
+            DA.GetDataList(1, corners);
 
-            IguanaGmshField.Laplacian field = new IguanaGmshField.Laplacian();
-            field.IField = auxfield;
-            field.Delta = delta;
+            double[] cList = new double[corners.Count];
+            for (int i = 0; i < corners.Count; i++) cList[i] = corners[i];
 
-            DA.SetData(0, field);
+            IguanaGmshTransfinite data = new IguanaGmshTransfinite();
+            data.Dim = 3;
+            data.Tag = tag;
+            data.Corners = corners.ToArray();
+
+            DA.SetData(0, data);
         }
 
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.tertiary; }
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>
@@ -78,7 +82,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("db70baec-04df-41c4-88b4-234beb42d562"); }
+            get { return new Guid("7c48a92b-4d65-476e-8c00-431386e7250e"); }
         }
     }
 }

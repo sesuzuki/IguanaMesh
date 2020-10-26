@@ -13,6 +13,9 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
 {
     public class IPointConstraintGH : GH_Component
     {
+        int entityDim = 2, entityTag = -1;
+        double size = 1.0;
+
         /// <summary>
         /// Initializes a new instance of the IConstraintCollectorGH class.
         /// </summary>
@@ -28,8 +31,10 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("Point Constraints", "P", "List of point constraints.", GH_ParamAccess.tree);
-            pManager.AddNumberParameter("Contraint Size", "S1", "Target global mesh element size at constraint points. If the number of size values is not equal to the number of points, the first item of the list is assigned to all points. Default value is 1.0.", GH_ParamAccess.tree);
+            pManager.AddIntegerParameter("EntityDimension","eDim", "Dimension (2 or 3) of the entity to embed the constraint. In most of the cases the entity is automatically detected but must be explicitly set for breps. Default is " + entityDim, GH_ParamAccess.item, entityDim);
+            pManager.AddIntegerParameter("EntityID","ID", "eID of the entity entity to embed the constraint. In most of the cases the entity is automatically detected but must be explicitly set for breps. Default is " + entityTag, GH_ParamAccess.item, entityTag);
+            pManager.AddPointParameter("Point", "Pt", "Point to use as a geometric constraint.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Size", "S", "Target global mesh element size at the constraint point. Default value is " + size, GH_ParamAccess.item, size);
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("IConstraints", "IConstraints", "Iguana constraint collector for mesh generation.", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iConstraint", "iConstraint", "Iguana constraint for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -45,7 +50,18 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
         /// </summary>
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
-        {           
+        {
+            Point3d pt = new Point3d();
+            DA.GetData(0, ref entityDim);
+            DA.GetData(1, ref entityTag);
+            DA.GetData(2, ref pt);
+            DA.GetData(3, ref size);
+
+            IguanaGmshConstraint c = new IguanaGmshConstraint(0, pt, size, entityDim, entityTag);
+
+            DA.SetData(0, c);
+
+            /*
             List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
 
             List<Point3d> pts = new List<Point3d>();
@@ -53,10 +69,10 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
             {
                 Point3d p;
                 obj.CastTo<Point3d>(out p);
-                pts.Add(p);
+                if(p!=null) pts.Add(p);
             }
 
-            List<double> sizes = new List<double>();
+            sizes = new List<double>();
             foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
             {
                 double s;
@@ -78,7 +94,7 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
                     {
                         pt = pts[i];
                         s = sizes[i];
-                        IguanaGmshConstraint c = new IguanaGmshConstraint(0, pt, s);
+                        IguanaGmshConstraint c = new IguanaGmshConstraint(0, pt, s, entityDim, entityTag);
                         constraints.Add(c);
                     }
                 }
@@ -88,13 +104,13 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
                     for (int i = 0; i < count; i++)
                     {
                         pt = pts[i];
-                        IguanaGmshConstraint c = new IguanaGmshConstraint(0, pt, s);
+                        IguanaGmshConstraint c = new IguanaGmshConstraint(0, pt, s, entityDim, entityTag);
                         constraints.Add(c);
                     }
                 }
             }
 
-            DA.SetDataList(0, constraints);
+            DA.SetDataList(0, constraints);*/
         }
 
         /// <summary>

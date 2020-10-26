@@ -1,4 +1,5 @@
-﻿using Iguana.IguanaMesh.ITypes.ICollections;
+﻿using Grasshopper.Kernel.Geometry.SpatialTrees;
+using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IWrappers;
 using System;
 using System.Collections.Generic;
@@ -181,50 +182,20 @@ namespace IguanaClient
             // based on OpenCASCADE, and `demos/api' for more.
 
             // Print Node Data
-            /*int[] nodeTags;
-            double[][] coord;
-            double[][] parametricCoord;
-            IguanaGmsh.Model.Mesh.GetNodes(out nodeTags, out coord, out parametricCoord);
-
-            for (int i = 0; i < nodeTags.Length; i++)
+            Tuple<int, int>[] dimTags;
+            IguanaGmsh.Model.GetEntities(out dimTags, 2);
+    
+            double[][] coord, pCoord;
+            long[] nodeTags;
+            IguanaGmsh.Model.Mesh.GetNodes(out nodeTags, out coord, out pCoord, 2);
+            for (int i = 0; i < pCoord.Length; i++)
             {
-                int k = nodeTags[i];
-                double[] c = coord[i];
-                Console.WriteLine("Node (" + k + ") => " + c[0] + " :: " + c[1] + " :: " + c[2]);
+                Console.WriteLine("u: "+ pCoord[i][0] + " :: " + "v: " + pCoord[i][1]);
             }
-
-            // Print Element Data
-            int[] elementTypes;
-            int[][] elementTags, nTags;
-            IguanaGmsh.Model.Mesh.GetElements(out elementTypes, out elementTags, out nTags, 2);
-            for(int i=0; i<elementTypes.Length; i++)
+            for (int i = 0; i < coord.Length; i++)
             {
-                int t = elementTypes[i];
-                int[] eT = elementTags[i];
-                int[] nT = nTags[i];
-
-                Console.WriteLine("Element Type : " + t + "\n");
-                for(int j=0; j<eT.Length; j++)
-                {
-                    Console.Write(":: " + eT[j] + " ::");
-                }
-                Console.Write("\n");
-                for (int j = 0; j < nT.Length; j++)
-                {
-                    Console.Write(":: " + nT[j] + " ::");
-                }
-            }*/
-
-            IVertexCollection vertices;
-            IElementCollection elements;
-            HashSet<int> parsedNodes;
-            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 2);
-            if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
-
-            Console.WriteLine("Number of Parsed Vertices => " + vertices.Count);
-            Console.WriteLine("Number of Parsed Elements => " + elements.Count);
-
+                Console.WriteLine("Coordinate: " + coord[i]);
+            }
 
             // This should be called when you are done using the Gmsh C++ API:        
             IguanaGmsh.FinalizeGmsh();

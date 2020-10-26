@@ -151,18 +151,17 @@ namespace Iguana.IguanaMesh.IWrappers
             /// concatenated: [p1u, p1v, p2u, ...]). Return triplets of x, y, z coordinates
             /// in `coord', concatenated: [p1x, p1y, p1z, p2x, ...].
             /// </summary>
-            public static void GetValue(int dim, int tag, out double[] coord, double[] parametricCoord = default)
+            public static void GetValue(int dim, int tag, double[] parametricCoord, out double[] coord)
             {
                 IntPtr coord_parse;
                 long coord_n;
-                if (parametricCoord == default) parametricCoord = new double[0];
                 IWrappers.GmshModelGetValue(dim, tag, parametricCoord, parametricCoord.LongLength, out coord_parse, out coord_n, ref _ierr);
 
                 coord = new double[0];
                 if (coord_n > 0)
                 {
                     coord = new double[coord_n];
-                    Marshal.Copy(coord_parse, coord, 0, (int)coord_n);
+                    Marshal.Copy(coord_parse, coord, 0, (int) coord_n);
                 }
 
                 IguanaGmsh.Free(coord_parse);

@@ -35,7 +35,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMeshField", "iMF", "Field for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -67,6 +67,11 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
             field.ZMin = b.Z.Min;
 
             DA.SetData(0, field);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

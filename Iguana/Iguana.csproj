@@ -43,7 +43,6 @@
     </Reference>
     <Reference Include="RhinoCommon">
       <HintPath>C:\Program Files\Rhino 6\System\RhinoCommon.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -63,6 +62,7 @@
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.Geo.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.GeoOCC.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshField.cs" />
+    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshTransfinite.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.FLTK.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Logger.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.cs" />

@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettingsGH
+namespace IguanaGH.IguanaMeshGH.IFieldsGH
 {
     public class ICurvatureFieldGH : GH_Component
     {
+        double delta = 0.1;
+
         /// <summary>
         /// Initializes a new instance of the ICurvatureFieldGH class.
         /// </summary>
         public ICurvatureFieldGH()
           : base("iCurvatureField", "iCurvF",
-              "Curvature field to specify the size of the mesh elements.",
-              "Iguana", "Settings")
+              "Compute the curvature of Field: F = div(norm(grad(Field))).",
+              "Iguana", "Fields")
         {
         }
 
@@ -23,6 +26,8 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddGenericParameter("Field", "iF", "Field to evaluate.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("StepSize", "S", "Step size of finite differences. Default is " + delta, GH_ParamAccess.item, delta);
         }
 
         /// <summary>
@@ -30,6 +35,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -38,6 +44,20 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            IguanaGmshField auxfield = null;
+            DA.GetData(0, ref auxfield);
+            DA.GetData(1, ref delta);
+
+            IguanaGmshField.Curvature field = new IguanaGmshField.Curvature();
+            field.IField = auxfield;
+            field.Delta = delta;
+
+            DA.SetData(0, field);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>

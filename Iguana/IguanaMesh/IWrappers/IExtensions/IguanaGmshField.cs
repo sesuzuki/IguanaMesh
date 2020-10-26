@@ -15,9 +15,6 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         private int fieldTag =-1;
         public int Tag { get => fieldTag; }
 
-        private int type;
-        public int Type { get => type; }
-
         public abstract void ApplyField();
 
         #region GH_methods
@@ -99,11 +96,10 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// Compute the distance from the nearest curve in a list. 
         /// Then the mesh size can be specified independently in the direction normal to the curve and in the direction parallel to the curve (Each curve is replaced by NNodesByEdge equidistant nodes and the distance from those nodes is computed.)
         /// </summary>
-        public class AttractorAnisoCurve : IguanaGmshField
+        public class  AttractorAnisoCurve : IguanaGmshField
         {
             public AttractorAnisoCurve() { 
-                type = 0;
-                EdgesList = new double[0];
+                EdgesList = null;
                 NNodesByEdge = 20;
                 dMax = 0.5;
                 dMin = 0.1;
@@ -155,20 +151,23 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("AttractorAnisoCurve");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList", EdgesList);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "NNodesByEdge", NNodesByEdge);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "dMax", dMax);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "dMin", dMin);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMaxNormal", lMaxNormal);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMaxTangent", lMaxTangent);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMinNormal", lMinNormal);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMinTangent", lMinTangent);
+                if (EdgesList != null)
+                {
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("AttractorAnisoCurve");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList", EdgesList);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "NNodesByEdge", NNodesByEdge);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "dMax", dMax);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "dMin", dMin);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMaxNormal", lMaxNormal);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMaxTangent", lMaxTangent);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMinNormal", lMinNormal);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "lMinTangent", lMinTangent);
+                }
             }
 
             public override string ToString()
             {
-                return "AttractorAnisoCurveField";
+                return "IAttractorAnisoCurve-Field";
             }
         }
 
@@ -179,7 +178,6 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             public AutomaticMeshSizeField()
             {
-                type = 1;
                 NRefine = 5;
                 gradientMax = 1.4;
                 hBulk = 0.1;
@@ -238,7 +236,6 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             public Ball()
             {
-                type = 2;
                 Radius = 1;
                 Thickness = 1;
                 VIn = 1;
@@ -305,78 +302,75 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class BoundaryLayer : IguanaGmshField
         {
+            public BoundaryLayer()
+            {
+                AnisoMax = 1e10;
+                EdgesList = new double[] { };
+                ExcludedFaceList = new double[] { };
+                FanNodesList = new double[] { };
+                IntersectMetrics = false;
+                NodesList = new double[] { };
+                Quads = false;
+                hfar = 1;
+                hwall_n_nodes = new double[] { 0.1 };
+                ratio = 1.1;
+                thickness = 0.01;
+            }
 
             /// <summary>
             /// Threshold angle for creating a mesh fan in the boundary layer
             /// </summary>
-            [DefaultValue(1e10)]
-            double AnisoMax { get; set; }
+            public double AnisoMax { get; set; }
 
             /// <summary>
             /// Tags of curves in the geometric model for which a boundary layer is needed
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] EdgesList { get; set; }
+            public double[] EdgesList { get; set; }
 
             /// <summary>
             /// Tags of surfaces in the geometric model where the boundary layer should not be applied
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] ExcludedFaceList { get; set; }
+            public double[] ExcludedFaceList { get; set; }
 
             /// <summary>
             /// Tags of points in the geometric model for which a fan is created
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FanNodesList { get; set; }
+            public double[] FanNodesList { get; set; }
 
             /// <summary>
             /// Intersect metrics of all faces
             /// </summary>
-            [DefaultValue(0)]
-            int IntersectMetrics { get; set; }
+            public bool IntersectMetrics { get; set; }
 
             /// <summary>
             /// Tags of points in the geometric model for which a boundary layer ends
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] NodesList { get; set; }
+            public double[] NodesList { get; set; }
 
             /// <summary>
             /// Generate recombined elements in the boundary layer
             /// </summary>
-            [DefaultValue(false)]
-            bool Quads { get; set; }
+            public bool Quads { get; set; }
 
             /// <summary>
             /// Element size far from the wall
             /// </summary>
-            [DefaultValue(1)]
-            double hfar { get; set; }
-
-            /// <summary>
-            /// Mesh Size Normal to the The Wall
-            /// </summary>
-            [DefaultValue(0.1)]
-            double hwall_n { get; set; }
+            public double hfar { get; set; }
 
             /// <summary>
             /// Mesh Size Normal to the The Wall at nodes(overwrite hwall_n when defined)
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] hwall_n_nodes { get; set; }
+            public double[] hwall_n_nodes { get; set; }
 
             /// <summary>
             /// Size Ratio Between Two Successive Layers
             /// </summary>
-            [DefaultValue(1.1)]
-            double ratio { get; set; }
+            public double ratio { get; set; }
 
             /// <summary>
             /// Maximal thickness of the boundary layer
             /// </summary>
-            [DefaultValue(0.01)]
-            double thickness { get; set; }
+            public double thickness { get; set; }
 
             public override void ApplyField()
             {
@@ -385,19 +379,19 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                 IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList ", EdgesList); 
                 IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "ExcludedFaceList", ExcludedFaceList);
                 IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FanNodesList", FanNodesList);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IntersectMetrics", IntersectMetrics);
+                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IntersectMetrics", Convert.ToInt32(IntersectMetrics));
                 IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "NodesList", NodesList);
                 IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Quads", Convert.ToInt32(Quads));
                 IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "hfar", hfar);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "hwall_n", hwall_n);
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "hwall_n_nodes", hwall_n_nodes);
+                if(hwall_n_nodes.Length>1) IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "hwall_n_nodes", hwall_n_nodes);
+                else if (hwall_n_nodes.Length == 1) IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "hwall_n", hwall_n_nodes[0]);
                 IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "ratio", ratio);
                 IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "thickness", thickness);
             }
 
             public override string ToString()
             {
-                return "BoundaryLayerField";
+                return "IBoundaryLayer-Field";
             }
         }
 
@@ -494,29 +488,35 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Curvature : IguanaGmshField
         {
-
+            public Curvature()
+            {
+                Delta = 0;
+                IField = null;
+            }
             /// <summary>
             /// Step of the finite differences
             /// </summary>
-            [DefaultValue(0)]
-            double Delta { get; set; }
+            public double Delta { get; set; }
 
             /// <summary>
-            /// Field index
+            /// Field
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Curvature");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
+                if (IField != null)
+                {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Curvature");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                }
             }
 
             public override string ToString()
             {
-                return "CurvatureField";
+                return "ICurvature-Field";
             }
         }
 
@@ -607,67 +607,89 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         }
 
         /// <summary>
-        /// Compute the distance from the nearest node in a list.It can also be used to compute the distance from curves, in which case each curve is replaced by NNodesByEdge equidistant nodes and the distance from those nodes is computed.
+        /// Compute the distance from the nearest node in a list. It can also be used to compute the distance from curves, in which case each curve is replaced by NNodesByEdge equidistant nodes and the distance from those nodes is computed.
         /// </summary>
         public class Distance : IguanaGmshField
         {
+            public Distance()
+            {
+                EdgesList = new double[] { };
+                FacesList = new double[] { };
+                NodesList = new double[] { };
+                FieldX = null;
+                FieldY = null;
+                FieldZ = null;
+                NNodesByEdge = 20;
+            }
+
             /// <summary>
             /// Tags of curves in the geometric model
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] EdgesList { get; set; }
+            public double[] EdgesList { get; set; }
 
             /// <summary>
             /// Tags of surfaces in the geometric model(Warning, this feature is still experimental. It might (read: will probably) give wrong results for complex surfaces)
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FacesList { get; set; }
+            public double[] FacesList { get; set; }
 
             /// <summary>
             /// Id of the field to use as x coordinate.
             /// </summary>
-            [DefaultValue(-1)]
-            int FieldX { get; set; }
+            public IguanaGmshField FieldX { get; set; }
 
             /// <summary>
             /// Id of the field to use as y coordinate.
             /// </summary>
-            [DefaultValue(-1)]
-            int FieldY { get; set; }
+            public IguanaGmshField FieldY { get; set; }
 
             /// <summary>
             /// Id of the field to use as z coordinate.
             /// </summary>
-            [DefaultValue(-1)]
-            int FieldZ { get; set; }
+            public IguanaGmshField FieldZ { get; set; }
 
             /// <summary>
             /// Number of nodes used to discretized each curve
             /// </summary>
-            [DefaultValue(20)]
-            int NNodesByEdge { get; set; }
+            public int NNodesByEdge { get; set; }
 
             /// <summary>
             /// Tags of points in the geometric model
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] NodesList { get; set; }
+            public double[] NodesList { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Distance");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList", EdgesList);
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FacesList", FacesList);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FieldX", FieldX);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FieldY", FieldY);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FieldZ", FieldZ);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "NNodesByEdge", NNodesByEdge);
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "NodesList", NodesList);
+                bool flag = false;
+                if (FieldX != null)
+                {
+                    FieldX.ApplyField();
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FieldX", FieldX.Tag);
+                    flag = true;
+                }
+                if (FieldY != null)
+                {
+                    FieldY.ApplyField();
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FieldY", FieldY.Tag);
+                    flag = true;
+                }
+                if (FieldZ != null)
+                {
+                    FieldZ.ApplyField();
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FieldZ", FieldZ.Tag);
+                    flag = true;
+                }
+                if (flag)
+                {
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Distance");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList", EdgesList);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "NNodesByEdge", NNodesByEdge);
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "NodesList", NodesList);
+                }
             }
 
             public override string ToString()
             {
-                return "DistanceField";
+                return "IDistance-Field";
             }
         }
 
@@ -677,89 +699,92 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Frustum : IguanaGmshField
         {
+            public Frustum()
+            {
+                R1_inner = 0;
+                R1_outer = 1;
+                R2_inner = 0;
+                R2_outer = 1;
+                V1_inner = 0.1;
+                V1_outer = 1;
+                V2_inner = 0.1;
+                V2_outer = 1;
+                X1 = 0;
+                X2 = 0;
+                Y1 = 0;
+                Y2 = 0;
+                Z1 = 1;
+                Z2 = 1.455171629957881e-152;
+            }
             /// <summary>
             /// Inner radius of Frustum at endpoint 1
             /// </summary>
-            [DefaultValue(0)]
-            double R1_inner { get; set; }
+            public double R1_inner { get; set; }
 
             /// <summary>
             /// Outer radius of Frustum at endpoint 1
             /// </summary>
-            [DefaultValue(1)]
-            double R1_outer { get; set; }
+            public double R1_outer { get; set; }
 
             /// <summary>
             /// Inner radius of Frustum at endpoint 2
             /// </summary>
-            [DefaultValue(0)]
-            double R2_inner { get; set; }
+            public double R2_inner { get; set; }
 
             /// <summary>
             /// Outer radius of Frustum at endpoint 2
             /// </summary>
-            [DefaultValue(1)]
-            double R2_outer { get; set; }
+            public double R2_outer { get; set; }
 
             /// <summary>
             /// Element size at point 1, inner radius
             /// </summary>
-            [DefaultValue(0.1)]
-            double V1_inner { get; set; }
+            public double V1_inner { get; set; }
 
             /// <summary>
             /// Element size at point 1, outer radius
             /// </summary>
-            [DefaultValue(1)]
-            double V1_outer { get; set; }
+            public double V1_outer { get; set; }
 
             /// <summary>
             /// Element size at point 2, inner radius
             /// </summary>
-            [DefaultValue(0.1)]
-            double V2_inner { get; set; }
+            public double V2_inner { get; set; }
 
             /// <summary>
             /// Element size at point 2, outer radius
             /// </summary>
-            [DefaultValue(1)]
-            double V2_outer { get; set; }
+            public double V2_outer { get; set; }
 
             /// <summary>
             /// X coordinate of endpoint 1
             /// </summary>
-            [DefaultValue(0)]
-            double X1 { get; set; }
+            public double X1 { get; set; }
 
             /// <summary>
             /// X coordinate of endpoint 2
             /// </summary>
-            [DefaultValue(0)]
-            double X2 { get; set; }
+            public double X2 { get; set; }
 
             /// <summary>
             /// Y coordinate of endpoint 1
             /// </summary>
-            [DefaultValue(0)]
-            double Y1 { get; set; }
+            public double Y1 { get; set; }
 
             /// <summary>
             /// Y coordinate of endpoint 2
             /// </summary>
-            [DefaultValue(0)]
-            double Y2 { get; set; }
+            public double Y2 { get; set; }
 
             /// <summary>
             /// Z coordinate of endpoint 1
             /// </summary>
-            [DefaultValue(1)]
-            double Z1 { get; set; }
+            public double Z1 { get; set; }
 
             /// <summary>
             /// Z coordinate of endpoint 2
             /// </summary>
-            [DefaultValue(1.455171629957881e-152)]
-            double Z2 { get; set; }
+            public double Z2 { get; set; }
 
             public override void ApplyField()
             {
@@ -782,7 +807,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "FrustumField";
+                return "IFrustum-Field";
             }
         }
 
@@ -792,30 +817,37 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Gradient : IguanaGmshField
         {
+            public Gradient()
+            {
+                Delta = 0;
+                IField = null;
+                Kind = 0;
+            }
+
             /// <summary>
             /// Finite difference step
             /// </summary>
-            [DefaultValue(0)]
-            double Delta { get; set; }
+            public double Delta { get; set; }
 
             /// <summary>
             /// Field index
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             /// <summary>
             /// Component of the gradient to evaluate: 0 for X, 1 for Y, 2 for Z, 3 for the norm
             /// </summary>
-            [DefaultValue(0)]
-            int Kind { get; set; }
+            public int Kind { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Gradient");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Kind", Kind);
+                if (IField != null) {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Gradient");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Kind", Kind);
+                }
             }
 
             public override string ToString()
@@ -829,27 +861,42 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class IntersectAniso : IguanaGmshField
         {
+            public IntersectAniso()
+            {
+                FieldsList = null;
+            }
 
             /// <summary>
-            /// Component of the gradient to evaluate: 0 for X, 1 for Y, 2 for Z, 3 for the norm
+            /// Fields
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FieldsList { get; set; }
+            public List<IguanaGmshField> FieldsList { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("IntersectAniso");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", FieldsList);
+                if (FieldsList != null)
+                {
+                    double[] fTags = new double[FieldsList.Count];
+                    IguanaGmshField f;
+                    for(int i=0; i<FieldsList.Count; i++)
+                    {
+                        f = FieldsList[i];
+                        f.ApplyField();
+                        fTags[i] = f.Tag;
+                    }
+
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("IntersectAniso");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", fTags);
+                }
             }
 
             public override string ToString()
             {
-                return "IntersectAnisoField";
+                return "IIntersectAniso-Field";
             }
         }
 
         /// <summary>
-        /// Compute finite difference the Laplacian of Field[IField]:
+        /// Compute finite difference the Laplacian of Field:
         /// F = G(x+d, y, z) + G(x-d, y, z) +
         /// G(x, y+d, z) + G(x, y-d, z) +
         /// G(x, y, z+d) + G(x, y, z-d) - 6 * G(x, y, z),
@@ -857,28 +904,36 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Laplacian :IguanaGmshField
         {
+            public Laplacian()
+            {
+                Delta = 0;
+                IField = null;
+            }
+
             /// <summary>
             /// Finite difference step
             /// </summary>
-            [DefaultValue(0.1)]
-            double Delta { get; set; }
+            public double Delta { get; set; }
 
             /// <summary>
             /// Field index
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Laplacian");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
+                if (IField != null)
+                {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Laplacian");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                }
             }
 
             public override string ToString()
             {
-                return "LaplacianField";
+                return "ILaplacian-Field";
             }
         }
 
@@ -888,35 +943,43 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class LonLat : IguanaGmshField
         {
+            public LonLat()
+            {
+                FromStereo = false;
+                IField = null;
+                RadiusStereo = 6371000;
+            }
+
             /// <summary>
             /// if = true, the mesh is in stereographic coordinates.xi = 2Rx/(R+z), eta = 2Ry/(R+z)
             /// </summary>
-            [DefaultValue(false)]
-            bool FromStereo { get; set; }
+            public bool FromStereo { get; set; }
 
             /// <summary>
             /// Index of the field to evaluate.
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             /// <summary>
             /// radius of the sphere of the stereograpic coordinates
             /// </summary>
-            [DefaultValue(6371000)]
-            double RadiusStereo { get; set; }
+            public double RadiusStereo { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("LonLat");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FromStereo", Convert.ToInt32(FromStereo));
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "RadiusStereo", RadiusStereo);
+                if (IField != null)
+                {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("LonLat");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "FromStereo", Convert.ToInt32(FromStereo));
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "RadiusStereo", RadiusStereo);
+                }
             }
 
             public override string ToString()
             {
-                return "LonLatField";
+                return "ILonLat-Field";
             }
         }
 
@@ -970,12 +1033,12 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             public MathEvalAniso()
             {
-                m11 = "F2 + Sin(z)";
-                m12 = "F2 + Sin(z)";
-                m13 = "F2 + Sin(z)";
-                m22 = "F2 + Sin(z)";
-                m23 = "F2 + Sin(z)";
-                m33 = "F2 + Sin(z)";
+                m11 = "";
+                m12 = "";
+                m13 = "";
+                m22 = "";
+                m23 = "";
+                m33 = "";
             }
 
             /// <summary>
@@ -1008,8 +1071,33 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             /// </summary>
             public string m33 { get; set; }
 
+            public List<IguanaGmshField> Fields { get; set; }
+
             public override void ApplyField()
             {
+                if (Fields != null)
+                {
+                    string temp;
+                    IguanaGmshField f;
+                    for (int i = 0; i < Fields.Count; i++)
+                    {
+                        f = Fields[i];
+                        f.ApplyField();
+                        temp = m11.Replace("F" + i, "F" + f.Tag);
+                        m11 = temp;
+                        temp = m12.Replace("F" + i, "F" + f.Tag);
+                        m12 = temp;
+                        temp = m13.Replace("F" + i, "F" + f.Tag);
+                        m13 = temp;
+                        temp = m22.Replace("F" + i, "F" + f.Tag);
+                        m22 = temp;
+                        temp = m23.Replace("F" + i, "F" + f.Tag);
+                        m23 = temp;
+                        temp = m33.Replace("F" + i, "F" + f.Tag);
+                        m33 = temp;
+                    }
+                }
+
                 fieldTag = IguanaGmsh.Model.MeshField.Add("MathEvalAniso");
                 IguanaGmsh.Model.MeshField.SetString(fieldTag, "m11", m11);
                 IguanaGmsh.Model.MeshField.SetString(fieldTag, "m12", m12);
@@ -1021,7 +1109,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "MathEvalAnisoField";
+                return "IMathEvalAniso-Field";
             }
         }
 
@@ -1030,52 +1118,75 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Max : IguanaGmshField
         {
+            public Max()
+            {
+                FieldsList = null;
+            }
+
             /// <summary>
             /// Field indices
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FieldsList { get; set; }
+            public List<IguanaGmshField> FieldsList { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Max");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", FieldsList);
+                if (FieldsList != null)
+                {
+                    double[] fTags = new double[FieldsList.Count];
+                    IguanaGmshField field;
+                    for(int i=0; i<FieldsList.Count; i++)
+                    {
+                        field = FieldsList[i];
+                        field.ApplyField();
+                        fTags[i] = field.Tag;
+                    }
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Max");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", fTags);
+                }
             }
 
             public override string ToString()
             {
-                return "MaxField";
+                return "IMax-Field";
             }
         }
 
         /// <summary>
-        ///     Compute the maximum eigenvalue of the Hessian matrix of Field[IField], with the gradients evaluated by finite differences:
-        ///     F = max(eig(grad(grad(Field[IField]))))
+        /// Compute the maximum eigenvalue of the Hessian matrix of Field[IField], with the gradients evaluated by finite differences:
+        /// F = max(eig(grad(grad(Field[IField]))))
         /// </summary>
         public class MaxEigenHessian : IguanaGmshField
         {
+            public MaxEigenHessian()
+            {
+                Delta = 0;
+                IField = null;
+            }
+
             /// <summary>
             /// Step used for the finite differences
             /// </summary>
-            [DefaultValue(0)]
-            double Delta { get; set; }
+            public double Delta { get; set; }
 
             /// <summary>
-            /// Field index
+            /// Field
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("MaxEigenHessian");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
+                if (IField == null)
+                {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("MaxEigenHessian");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                }
             }
 
             public override string ToString()
             {
-                return "MaxEigenHessianField";
+                return "IMaxEigenHessian-Field";
             }
         }
 
@@ -1089,28 +1200,36 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Mean : IguanaGmshField
         {
+            public Mean()
+            {
+                Delta = 0.0003464101615137755;
+                IField = null;
+            }
+
             /// <summary>
             /// Distance used to compute the mean value
             /// </summary>
-            [DefaultValue(0.0003464101615137755)]
-            double Delta { get; set; }
+            public double Delta { get; set; }
 
             /// <summary>
-            /// Field index
+            /// Field
             /// </summary>
-            [DefaultValue(0)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Mean");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
+                if (IField != null)
+                {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Mean");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Delta", Delta);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                }
             }
 
             public override string ToString()
             {
-                return "MeanField";
+                return "IMean-Field";
             }
         }
 
@@ -1119,21 +1238,37 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Min : IguanaGmshField
         {
+            public Min()
+            {
+                FieldsList = null;
+            }
+
             /// <summary>
             /// Field indices
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FieldsList { get; set; }
+            public List<IguanaGmshField> FieldsList { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Min");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", FieldsList);
+                if (FieldsList != null)
+                {
+                    double[] fTags = new double[FieldsList.Count];
+                    IguanaGmshField field;
+                    for(int i=0; i<FieldsList.Count; i++)
+                    {
+                        field= FieldsList[i];
+                        field.ApplyField();
+                        fTags[i] = field.Tag;
+                    }
+
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Min");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", fTags);
+                }
             }
 
             public override string ToString()
             {
-                return "MinField";
+                return "IMin-Field";
             }
         }
 
@@ -1142,21 +1277,35 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class MinAniso : IguanaGmshField
         {
+            public MinAniso()
+            {
+                FieldsList = null;
+            }
+
             /// <summary>
-            /// Field indices
+            /// Fields
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FieldsList { get; set; }
+            public List<IguanaGmshField> FieldsList { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("MinAniso");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", FieldsList);
+                if (FieldsList!=null) {
+                    double[] fTags = new double[FieldsList.Count];
+                    IguanaGmshField field;
+                    for(int i=0; i<FieldsList.Count; i++)
+                    {
+                        field = FieldsList[i];
+                        field.ApplyField();
+                        fTags[i] = field.Tag;
+                    }
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("MinAniso");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FieldsList", fTags);
+                }
             }
 
             public override string ToString()
             {
-                return "MinAnisoField";
+                return "IMinAniso-Field";
             }
         }
 
@@ -1165,21 +1314,28 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Octree : IguanaGmshField
         {
+            public Octree()
+            {
+                InField = null;
+            }
+
             /// <summary>
-            /// Id of the field to use as x coordinate.
+            /// Field to use as x coordinate.
             /// </summary>
-            [DefaultValue(746138744)]
-            int InField { get; set; }
+            public IguanaGmshField InField { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Octree");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "InField", InField);
+                if (InField != null)
+                {
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Octree");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "InField", InField.Tag);
+                }
             }
 
             public override string ToString()
             {
-                return "OctreeField";
+                return "IOctree-Field";
             }
         }
 
@@ -1190,42 +1346,50 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Param : IguanaGmshField
         {
+            public Param()
+            {
+                FX = "";
+                FY = "";
+                FZ = "";
+            }
+
             /// <summary>
             /// X component of parametric function
             /// </summary>
-            [DefaultValue("")]
-            string FX { get; set; }
+            public string FX { get; set; }
 
             /// <summary>
             /// Y component of parametric function
             /// </summary>
-            [DefaultValue("")]
-            string FY { get; set; }
+            public string FY { get; set; }
 
             /// <summary>
             /// Z component of parametric function
             /// </summary>
-            [DefaultValue("")]
-            string FZ { get; set; }
+            public string FZ { get; set; }
 
             /// <summary>
             /// Field index
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Param");
-                IguanaGmsh.Model.MeshField.SetString(fieldTag, "FX", FX);
-                IguanaGmsh.Model.MeshField.SetString(fieldTag, "FY", FY);
-                IguanaGmsh.Model.MeshField.SetString(fieldTag, "FZ", FZ);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
+                if (IField != null)
+                {
+                    IField.ApplyField();
+
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Param");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                    IguanaGmsh.Model.MeshField.SetString(fieldTag, "FX", FX);
+                    IguanaGmsh.Model.MeshField.SetString(fieldTag, "FY", FY);
+                    IguanaGmsh.Model.MeshField.SetString(fieldTag, "FZ", FZ);
+                }
             }
 
             public override string ToString()
             {
-                return "ParamField";
+                return "IParam-Field";
             }
         }
 
@@ -1262,7 +1426,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "PostViewField";
+                return "IPostView-Field";
             }
         }
 
@@ -1271,49 +1435,57 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Restrict : IguanaGmshField
         {
+            public Restrict()
+            {
+                EdgesList = new double[] { };
+                FacesList = new double[] { };
+                RegionsList = new double[] { };
+                VerticesList = new double[] { };
+                IField = null;
+            }
+
             /// <summary>
             /// Curve tags
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] EdgesList { get; set; }
+            public double[] EdgesList { get; set; }
 
             /// <summary>
             /// Surface tags
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] FacesList { get; set; }
+            public double[] FacesList { get; set; }
 
             /// <summary>
-            /// Field index
+            /// Field
             /// </summary>
-            [DefaultValue(1)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             /// <summary>
             /// Volume tags
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] RegionsList { get; set; }
+            public double[] RegionsList { get; set; }
 
             /// <summary>
             /// Point tags
             /// </summary>
-            [DefaultValue(new int[] { })]
-            double[] VerticesList { get; set; }
+            public double[] VerticesList { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Restrict");
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList", EdgesList);
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FacesList", FacesList);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "RegionsList", RegionsList);
-                IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "VerticesList", VerticesList);
+                if (IField != null)
+                {
+                    IField.ApplyField();
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Restrict");
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "EdgesList", EdgesList);
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "FacesList", FacesList);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "RegionsList", RegionsList);
+                    IguanaGmsh.Model.MeshField.SetNumbers(fieldTag, "VerticesList", VerticesList);
+                }
             }
 
             public override string ToString()
             {
-                return "RestrictField";
+                return "IRestrict-Field";
             }
         }
 
@@ -1367,7 +1539,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             public override string ToString()
             {
-                return "StructuredField";
+                return "IStructured-Field";
             }
         }
 
@@ -1378,62 +1550,70 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         /// </summary>
         public class Threshold : IguanaGmshField
         {
+            public Threshold()
+            {
+                DistMax = 10;
+                DistMin = 1;
+                IField = null;
+                LcMax = 1;
+                LcMin = 0.1;
+                Sigmoid = false;
+                StopAtDistMax = false;
+            }
+
             /// <summary>
             /// Distance from entity after which element size will be LcMax
             /// </summary>
-            [DefaultValue(10)]
-            double DistMax { get; set; }
+            public double DistMax { get; set; }
 
             /// <summary>
             /// Distance from entity up to which element size will be LcMin
             /// </summary>
-            [DefaultValue(1)]
-            double DistMin { get; set; }
+            public double DistMin { get; set; }
 
             /// <summary>
-            /// Index of the field to evaluate
+            /// Field to evaluate
             /// </summary>
-            [DefaultValue(0)]
-            int IField { get; set; }
+            public IguanaGmshField IField { get; set; }
 
             /// <summary>
             /// Element size outside DistMax
             /// </summary>
-            [DefaultValue(1)]
-            double LcMax { get; set; }
+            public double LcMax { get; set; }
 
             /// <summary>
             /// Element size inside DistMin
             /// </summary>
-            [DefaultValue(0.1)]
-            double LcMin { get; set; }
+            public double LcMin { get; set; }
 
             /// <summary>
             /// True to interpolate between LcMin and LcMax using a sigmoid, false to interpolate linearly
             /// </summary>
-            [DefaultValue(false)]
-            bool Sigmoid { get; set; }
+            public bool Sigmoid { get; set; }
 
             /// <summary>
             /// True to not impose element size outside DistMax(i.e., F = a very big value if Field[IField] > DistMax)
             /// </summary>
-            [DefaultValue(false)]
-            bool StopAtDistMax { get; set; }
+            public bool StopAtDistMax { get; set; }
 
             public override void ApplyField()
             {
-                fieldTag = IguanaGmsh.Model.MeshField.Add("Threshold");
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "DistMax", DistMax);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "DistMin", DistMin);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "LcMax", LcMax);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "LcMin", LcMin);
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Sigmoid", Convert.ToInt32(Sigmoid));
-                IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "StopAtDistMax", Convert.ToInt32(StopAtDistMax));
+                if (IField!=null) {
+                    IField.ApplyField();
+
+                    fieldTag = IguanaGmsh.Model.MeshField.Add("Threshold");
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "DistMax", DistMax);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "DistMin", DistMin);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "IField", IField.Tag);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "LcMax", LcMax);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "LcMin", LcMin);
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "Sigmoid", Convert.ToInt32(Sigmoid));
+                    IguanaGmsh.Model.MeshField.SetNumber(fieldTag, "StopAtDistMax", Convert.ToInt32(StopAtDistMax));
+                }
             }
             public override string ToString()
             {
-                return "ThresholdField";
+                return "IThreshold-Field";
             }
         }
 

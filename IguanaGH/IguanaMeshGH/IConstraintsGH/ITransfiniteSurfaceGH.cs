@@ -6,22 +6,20 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.IFieldsGH
+namespace IguanaGH.IguanaMeshGH.IConstraintsGH
 {
-    public class IGradientFieldGH : GH_Component
+    public class ITransfiniteSurfaceGH : GH_Component
     {
-        double delta = 0.1;
-        Component kind = 0;
-        enum Component { Eval_X = 0, Eval_Y = 1, Eval_Z = 2, Eval_Norm = 3 };
-
+        private enum TransSurface { Left=0, Right=1, AlternateLeft=2, AlternateRight=3 }
+        TransSurface type = TransSurface.Left;
 
         /// <summary>
-        /// Initializes a new instance of the IGradientFieldGH class.
+        /// Initializes a new instance of the ITransfiniteSurfaceGH class.
         /// </summary>
-        public IGradientFieldGH()
-          : base("iGradientField", "iGradF",
-              "Compute the finite difference gradient of a Field: F = (Field(X + Delta/2) - Field(X - Delta/2))",
-              "Iguana", "Fields")
+        public ITransfiniteSurfaceGH()
+          : base("iTransfiniteSurface", "iTransSrf",
+              "Set a transfinite meshing constraint on the surface ID",
+              "Iguana", "Constraints")
         {
         }
 
@@ -30,8 +28,9 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Field", "iF", "Field to evaluate.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("StepSize", "S", "Step size of finite differences. Default is "+delta, GH_ParamAccess.item, delta);
+            pManager.AddIntegerParameter("SurfaceID", "ID", "ID of the surface.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Corners", "C", "Specify the (3 or 4) corners of the transfinite interpolation explicitly. This field is mandatory if the surface has more than 3 or 4 points on its boundary.", GH_ParamAccess.list);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iTransfinite", "iTransfinite", "Iguana constraint collector for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -48,36 +47,40 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IguanaGmshField auxfield = null;
-            DA.GetData(0, ref auxfield);
-            DA.GetData(1, ref delta);
+            int tag = -1;
+            List<int> corners = new List<int>();
+            DA.GetData(0, ref tag);
+            DA.GetDataList(1, corners);
 
-            IguanaGmshField.Gradient field = new IguanaGmshField.Gradient();
-            field.IField = auxfield;
-            field.Delta = delta;
-            field.Kind = (int) kind;
+            double[] cList = new double[corners.Count];
+            for (int i = 0; i < corners.Count; i++) cList[i] = corners[i];
 
-            DA.SetData(0, field);
+            IguanaGmshTransfinite data = new IguanaGmshTransfinite();
+            data.Dim = 2;
+            data.Tag = tag;
+            data.MethodType = type.ToString();
+            data.Corners = corners.ToArray();
 
-            this.Message = kind.ToString();
+            DA.SetData(0, data);
         }
+
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.tertiary; }
+            get { return GH_Exposure.secondary; }
         }
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("Component", (int) kind);
+            writer.SetInt32("TransSurface", (int)type);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
             int aIndex = -1;
-            if (reader.TryGetInt32("Component", ref aIndex))
+            if (reader.TryGetInt32("TransSurface", ref aIndex))
             {
-                kind = (Component) aIndex;
+                type = (TransSurface)aIndex;
             }
 
             return base.Read(reader);
@@ -85,16 +88,16 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            foreach (Component c in Enum.GetValues(typeof(Component)))
-                GH_Component.Menu_AppendItem(menu, c.ToString(), ComponentType, true, c == this.kind).Tag = c;
+            foreach (TransSurface s in Enum.GetValues(typeof(TransSurface)))
+                GH_Component.Menu_AppendItem(menu, s.ToString(), GetType, true, s == this.type).Tag = s;
             base.AppendAdditionalComponentMenuItems(menu);
         }
 
-        private void ComponentType(object sender, EventArgs e)
+        private void GetType(object sender, EventArgs e)
         {
-            if (sender is ToolStripMenuItem item && item.Tag is Component)
+            if (sender is ToolStripMenuItem item && item.Tag is TransSurface)
             {
-                kind = (Component) item.Tag;
+                this.type = (TransSurface)item.Tag;
                 ExpireSolution(true);
             }
         }
@@ -117,7 +120,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("70e87d46-73db-4915-be60-8a17ef38e9ba"); }
+            get { return new Guid("e78885f1-7d50-4282-8d6f-d257ab360e19"); }
         }
     }
 }

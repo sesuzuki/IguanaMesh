@@ -110,7 +110,9 @@ namespace IguanaClient
 
             //IguanaGmsh.Model.Geo.Synchronize();
             IguanaGmsh.Model.Mesh.Generate(2);
-            IguanaGmsh.Write("t6.msh");
+            //IguanaGmsh.Write("t6.msh");
+
+            IguanaGmsh.FLTK.Run();
 
             IguanaGmsh.FinalizeGmsh();
 

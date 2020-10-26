@@ -18,8 +18,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the AHF_CylinderGH class.
         /// </summary>
         public AHF_CylinderGH()
-          : base("iMesh Cylinder Constructor", "iCylinder",
-              "Construct a cylinder quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iCylinder", "iCylinder",
+              "Construct a cylinder quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -42,7 +42,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>

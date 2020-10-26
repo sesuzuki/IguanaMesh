@@ -1,39 +1,22 @@
 ﻿using GH_IO.Serialization;
-using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
-    public struct IguanaGmshConstraint : IGH_Goo
+    public struct IguanaGmshTransfinite : IGH_Goo
     {
-        private int _dim;
-        private Object _geom;
-        private double _val;
-        private int _entityDim;
-        private int _entityTag;
-
-        public IguanaGmshConstraint(int dimension, Object geometry, double size, int entityDimension, int entityTag)
-        {
-            _dim = dimension;
-            _geom = geometry;
-            _val = size;
-            _entityDim = entityDimension;
-            _entityTag = entityTag;
-        }
-
-        public Object RhinoGeometry { get => _geom; }
-
-        public double Size { get => _val; }
-
-        public int Dim { get => _dim; }
-
-        public int EntityID { get => _entityTag; }
-
-        public int EntityDim { get => _entityDim; }
+        public int Dim { get; set; }
+        public int Tag { get; set; }
+        public int[] Corners { get; set; }
+        public int NodesNumber { get; set; }
+        public double Coef { get; set; }
+        public string MethodType { get; set; }
 
         #region GH_methods
         public bool IsValid
@@ -54,12 +37,12 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
         public override string ToString()
         {
-            return "IguanaGmshConstraint";
+            return "IguanaGmshTransfinite";
         }
 
         public string TypeName
         {
-            get => "IguanaGmshConstraint";
+            get => ToString();
         }
 
         public string TypeDescription
@@ -69,7 +52,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo) this.MemberwiseClone();
+            return (IGH_Goo)this.MemberwiseClone();
         }
 
         public IGH_GooProxy EmitProxy()
@@ -99,7 +82,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
         public bool CastTo<T>(out T target)
         {
-            if (typeof(T).IsAssignableFrom(typeof(IguanaGmshConstraint)))
+            if (typeof(T).IsAssignableFrom(typeof(IguanaGmshTransfinite)))
             {
                 target = (T)(object)this;
                 return true;

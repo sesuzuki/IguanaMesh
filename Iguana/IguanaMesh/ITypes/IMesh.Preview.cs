@@ -22,7 +22,7 @@ namespace Iguana.IguanaMesh.ITypes
             foreach (Int64 pair in this.Topology.GetUniqueEdges())
             {
                 idxA = (Int32)(pair >> 32);
-                idxB = (Int32)pair;
+                idxB = (Int32) pair;
                 start = this.Vertices.GetVertexWithKey(idxA).RhinoPoint;
                 end = this.Vertices.GetVertexWithKey(idxB).RhinoPoint;
                 args.Pipeline.DrawLine(start, end, args.Color, args.Thickness);

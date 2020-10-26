@@ -16,8 +16,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the IMoebiusGH class.
         /// </summary>
         public IMoebiusGH()
-          : base("iMesh MoebiusStrip Constructor", "iMoebius",
-              "Creates a Moebius strip quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iMoebiusStrip", "iMoebius",
+              "Creates a Moebius strip quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -46,7 +46,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -78,6 +78,11 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreateMoebiusStrip(u, v, r1, r2, h, pl);
 
             DA.SetData(0, mesh);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

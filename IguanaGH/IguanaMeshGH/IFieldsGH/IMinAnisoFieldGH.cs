@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.IFieldsGH
@@ -12,8 +13,8 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// Initializes a new instance of the IMinAnisoFieldGH class.
         /// </summary>
         public IMinAnisoFieldGH()
-          : base("iMinAnisoField", "iAMinF",
-              "Min anisotropic field to specify the size of the mesh elements.",
+          : base("iMinAnisoField", "iMinAnisoF",
+              "Take the intersection of a list of possibly anisotropic fields.",
               "Iguana", "Fields")
         {
         }
@@ -23,6 +24,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddGenericParameter("Fields", "iF", "Fields to evaluate.", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -38,6 +41,18 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            List<IguanaGmshField> fieldList = new List<IguanaGmshField>();
+            DA.GetDataList(0, fieldList);
+
+            IguanaGmshField.MinAniso field = new IguanaGmshField.MinAniso();
+            field.FieldsList = fieldList;
+
+            DA.SetData(0, field);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>

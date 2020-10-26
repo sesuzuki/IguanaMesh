@@ -13,8 +13,8 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// Initializes a new instance of the IMathAnisoFieldGH class.
         /// </summary>
         public IMathAnisoFieldGH()
-          : base("iMathAnisoField", "iAMathF",
-              "Anisotropic math field to specify the size of the mesh elements.",
+          : base("iMathAnisoField", "iMathAnisoF",
+              "Anisotropic math field to specify the size of the mesh elements. The field is evaluated as a metric expression.",
               "Iguana", "Fields")
         {
         }
@@ -24,18 +24,19 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Function at element 11", "M11", "Mathematical expression to evaluate at element 11 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions. Default is expression is F2 + Sin(z)", GH_ParamAccess.item);
-            pManager.AddTextParameter("Function at element 12", "M12", "Mathematical expression to evaluate at element 12 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions. Default is expression is F2 + Sin(z)", GH_ParamAccess.item);
-            pManager.AddTextParameter("Function at element 13", "M13", "Mathematical expression to evaluate at element 13 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions. Default is expression is F2 + Sin(z)", GH_ParamAccess.item);
-            pManager.AddTextParameter("Function at element 22", "M22", "Mathematical expression to evaluate at element 22 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions. Default is expression is F2 + Sin(z)", GH_ParamAccess.item);
-            pManager.AddTextParameter("Function at element 23", "M23", "Mathematical expression to evaluate at element 23 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions. Default is expression is F2 + Sin(z)", GH_ParamAccess.item);
-            pManager.AddTextParameter("Function at element 33", "M33", "Mathematical expression to evaluate at element 33 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions. Default is expression is F2 + Sin(z)", GH_ParamAccess.item);
-            pManager[0].Optional = true;
+            pManager.AddGenericParameter("Fields", "F", "List of fields to evaluate.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Function at element 11", "M11", "Mathematical expression to evaluate at element 11 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Function at element 12", "M12", "Mathematical expression to evaluate at element 12 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Function at element 13", "M13", "Mathematical expression to evaluate at element 13 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Function at element 22", "M22", "Mathematical expression to evaluate at element 22 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Function at element 23", "M23", "Mathematical expression to evaluate at element 23 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Function at element 33", "M33", "Mathematical expression to evaluate at element 33 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
             pManager[1].Optional = true;
             pManager[2].Optional = true;
             pManager[3].Optional = true;
             pManager[4].Optional = true;
             pManager[5].Optional = true;
+            pManager[6].Optional = true;
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMeshField", "iMF", "Field for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -52,19 +53,21 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string m11 = "F2 + Sin(z)";
-            string m12 = "F2 + Sin(z)";
-            string m13 = "F2 + Sin(z)";
-            string m22 = "F2 + Sin(z)";
-            string m23 = "F2 + Sin(z)";
-            string m33 = "F2 + Sin(z)";
+            string m11 = "";
+            string m12 = "";
+            string m13 = "";
+            string m22 = "";
+            string m23 = "";
+            string m33 = "";
 
-            DA.GetData(0, ref m11);
-            DA.GetData(1, ref m12);
-            DA.GetData(2, ref m13);
-            DA.GetData(3, ref m22);
-            DA.GetData(4, ref m23);
-            DA.GetData(5, ref m33);
+            List<IguanaGmshField> fields = new List<IguanaGmshField>();
+            DA.GetDataList(0, fields);
+            DA.GetData(1, ref m11);
+            DA.GetData(2, ref m12);
+            DA.GetData(3, ref m13);
+            DA.GetData(4, ref m22);
+            DA.GetData(5, ref m23);
+            DA.GetData(6, ref m33);
 
             IguanaGmshField.MathEvalAniso field = new IguanaGmshField.MathEvalAniso();
             field.m11 = m11;

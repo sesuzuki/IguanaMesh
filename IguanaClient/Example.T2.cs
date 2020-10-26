@@ -103,7 +103,7 @@ namespace IguanaClient
             // so we synchronize the model, and use `getValue()'
             IguanaGmsh.Model.Geo.Synchronize();
             double[] xyz;
-            IguanaGmsh.Model.GetValue(0, 5, out xyz);
+            IguanaGmsh.Model.GetValue(0, 5, new double[] { }, out xyz);
             IguanaGmsh.Model.Geo.AddPoint(xyz[0], xyz[1], 0.12, lc, 103);
 
             IguanaGmsh.Model.Geo.AddLine(4, 100, 110);

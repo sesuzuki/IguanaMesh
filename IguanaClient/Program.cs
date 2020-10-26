@@ -15,7 +15,7 @@ namespace IguanaClient
     {
         static void Main(string[] args)
         {
-            Example.T10();
+            Example.T3();
 
             Console.ReadLine();
         }       

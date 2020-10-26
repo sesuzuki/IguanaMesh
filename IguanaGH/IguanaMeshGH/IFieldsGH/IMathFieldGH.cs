@@ -24,9 +24,9 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Expression", "E", "Mathematical expression to evaluate.The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and mathematical functions.\nThe expression is used to modulate the mesh element sizes. Default expression is Cos(x) * Sin(y)", GH_ParamAccess.item, "Cos(x) * Sin(y)");
-            pManager.AddGenericParameter("Fields", "F", "List of fields to evaluate.", GH_ParamAccess.item);
-            pManager[1].Optional = true;
+            pManager.AddGenericParameter("Fields", "iF", "Fields to evaluate. If empty, the current field will be evaluated.", GH_ParamAccess.list);
+            pManager.AddTextParameter("Expression", "E", "Mathematical expression to evaluate.The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and mathematical functions.\nThe expression is used to modulate the mesh element sizes.", GH_ParamAccess.item);
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMeshField", "iMF", "Field for mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -43,16 +43,11 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string evalF = "Cos(x) * Sin(y)";
-            DA.GetData(0, ref evalF);
+            string evalF = "";
+            DA.GetData(1, ref evalF);
 
             List<IguanaGmshField> fields = new List<IguanaGmshField>();
-            foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
-            {
-                IguanaGmshField f;
-                obj.CastTo<IguanaGmshField>(out f);
-                if(f!=null) fields.Add(f);
-            }
+            DA.GetDataList(0, fields);
 
             IguanaGmshField.MathEval field = new IguanaGmshField.MathEval();
             field.F = evalF;

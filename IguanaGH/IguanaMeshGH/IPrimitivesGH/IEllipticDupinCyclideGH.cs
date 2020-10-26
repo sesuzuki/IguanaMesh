@@ -15,8 +15,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the AHF_EllipticDupinCyclide class.
         /// </summary>
         public IEllipticDupinCyclideGH()
-          : base("iMesh EllipticDupinCyclide Constructor", "iEllipticCyclide",
-              "Creates an elliptic dupin cyclide quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iEllipticDupinCyclide", "iCyclide",
+              "Creates an elliptic dupin cyclide quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -51,7 +51,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -86,6 +86,11 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreateEllipticDupinCyclide(u, v, a, b, c, d, D1, D2, pl);
 
             DA.SetData(0, mesh);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

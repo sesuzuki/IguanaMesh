@@ -83,7 +83,9 @@ namespace IguanaClient
             IguanaGmsh.Model.AddPhysicalGroup(3, new int[]{ 1, 2, ov[1].Item2}, 101);
 
             IguanaGmsh.Model.Mesh.Generate(3);
-            IguanaGmsh.Write("t3.msh");
+            //IguanaGmsh.Write("t3.msh");
+
+            IguanaGmsh.FLTK.Run();
 
             // When the GUI is launched, you can use the `Help->Current Options and
             // Workspace' menu to see the current values of all options. To save the

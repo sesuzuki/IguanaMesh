@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 using Rhino;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
 
@@ -12,6 +14,47 @@ namespace Iguana.IguanaMesh.IUtils
 {
     public static class IRhinoGeometry
     {
+        public enum DrawIDs { ShowEntities=0, Entities_0D = 1, Entities_1D = 2, Entities_2D=3, Entities_3D = 4, HideEntities =5 };
+
+        public static void DrawElementsID(IGH_PreviewArgs args, double[][] entitiesID, DrawIDs drawType)
+        {
+            if (entitiesID != null)
+            {
+                foreach (double[] data in entitiesID)
+                {
+                    Color color = Color.Aqua;
+                    if (data[3] == 1) color = Color.Gold;
+                    else if (data[3] == 2) color = Color.DarkGreen;
+                    else if (data[3] == 3) color = Color.Navy;
+
+                    Point3d world = new Point3d(data[0], data[1], data[2]);
+                    Transform xform = args.Viewport.GetTransform(CoordinateSystem.World, CoordinateSystem.Screen);
+                    world.Transform(xform);
+                    Point2d screen = new Point2d(world);
+
+                    switch (drawType)
+                    {
+                        case DrawIDs.ShowEntities:
+                            args.Display.Draw2dText(data[4].ToString(), color, screen, false);
+                            break;
+                        case DrawIDs.Entities_0D:
+                            if(data[3] == 0) args.Display.Draw2dText(data[4].ToString(), color, screen, false);
+                            break;
+                        case DrawIDs.Entities_1D:
+                            if (data[3] == 1) args.Display.Draw2dText(data[4].ToString(), color, screen, false);
+                            break;
+                        case DrawIDs.Entities_2D:
+                            if (data[3] == 2) args.Display.Draw2dText(data[4].ToString(), color, screen, false);
+                            break;
+                        case DrawIDs.Entities_3D:
+                            if (data[3] == 3) args.Display.Draw2dText(data[4].ToString(), color, screen, false);
+                            break;
+                    }
+                    
+                }
+            }
+        }
+
         public static void GetBrepFaceNakedBoundaries(Brep b, int index, out Curve[] crv)
         {
             BrepLoopList loops = b.Faces[index].Loops;

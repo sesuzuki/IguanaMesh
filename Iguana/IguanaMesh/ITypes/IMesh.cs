@@ -16,6 +16,8 @@ namespace Iguana.IguanaMesh.ITypes
         //Guides
         private string message = "IMesh not initialized";
 
+        private int dim = -1;
+
         //Half-Facet Data Structure
         public IVertexCollection Vertices { get; set; }
         public IElementCollection Elements { get; set; }
@@ -248,13 +250,22 @@ namespace Iguana.IguanaMesh.ITypes
 
             if (topo.Count == 1)
             {
-                if (topo[0] == 2) msg = "Surface Mesh (2D)";
-                if (topo[0] == 3) msg = "Volume Mesh (3D)";
+                if (topo[0] == 2)
+                {
+                    msg = "Surface Mesh (2D)";
+                    dim = 2;
+                }
+                if (topo[0] == 3)
+                {
+                    msg = "Volume Mesh (3D)";
+                    dim = 3;
+                }
             }
 
             if (topo.Count == 2)
             {
                 msg = "Multi-dimensional Mesh (2D+3D)";
+                dim = 4;
             }
 
             return msg;
@@ -263,6 +274,42 @@ namespace Iguana.IguanaMesh.ITypes
         public object Clone()
         {
             return this.MemberwiseClone();
+        }
+
+        public bool IsSurfaceMesh
+        {
+            get
+            {
+                if (dim == 2) return true;
+                else return false;
+            }
+        }
+
+        public bool IsVolumeMesh
+        {
+            get
+            {
+                if (dim == 3) return true;
+                else return false;
+            }
+        }
+
+        public bool IsValidMesh
+        {
+            get
+            {
+                if (dim != -1) return true;
+                else return false;
+            }
+        }
+
+        public bool IsMultidimensionalMesh
+        {
+            get
+            {
+                if (dim == 4) return true;
+                else return false;
+            }
         }
     }
 }

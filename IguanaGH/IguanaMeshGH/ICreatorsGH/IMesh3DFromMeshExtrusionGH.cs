@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using Grasshopper.Kernel;
-using Iguana.IguanaMesh.IWrappers;
-using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
-using Rhino.Geometry;
-using Iguana.IguanaMesh.IWrappers.ISolver;
-using Iguana.IguanaMesh.IUtils;
-using Iguana.IguanaMesh.IWrappers.IExtensions;
-using Grasshopper.Kernel.Data;
-using System.Linq;
-using GH_IO.Serialization;
-using static Iguana.IguanaMesh.IUtils.IRhinoGeometry;
 using System.Windows.Forms;
+using GH_IO.Serialization;
+using Grasshopper.Kernel;
+using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.IUtils;
+using Iguana.IguanaMesh.IWrappers;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
+using Iguana.IguanaMesh.IWrappers.ISolver;
+using Rhino.Geometry;
+using static Iguana.IguanaMesh.IUtils.IRhinoGeometry;
 
-namespace IguanaGH.IguanaMeshGH.IUtilsGH
+namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 {
-    public class IPatchMeshGH : GH_Component
+    public class IMesh3DFromMeshExtrusionGH : GH_Component
     {
         double[][] entitiesID;
         DrawIDs drawID = DrawIDs.HideEntities;
@@ -24,11 +21,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         IMesh mesh = null;
 
         /// <summary>
-        /// Initializes a new instance of the IPatchMeshGH class.
+        /// Initializes a new instance of the IExtrudeGH class.
         /// </summary>
-        public IPatchMeshGH()
-          : base("iPatchCurve", "iPatchCrv",
-              "Create a mesh from a curve patch.",
+        public IMesh3DFromMeshExtrusionGH()
+          : base("IExtrudeMesh", "iExtMesh",
+              "Extrude Rhino mesh along a vector to generate a three-dimensional mesh.",
               "Iguana", "Creators")
         {
         }
@@ -38,15 +35,18 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddCurveParameter("Curve", "Crv", "Base closed curve.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("MeshField", "iField", "Field to specify the size of the mesh elements.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("iConstraints", "iConstraints", "Geometric constraints for mesh generation.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("iTransfinite", "iTransfinites", "Transfinite constraints for mesh generation", GH_ParamAccess.item);
-            pManager.AddGenericParameter("iSettings", "iSettings", "Two-dimensional meshing settings.", GH_ParamAccess.item);
-            pManager[1].Optional = true;
-            pManager[2].Optional = true;
-            pManager[3].Optional = true;
+            pManager.AddMeshParameter("Mesh", "M", "Base Rhino mesh.", GH_ParamAccess.item);
+            pManager.AddVectorParameter("Direction", "D", "Direction.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Length", "L", "Extrusion length.", GH_ParamAccess.list, 1);
+            pManager.AddIntegerParameter("Division", "D", "Number of divisions per extrusion", GH_ParamAccess.list, 1);
+            pManager.AddGenericParameter("iMeshField", "iField", "Field to specify the size of the mesh elements.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iConstraints", "iConstraints", "Geometric constraints for mesh generation.", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iTransfinites", "iTransfinites", "Transfinite constraints for mesh generation", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iSettings3D", "iSettings", "Three-dimensional meshing settings.", GH_ParamAccess.item);
             pManager[4].Optional = true;
+            pManager[5].Optional = true;
+            pManager[6].Optional = true;
+            pManager[7].Optional = true;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Iguana Surface Mesh.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana Volumetric Mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -65,16 +65,22 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             if (recompute)
             {
-                Curve crv = null;
-                IguanaGmshSolver2D solverOptions = new IguanaGmshSolver2D();
+                Mesh bMesh = null;
+                Vector3d dir = new Vector3d();
+                List<double> lengths = new List<double>();
+                List<int> divisions = new List<int>();
                 IguanaGmshField field = null;
+                IguanaGmshSolver3D solverOptions = new IguanaGmshSolver3D();
 
-                DA.GetData(0, ref crv);
-                DA.GetData(1, ref field);
-                DA.GetData(4, ref solverOptions);
+                DA.GetData(0, ref bMesh);
+                DA.GetData(1, ref dir);
+                DA.GetDataList(2, lengths);
+                DA.GetDataList(3, divisions);
+                DA.GetData(4, ref field);
+                DA.GetData(7, ref solverOptions);
 
                 List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
-                foreach (var obj in base.Params.Input[2].VolatileData.AllData(true))
+                foreach (var obj in base.Params.Input[5].VolatileData.AllData(true))
                 {
                     IguanaGmshConstraint c;
                     obj.CastTo<IguanaGmshConstraint>(out c);
@@ -82,38 +88,48 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 }
 
                 List<IguanaGmshTransfinite> transfinite = new List<IguanaGmshTransfinite>();
-                foreach (var obj in base.Params.Input[3].VolatileData.AllData(true))
+                foreach (var obj in base.Params.Input[6].VolatileData.AllData(true))
                 {
                     IguanaGmshTransfinite t;
                     obj.CastTo<IguanaGmshTransfinite>(out t);
                     transfinite.Add(t);
                 }
 
-                if (crv.IsClosed)
+
+                // Extract required data from base surface
+                if (!bMesh.IsClosed)
                 {
                     IguanaGmsh.Initialize();
+
+                    Tuple<int, int>[] dimTags;
+                    IguanaGmshFactory.Geo.GmshSurfaceFromMesh(bMesh, out dimTags);
+                    Tuple<int, int>[] temp;
+                    IguanaGmsh.Model.GetEntities(out temp, 2);
 
                     bool synchronize = true;
                     if (constraints.Count > 0) synchronize = false;
 
-                    // Suface construction
-                    int wireTag = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(crv, solverOptions.TargetMeshSizeAtNodes[0]);
-                    int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(wireTag, default, synchronize);
-
                     // Embed constraints
-                    if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
+                    if (!synchronize) IguanaGmshFactory.Geo.EmbedConstraintsOnSurface(constraints, temp[0].Item2, true);
 
                     //Transfinite
                     if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
 
+                    // Extrude
+                    Tuple<int, int>[] ov;
+                    IguanaGmsh.Model.Geo.Extrude(temp, dir.X, dir.Y, dir.Z, out ov, divisions.ToArray(), lengths.ToArray(), true);
+
+                    IguanaGmsh.Model.Geo.Synchronize();
+
                     // Preprocessing settings
-                    solverOptions.ApplySolverSettings(field);
+                    //solverOptions.ApplyBasic3DSettings();
+                    //solverOptions.ApplyAdvanced3DSettings();
 
                     // 2d mesh generation
-                    IguanaGmsh.Model.Mesh.Generate(2);
+                    IguanaGmsh.Model.Mesh.Generate(3);
 
                     // Iguana mesh construction
-                    mesh = IguanaGmshFactory.TryGetIMesh();
+                    mesh = IguanaGmshFactory.TryGetIMesh(3);
                     IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
 
                     IguanaGmsh.FinalizeGmsh();
@@ -124,6 +140,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.SetData(0, mesh);
         }
 
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
+        }
+
         public override void DrawViewportMeshes(IGH_PreviewArgs args)
         {
             base.DrawViewportMeshes(args);
@@ -132,7 +153,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("DrawIDs", (int) drawID);
+            writer.SetInt32("DrawIDs", (int)drawID);
             return base.Write(writer);
         }
 
@@ -158,7 +179,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             if (sender is ToolStripMenuItem item && item.Tag is DrawIDs)
             {
-                this.drawID = (DrawIDs) item.Tag;
+                this.drawID = (DrawIDs)item.Tag;
                 recompute = false;
                 ExpireSolution(true);
             }
@@ -182,7 +203,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("46f44095-6a5b-47d2-848b-4663facc1845"); }
+            get { return new Guid("276e0241-1a1b-4d68-91d6-7142354cb501"); }
         }
     }
 }

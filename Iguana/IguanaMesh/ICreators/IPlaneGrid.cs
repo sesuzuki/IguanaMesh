@@ -49,15 +49,15 @@ namespace Iguana.IguanaMesh.ICreators
                 }
 
                 //Toplogy of quadragular faces
-                for (int j = 0; j < V; j++)
+                for (int i = 0; i < U; i++)
                 {
-                    for (int i = 0; i < U; i++)
+                    for (int j = 0; j < V; j++)
                     {
                         int[] f = new int[4];
-                        f[0] = i + (U + 1) * j;
-                        f[1] = i + 1 + (U + 1) * j;
-                        f[2] = i + 1 + (U + 1) * (j + 1);
-                        f[3] = i + (U + 1) * (j + 1);
+                        f[0] = (i * (V + 1)) + j;
+                        f[1] = (i * (V + 1)) + (j + 1);
+                        f[2] = ((i + 1) * (V + 1)) + (j + 1);
+                        f[3] = ((i + 1) * (V + 1)) + j;
 
                         ISurfaceElement iF = new ISurfaceElement(f);
                         iF.Key = keyElement;

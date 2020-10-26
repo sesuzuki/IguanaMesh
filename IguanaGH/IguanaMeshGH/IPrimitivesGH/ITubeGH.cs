@@ -14,8 +14,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the ITubeGH class.
         /// </summary>
         public ITubeGH()
-          : base("iTube Mesh Constructor", "iTube",
-              "Creates a tube quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iTube", "iTube",
+              "Creates a tube quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -42,7 +42,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("AHF-IMesh", "M", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>

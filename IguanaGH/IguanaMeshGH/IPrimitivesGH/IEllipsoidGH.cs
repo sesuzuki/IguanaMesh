@@ -15,8 +15,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the IEllipsoidGH class.
         /// </summary>
         public IEllipsoidGH()
-          : base("iMesh Ellipsoid Constructor", "iEllipsoid",
-              "Creates a ellipsoid quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iEllipsoid", "iEllipsoid",
+              "Creates a ellipsoid quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -49,7 +49,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -80,6 +80,11 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreateEllipsoid(u, v, a, b, c, D1, D2, pl);
 
             DA.SetData(0, mesh);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

@@ -45,8 +45,8 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
                     nodeTags_out = new long[nodeTags_Number];
-                    coord_out = new double[coord_Number][];
-                    parametricCoord_out = new double[parametricCoord_Number][];
+                    coord_out = new double[nodeTags_Number][];
+                    parametricCoord_out = new double[nodeTags_Number][];
 
                     // Tags
                     if (nodeTags_Number > 0)
@@ -70,6 +70,38 @@ namespace Iguana.IguanaMesh.IWrappers
                             else if (dim == 2) parametricCoord_out[i] = new double[] { uvw[i * dim], uvw[i * dim + 1] };
                             else if (dim == 3) parametricCoord_out[i] = new double[] { uvw[i * dim], uvw[i * dim + 1], uvw[i * dim + 2] };
                         }
+                    }
+
+                    // Delete unmanaged allocated memory
+                    IWrappers.GmshFree(nodeTags);
+                    IWrappers.GmshFree(coord);
+                    IWrappers.GmshFree(parametricCoord);
+                }
+
+                public static void GetCenter(int dim, int tag, out double[] center)
+                {
+                    IntPtr nodeTags, coord, parametricCoord;
+                    long nodeTags_Number, coord_Number, parametricCoord_Number;
+                    IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+
+                    center = new double[3];
+                    // Tags
+                    if (nodeTags_Number > 0)
+                    {
+                        // Coordinates
+                        var xyz = new double[coord_Number];
+                        Marshal.Copy(coord, xyz, 0, (int)coord_Number);
+
+                        for (int i = 0; i < nodeTags_Number; i++)
+                        {
+                            center[0] += xyz[i * 3];
+                            center[1] += xyz[i * 3 + 1];
+                            center[2] += xyz[i * 3 + 2];
+                        }
+
+                        center[0] /= nodeTags_Number;
+                        center[1] /= nodeTags_Number;
+                        center[2] /= nodeTags_Number;
                     }
 
                     // Delete unmanaged allocated memory

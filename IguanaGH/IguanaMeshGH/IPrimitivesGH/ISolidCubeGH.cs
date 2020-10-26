@@ -19,8 +19,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the ISolidCubeGH class.
         /// </summary>
         public ISolidCubeGH()
-          : base("iMesh SolidCube Constructor", "iSolidCube",
-              "Construct a solid cube hexahedron-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iSolidCube", "iSolidCube",
+              "Construct a solid cube hexahedron-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -41,8 +41,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Volume", "V", "Volume of the cube mesh.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana volume mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -60,7 +59,11 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreateCubeSolid(box, u, v, w);
 
             DA.SetData(0, mesh);
-            DA.SetData(1, box.Volume);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>

@@ -16,8 +16,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the IParabolicCylinderGH class.
         /// </summary>
         public IParabolicCylinderGH()
-          : base("iMesh ParabolicCylinder Constructor", "iParabolicCylinder",
-              "Creates a parabolic cylinder quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iParabolicCylinder", "iParaCyl",
+              "Creates a parabolic cylinder quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -46,7 +46,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("AHF-IMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -75,6 +75,11 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreateParabolicCylinder(u, v, a, D1, D2, pl);
 
             DA.SetData(0, mesh);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

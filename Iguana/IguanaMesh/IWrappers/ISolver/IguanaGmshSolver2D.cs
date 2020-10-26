@@ -81,13 +81,13 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
 
         #endregion
 
-        public void ApplySolverSettings(IguanaGmshField field=default)
+        public void ApplySolverSettings(IguanaGmshField field=null)
         {
             IguanaGmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
             IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
             IguanaGmsh.Option.SetNumber("Mesh.MinimumCurvePoints", MinimumCurvePoints);
 
-            if (field!=default)
+            if (field!=null)
             {
                 field.ApplyField();
                 IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(field.Tag);
@@ -99,13 +99,13 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
 
                 if (CharacteristicLengthFromCurvature)
                 {
-                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 0);
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 0);
                     IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
                 }
                 else
                 {
                     IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
-                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromParametricPoints", 1);
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 1);
                 }
             }
 
@@ -115,13 +115,13 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
                 IguanaGmsh.Option.SetNumber("Mesh.RecombineOptimizeTopology", OptimizationSteps);
                 IguanaGmsh.Option.SetNumber("Mesh.RecombineAll", 1);
                 IguanaGmsh.Model.Mesh.Recombine();
-            }
+            }else IguanaGmsh.Option.SetNumber("Mesh.RecombineAll", 0);
 
             if (Subdivide)
             {
                 IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
                 IguanaGmsh.Model.Mesh.Refine();
-            }
+            }else IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", 0);
 
             if (Optimize)
             {
@@ -130,7 +130,7 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
                 string method = OptimizationAlgorithm;
                 if (method == "Standard") method = "";
                 IguanaGmsh.Model.Mesh.Optimize(method, OptimizationSteps);
-            }
+            }else IguanaGmsh.Option.SetNumber("Mesh.Optimize", 0);
         }
     }
 }

@@ -14,9 +14,9 @@ namespace IguanaGH.IguanaMeshGH.ISettings
     {
         MeshSolvers2D solver = MeshSolvers2D.TriFrontalDelaunay;
         IguanaGmshSolver2D solverOpt;
-        List<double> sizes;
+        List<double> sizes = new List<double>() { 1.0 };
         double sizeFactor = 1.0, minSize = 0, maxSize = 1e+22, qualityThreshold=0.3;
-        int recombine=1, qualityType=2, steps=10, optimize=0;
+        int recombine = 1, qualityType = 2, steps = 10, optimize = 0, minPts = 10, minElemPerTwoPi = 6;
         bool adaptive;
         /// <summary>
         /// Initializes a new instance of the IMeshingOptions2D class.
@@ -33,16 +33,18 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Node Sizes", "Sizes", "Target global mesh element size at input nodes. If the number of size values is not equal to the number of nodes, the first item of the list is assigned to all nodes. Default value is 1.0.", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Size Factor", "Factor", "Factor applied to all mesh element sizes. Default value is 1.0.", GH_ParamAccess.item, sizeFactor);
-            pManager.AddNumberParameter("Minimum Size", "MinSize", "Minimum mesh element size. Default value is 0.0.", GH_ParamAccess.item, minSize);
-            pManager.AddNumberParameter("Maximun Size", "MaxSize", "Maximum mesh element size. Default value is 1e+22.", GH_ParamAccess.item, maxSize);
-            pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is false.", GH_ParamAccess.item, adaptive);
-            pManager.AddIntegerParameter("Recombine", "Recombine", "Method to combine triangles into quadrangles (0: Simple, 1: Blossom, 2: Simple full-quad, 3: Blossom full-quad). Default value is 1.", GH_ParamAccess.item, recombine);
-            pManager.AddIntegerParameter("Optimize", "Optimize", "Optimization method (0: Standard, 1: Netgen, 2: HighOrder, 3: HighOrderElastic, 4: HighOrderFastCurving, 5: Laplace2D, 6: Relocate2D) Default value is 0.", GH_ParamAccess.item, optimize);
-            pManager.AddIntegerParameter("Optimization Steps", "Steps", "Number of optimization steps applied to the final mesh. Default value is 10.", GH_ParamAccess.item, steps);
-            pManager.AddIntegerParameter("Quality Type", "Quality", "Type of quality measure for element optimization (0: SICN => signed inverse condition number, 1: SIGE => signed inverse gradient error, 2: gamma => vol/sum_face/max_edge, 3: Disto => minJ/maxJ). Default value is 2.", GH_ParamAccess.item, qualityType);
-            pManager.AddNumberParameter("Quality Threshold", "Qt", "Quality threshold for element optimization. Default value is 0.3.", GH_ParamAccess.item, qualityThreshold);
+            pManager.AddNumberParameter("Node Sizes", "Sizes", "Target global mesh element size at input nodes. If the number of size values is not equal to the number of nodes, the first item of the list is assigned to all nodes. Default value is " + sizes[0], GH_ParamAccess.list, sizes);
+            pManager.AddNumberParameter("Size Factor", "Factor", "Factor applied to all mesh element sizes. Default value is " + sizeFactor, GH_ParamAccess.item, sizeFactor);
+            pManager.AddNumberParameter("Minimum Size", "MinSize", "Minimum mesh element size. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minSize);
+            pManager.AddNumberParameter("Maximun Size", "MaxSize", "Maximum mesh element size. Default value is " + maxSize, GH_ParamAccess.item, maxSize);
+            pManager.AddIntegerParameter("MinPoints", "MinP", "Minimum number of points used to mesh edge-surfaces. Default value is " + minPts, GH_ParamAccess.item, minPts);
+            pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is " + adaptive.ToString(), GH_ParamAccess.item, adaptive);
+            pManager.AddIntegerParameter("MinElements", "MinE", "Minimum number of elements per 2PI. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minElemPerTwoPi);
+            pManager.AddIntegerParameter("Recombine", "Recombine", "Method to combine triangles into quadrangles (0: Simple, 1: Blossom, 2: Simple full-quad, 3: Blossom full-quad). Default value is " + recombine, GH_ParamAccess.item, recombine);
+            pManager.AddIntegerParameter("Optimize", "Optimize", "Optimization method (0: Standard, 1: Netgen, 2: HighOrder, 3: HighOrderElastic, 4: HighOrderFastCurving, 5: Laplace2D, 6: Relocate2D) Default value is " + optimize, GH_ParamAccess.item, optimize);
+            pManager.AddIntegerParameter("Optimization Steps", "Steps", "Number of optimization steps applied to the final mesh. Default value is " + steps, GH_ParamAccess.item, steps);
+            pManager.AddIntegerParameter("Quality Type", "Quality", "Type of quality measure for element optimization (0: SICN => signed inverse condition number, 1: SIGE => signed inverse gradient error, 2: gamma => vol/sum_face/max_edge, 3: Disto => minJ/maxJ). Default value is " + qualityType, GH_ParamAccess.item, qualityType);
+            pManager.AddNumberParameter("Quality Threshold", "Qt", "Quality threshold for element optimization. Default value is " + qualityThreshold, GH_ParamAccess.item, qualityThreshold);
         }
 
         /// <summary>
@@ -66,12 +68,14 @@ namespace IguanaGH.IguanaMeshGH.ISettings
             DA.GetData(1, ref sizeFactor);
             DA.GetData(2, ref minSize);
             DA.GetData(3, ref maxSize);
-            DA.GetData(4, ref adaptive);
-            DA.GetData(5, ref recombine);
-            DA.GetData(6, ref optimize);
-            DA.GetData(7, ref steps);
-            DA.GetData(8, ref qualityType);
-            DA.GetData(9, ref qualityThreshold);
+            DA.GetData(4, ref minPts);
+            DA.GetData(5, ref adaptive);
+            DA.GetData(6, ref minElemPerTwoPi);
+            DA.GetData(7, ref recombine);
+            DA.GetData(8, ref optimize);
+            DA.GetData(9, ref steps);
+            DA.GetData(10, ref qualityType);
+            DA.GetData(11, ref qualityThreshold);
 
             solverOpt.MeshingAlgorithm = solver;
             solverOpt.TargetMeshSizeAtNodes = sizes;
@@ -81,6 +85,8 @@ namespace IguanaGH.IguanaMeshGH.ISettings
             solverOpt.CharacteristicLengthFromCurvature = adaptive;
             solverOpt.Subdivide = true;
             solverOpt.SubdivisionAlgorithm = 0;
+            solverOpt.MinimumCurvePoints = minPts;
+            solverOpt.MinimumElementsPerTwoPi = minElemPerTwoPi;
 
             string method;
 
@@ -100,6 +106,8 @@ namespace IguanaGH.IguanaMeshGH.ISettings
             if (method != null) solverOpt.QualityType = qualityType;
 
             DA.SetData(0, solverOpt);
+
+            this.Message = "Quad-Meshing";
         }
 
         public override bool Write(GH_IWriter writer)

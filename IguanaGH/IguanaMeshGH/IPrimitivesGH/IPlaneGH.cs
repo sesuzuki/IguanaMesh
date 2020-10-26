@@ -15,8 +15,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the AHF_Plane class.
         /// </summary>
         public IPlaneGH()
-          : base("iMesh Plane Constructor", "iPlane",
-              "Creates a plane quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iPlane", "iPlane",
+              "Creates a plane quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -36,8 +36,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Area", "A", "Area of mesh plane", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -59,7 +58,6 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreatePlane(u, v, b.Width, b.Height, b.Plane); 
 
             DA.SetData(0, mesh);
-            DA.SetData(1, b.Area);
         }
 
         /// <summary>
@@ -73,25 +71,6 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             }
         }
 
-       /* public override void DrawViewportWires(IGH_PreviewArgs args)
-        {
-            base.DrawViewportWires(args);
-             try
-             {
-                 List<Polyline> faces = IRhinoGeometry.GetFacesAsPolylines(mesh);
-
-                 foreach (Polyline f in faces)
-                 {
-                    // args.Display.DrawPolyline(f, System.Drawing.Color.Aqua);
-                 }
-             }
-             catch (Exception) { }
-          }
-
-        public override void DrawViewportMeshes(IGH_PreviewArgs args)
-        {
-            base.DrawViewportMeshes(args);
-        }*/
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>

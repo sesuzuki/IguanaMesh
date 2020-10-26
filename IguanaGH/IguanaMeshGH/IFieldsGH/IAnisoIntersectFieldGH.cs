@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino.Geometry;
 
-namespace IguanaGH.IguanaMeshGH.ISettingsGH
+namespace IguanaGH.IguanaMeshGH.IFieldsGH
 {
     public class IAnisoIntersectFieldGH : GH_Component
     {
@@ -12,9 +13,9 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// Initializes a new instance of the IAnisoIntersectFieldGH class.
         /// </summary>
         public IAnisoIntersectFieldGH()
-          : base("iAnisoIntersectField", "iAInterF",
-              "Intersect anisotropic field to specify the size of the mesh elements.",
-              "Iguana", "Settings")
+          : base("iAnisotropicIntersectField", "iAniInterF",
+              "Take the intersection of anisotropic fields.",
+              "Iguana", "Fields")
         {
         }
 
@@ -23,6 +24,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddGenericParameter("Fields", "iF", "Fields to evaluate.", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("iMeshField", "iF", "Field for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -38,6 +41,18 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            List<IguanaGmshField> fieldList = new List<IguanaGmshField>();
+            DA.GetDataList(0, fieldList);
+
+            IguanaGmshField.IntersectAniso field = new IguanaGmshField.IntersectAniso();
+            field.FieldsList = fieldList;
+
+            DA.SetData(0, field);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>

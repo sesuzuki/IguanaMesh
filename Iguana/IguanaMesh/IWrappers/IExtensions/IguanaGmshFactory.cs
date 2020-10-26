@@ -10,12 +10,67 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Rhino;
+using System.Xml.Serialization;
+using Iguana.IguanaMesh.IUtils;
 
 namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
     public static partial class IguanaGmshFactory
     {
-        public static IMesh TryGetIMesh(int dim=2)
+        public static void ApplyTransfiniteSettings(List<IguanaGmshTransfinite> transfinite)
+        {
+            foreach(IguanaGmshTransfinite t in transfinite)
+            {
+                switch (t.Dim)
+                {
+                    case 1:
+                        IguanaGmsh.Model.Mesh.SetTransfiniteCurve(t.Tag, t.NodesNumber, t.MethodType, t.Coef);
+                        break;
+                    case 2:
+                        IguanaGmsh.Model.Mesh.SetTransfiniteSurface(t.Tag, t.MethodType, t.Corners);
+                        break;
+                    case 3:
+                        IguanaGmsh.Model.Mesh.SetTransfiniteVolume(t.Tag, t.Corners);
+                        break;
+                }
+            }
+        }
+
+        public static void TryGetEntitiesID(out double[][] entititesID)
+        {
+            Tuple<int, int>[] dimTags;
+            IguanaGmsh.Model.GetEntities(out dimTags);
+
+            entititesID = new double[dimTags.Length][];
+            int dim, tag;
+            for (int i = 0; i < dimTags.Length; i++)
+            {
+                dim = dimTags[i].Item1;
+                tag = dimTags[i].Item2;
+
+                double[] coord;
+                IguanaGmsh.Model.Mesh.GetCenter(dim, tag, out coord);
+
+                /*switch (dim)
+                {
+                    case 0:
+                        IguanaGmsh.Model.GetValue(dim, tag, new double[] {}, out coord);
+                        break;
+                    case 1:
+                        IguanaGmsh.Model.GetValue(dim, tag, new double[] { 0.5 }, out coord);
+                        break;
+                    default:
+                        double xmin, ymin, zmin, xmax, ymax, zmax;
+                        IguanaGmsh.Model.GetBoundingBox(dim, tag, out xmin, out ymin, out zmin, out xmax, out ymax, out zmax);
+                        coord = new double[] { (xmin+xmax)/2, (ymin+ymax)/2, (zmin+zmax)/2};
+                        break;
+                }*/
+
+                entititesID[i] = new double[] { coord[0], coord[1], coord[2], dim, tag };
+            }
+        }
+
+        public static IMesh TryGetIMesh(int dim = 2)
         {
             if (dim > 3) dim = 3;
             else if (dim < 2) dim = 2;
@@ -33,6 +88,11 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             mesh.BuildTopology();
 
             return mesh;
+        }
+
+        public static void GetConstructiveDataFromMesh(Mesh mesh, out List<long> nodes, out List<long> triangles, out List<double> xyz)
+        {
+            GetConstructiveDataFromMeshes(new Mesh[] { mesh }, out nodes, out triangles, out xyz);
         }
 
         public static void GetConstructiveDataFromMeshes(Mesh[] meshes, out List<long> nodes, out List<long> triangles, out List<double> xyz)
@@ -94,7 +154,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         }
 
 
-            internal static int EvaluatePoint(PointCloud pts, Point3d p, double t)
+        public static int EvaluatePoint(PointCloud pts, Point3d p, double t)
         {
             int idx = pts.ClosestPoint(p);
             if (idx != -1 && p.DistanceTo(pts[idx].Location) > t) idx = -1;

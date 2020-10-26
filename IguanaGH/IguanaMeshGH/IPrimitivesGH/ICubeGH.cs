@@ -18,8 +18,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// Initializes a new instance of the ICubeGH class.
         /// </summary>
         public ICubeGH()
-          : base("iMesh Cube Constructor", "iCube",
-              "Construct a cube quad-mesh stored via an Array-based Half-Facet (AHF) Mesh Data Structure.",
+          : base("iCube", "iCube",
+              "Construct a cube quad-mesh.",
               "Iguana", "Primitives")
         {
         }
@@ -42,8 +42,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Constructed Array-Based Half-Facet (AHF) Mesh Data Structure.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Volume", "V", "Volume of the cube mesh.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -66,7 +65,6 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             mesh = IMeshCreator.CreateCube(box.ToBrep(), u, v, w, weld, tolerance);
 
             DA.SetData(0, mesh);
-            DA.SetData(1, box.Volume);
         }
 
         /// <summary>
