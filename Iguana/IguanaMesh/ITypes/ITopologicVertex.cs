@@ -8,22 +8,22 @@ namespace Iguana.IguanaMesh.ITypes
 {
     public struct ITopologicVertex : IGH_Goo, ICloneable
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
+        public double X { get => _pos.X; set => _pos.X = value; }
+        public double Y { get => _pos.Y; set => _pos.Y = value; }
+        public double Z { get => _pos.Z; set => _pos.Z = value; }
         public double U { get; set; }
         public double V { get; set; }
         public double W { get; set; }
         public int Key { get; set; }
         public IVector3D Normal { get; set; }
+        public IVector3D Position { get => _pos; set => _pos = value; }
 
+        private IVector3D _pos;
         private Int64 _v2hf;
 
         public ITopologicVertex(double _x, double _y, double _z, int _key=-1)
         {
-            this.X = _x;
-            this.Y = _y;
-            this.Z = _z;
+            this._pos = new IVector3D(_x, _y, _z);
             this.U = 0;
             this.V = 0;
             this.W = 0;
@@ -34,9 +34,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public ITopologicVertex(Point3d pt, int _key=-1)
         {
-            this.X = pt.X;
-            this.Y = pt.Y;
-            this.Z = pt.Z;
+            this._pos = new IVector3D(pt.X, pt.Y, pt.Z);
             this.U = 0;
             this.V = 0;
             this.W = 0;
@@ -47,9 +45,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w, int _key=-1)
         {
-            this.X = _x;
-            this.Y = _y;
-            this.Z = _z;
+            this._pos = new IVector3D(_x, _y, _z);
             this.U = _u;
             this.V = _v;
             this.W = _w;
@@ -117,17 +113,6 @@ namespace Iguana.IguanaMesh.ITypes
             }
         }
 
-        public double[] Position
-        {
-            get => new double[] { X, Y, Z };
-            set
-            {
-                X = value[0];
-                Y = value[1];
-                Z = value[2];
-            }
-        }
-
         public double DistanceTo(ITopologicVertex vertex)
         {
             return IVector3D.Dist(new IVector3D(X,Y,Z), new IVector3D(vertex.X, vertex.Y, vertex.Z));
@@ -173,29 +158,6 @@ namespace Iguana.IguanaMesh.ITypes
         public override int GetHashCode()
         {
             return base.GetHashCode();
-        }
-
-        public static IVector3D operator -(ITopologicVertex v1, ITopologicVertex v2)
-        {
-            return new IVector3D(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
-        }
-
-        public static ITopologicVertex operator +(ITopologicVertex v1, IVector3D v2)
-        {
-            ITopologicVertex vertex = v1;
-            vertex.X = v1.X + v2.X;
-            vertex.Y = v1.Y + v2.Y;
-            vertex.Z = v1.Z + v2.Z;
-            return vertex;
-        }
-
-        public static ITopologicVertex operator -(ITopologicVertex v1, IVector3D v2)
-        {
-            ITopologicVertex vertex = v1;
-            vertex.X = v1.X - v2.X;
-            vertex.Y = v1.Y - v2.Y;
-            vertex.Z = v1.Z - v2.Z;
-            return vertex;
         }
 
         public Point3d RhinoPoint

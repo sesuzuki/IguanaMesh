@@ -64,7 +64,7 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             if (_vertices.ContainsKey(key))
             {
                 ITopologicVertex v = _vertices[key];
-                v.Position = new double[] { point.X, point.Y, point.Z };
+                v.Position = new IVector3D( point.X, point.Y, point.Z );
                 _vertices[key] = v;
                 return true;
             }
@@ -77,7 +77,7 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             if (_vertices.ContainsKey(key))
             {
                 ITopologicVertex v = _vertices[key];
-                v.Position = new double[] { x, y, z };
+                v.Position = new IVector3D(x, y, z);
                 _vertices[key] = v;
                 return true;
             }

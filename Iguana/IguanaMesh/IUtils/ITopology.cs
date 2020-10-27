@@ -16,6 +16,7 @@ namespace Iguana.IguanaMesh.IUtils
         public List<int> GetVertexIncidentElements(int vertexKey)
         {
             List<Int32> neighbor = null;
+            iM.Elements.CleanVisits();
 
             if (iM.Vertices.ContainsKey(vertexKey))
             {
@@ -57,6 +58,7 @@ namespace Iguana.IguanaMesh.IUtils
         {
             List<int> vNeighbor = null;
             List<int> visited = null;
+            iM.Elements.CleanVisits();
 
             if (iM.Vertices.ContainsKey(vertexKey))
             {
@@ -114,8 +116,8 @@ namespace Iguana.IguanaMesh.IUtils
 
                     nPt1 = iM.Vertices.GetVertexWithKey(nV[i]);
                     nPt2 = iM.Vertices.GetVertexWithKey(nV[next]);
-                    v1 = nPt1 - vertex;
-                    v2 = nPt2 - vertex;
+                    v1 = nPt1.Position - vertex;
+                    v2 = nPt2.Position - vertex;
                     normal += IVector3D.Cross(v1, v2, true);
                 }
                 normal.Norm();
@@ -248,6 +250,7 @@ namespace Iguana.IguanaMesh.IUtils
                                     halfFacetID = halfFacetID_sibling;
                                     e = element_sibling;
                                 }
+
                                 e.GetHalfFacet(halfFacetID, out hf);
                                 Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
                                 edges.Add(data);

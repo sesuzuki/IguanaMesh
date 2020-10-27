@@ -177,6 +177,31 @@ namespace Iguana.IguanaMesh.ITypes
             }
         }
 
+        public void RegisterVisitForAllSiblingHalfFacets(int halfFacetID, IMesh iM)
+        {
+            IElement element_sibling, e = this;
+            int elementID_sibling, halfFacetID_sibling;
+            bool visited = e.IsSiblingHalfFacetVisited(halfFacetID);
+
+            if (!e.IsNakedSiblingHalfFacet(halfFacetID)){
+                while (visited == false)
+                {
+                    //Register Visit
+                    e.RegisterSiblingHalfFacetVisit(halfFacetID);
+
+                    //Collect information of siblings
+                    elementID_sibling = e.GetSiblingElementID(halfFacetID);
+                    halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
+                    element_sibling = iM.Elements.GetElementWithKey(elementID_sibling);
+
+                    visited = element_sibling.IsSiblingHalfFacetVisited(halfFacetID_sibling);
+
+                    halfFacetID = halfFacetID_sibling;
+                    e = element_sibling;
+                }
+            }else e.RegisterSiblingHalfFacetVisit(halfFacetID);
+        }
+
         public Int64[] GetSiblingHalfFacets()
         {
             return _siblingHalfFacets;

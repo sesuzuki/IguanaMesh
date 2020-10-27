@@ -269,6 +269,16 @@ namespace Iguana.IguanaMesh.ITypes
             return crossVector;
         }
 
+        public static IVector3D operator *(IVector3D vector, ITopologicVertex vertex)
+        {
+            IVector3D crossVector;
+            double Cx = vector.Y * vertex.Z - vector.Z * vertex.Y;
+            double Cy = vector.Z * vertex.X - vector.X * vertex.Z;
+            double Cz = vector.X * vertex.Y - vector.Y * vertex.X;
+            crossVector = new IVector3D(Cx, Cy, Cz);
+            return crossVector;
+        }
+
         public override Boolean Equals(Object obj)
         {
             Boolean equal = false;
@@ -352,11 +362,27 @@ namespace Iguana.IguanaMesh.ITypes
             return vector;
         }
 
+        public static IVector3D operator +(IVector3D vector, ITopologicVertex vertex)
+        {
+            vector.X += vertex.X;
+            vector.Y += vertex.Y;
+            vector.Z += vertex.Z;
+            return vector;
+        }
+
         public static IVector3D operator -(IVector3D vector, double value)
         {
             vector.X -= value;
             vector.Y -= value;
             vector.Z -= value;
+            return vector;
+        }
+
+        public static IVector3D operator -(IVector3D vector, ITopologicVertex vertex)
+        {
+            vector.X -= vertex.X;
+            vector.Y -= vertex.Y;
+            vector.Z -= vertex.Z;
             return vector;
         }
 

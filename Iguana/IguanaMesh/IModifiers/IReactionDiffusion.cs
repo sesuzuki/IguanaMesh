@@ -59,7 +59,7 @@ namespace Iguana.IguanaMesh.IModifiers
                 for (int j = 0; j < vStart.Count; j++)
                 {
                     ITopologicVertex neighbor = mesh.Vertices.GetVertexWithKey(vStart[j]);
-                    direction = neighbor - vertex;
+                    direction = neighbor.Position - vertex;
 
                     teta = 1.0;
                     if (AuxiliarVectorField != null && AuxiliarVectorField.Length>0)
@@ -141,7 +141,7 @@ namespace Iguana.IguanaMesh.IModifiers
                     IVector3D n = vertex.Normal;
                     n*= (A[i] - B[i]);
 
-                    vertex += n;
+                    vertex.Position += n;
 
                     nMesh.Vertices.AddVertex(vK, vertex);
                 }
