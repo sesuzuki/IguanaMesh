@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using Iguana.IguanaMesh.ITypes;
+﻿using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino.Geometry;
+using System;
+using System.Linq;
 
 namespace Iguana.IguanaMesh.ICreators
 {
@@ -10,7 +10,7 @@ namespace Iguana.IguanaMesh.ICreators
     {
         private int U = 1, V = 5;
         private double innerRadius, outerRadius, height, shiftX = 0, shiftY = 0;
-        private Point3d[] vertices;
+        private ITopologicVertex[] vertices;
         private int[][] faces;
         private Curve path;
 
@@ -45,9 +45,11 @@ namespace Iguana.IguanaMesh.ICreators
             {
                 mesh = new IMesh();
                 mesh.Vertices.AddRangeVertices(vertices.ToList());
+                int elementKey = mesh.Elements.FindNextKey();
                 foreach (int[] f in faces)
                 {
-                    mesh.Elements.AddElement(new ISurfaceElement(f[0], f[1], f[2], f[3]));
+                    mesh.Elements.AddElement(elementKey, new ISurfaceElement(f[0], f[1], f[2], f[3]));
+                    elementKey++;
                 }
 
                 mesh.BuildTopology();
@@ -62,7 +64,8 @@ namespace Iguana.IguanaMesh.ICreators
             else
             {
 
-                vertices = new Point3d[((U + 1) * V) * 2];
+                vertices = new ITopologicVertex[((U + 1) * V) * 2];
+                int keyNode = 1;
                 // outer vertices
                 //Plane old = new Plane();
                 for (int i = 0; i <= U; i++)
@@ -93,7 +96,8 @@ namespace Iguana.IguanaMesh.ICreators
                             double y = outerRadius * Math.Sin(((2 * Math.PI) / V) * j);
                             Point3d pt = pl.PointAt(x, y);
 
-                            vertices[j + (i * V)] = pt;
+                            vertices[j + (i * V)] = new ITopologicVertex(pt.X,pt.Y,pt.Z,keyNode);
+                            keyNode++;
                         }
 
                     }
@@ -130,7 +134,8 @@ namespace Iguana.IguanaMesh.ICreators
                             double y = shiftY + (innerRadius * Math.Sin(((2 * Math.PI) / V) * j));
                             Point3d pt = pl.PointAt(x, y);
 
-                            vertices[j + (i * V) + ((U + 1) * V)] = pt;
+                            vertices[j + (i * V) + ((U + 1) * V)] = new ITopologicVertex(pt.X,pt.Y,pt.Z, keyNode);
+                            keyNode++;
                         }
 
                     }
@@ -138,9 +143,9 @@ namespace Iguana.IguanaMesh.ICreators
                     {
                         for (int j = 0; j < V; j++)
                         {
-                            vertices[j + (i * V) + ((U + 1) * V)].X = shiftX + (innerRadius * Math.Cos(((2 * Math.PI) / V) * j));
-                            vertices[j + (i * V) + ((U + 1) * V)].Y = shiftY + (innerRadius * Math.Sin(((2 * Math.PI) / V) * j));
-                            vertices[j + (i * V) + ((U + 1) * V)].Z = z;
+                            vertices[(j + (i * V) + ((U + 1) * V))].X = shiftX + (innerRadius * Math.Cos(((2 * Math.PI) / V) * j));
+                            vertices[(j + (i * V) + ((U + 1) * V))].Y = shiftY + (innerRadius * Math.Sin(((2 * Math.PI) / V) * j));
+                            vertices[(j + (i * V) + ((U + 1) * V))].Z = z;
                         }
                     }
                 }
@@ -152,53 +157,53 @@ namespace Iguana.IguanaMesh.ICreators
                     for (int i = 0; i < U; i++)
                     {
                         faces[j + (i * V)] = new int[4];
-                        faces[j + (i * V)][0] = ((j + 1) % V) + (i * V);
-                        faces[j + (i * V)][1] = ((j + 1) % V) + V + (i * V);
-                        faces[j + (i * V)][2] = j + (i * V) + V;
-                        faces[j + (i * V)][3] = j + (i * V);
+                        faces[j + (i * V)][0] = vertices[((j + 1) % V) + (i * V)].Key;
+                        faces[j + (i * V)][1] = vertices[((j + 1) % V) + V + (i * V)].Key;
+                        faces[j + (i * V)][2] = vertices[j + (i * V) + V].Key;
+                        faces[j + (i * V)][3] = vertices[j + (i * V)].Key;
                     }
                     // top faces
                     if (j != (V - 1))
                     {
                         faces[j + (U * V)] = new int[4];
-                        faces[j + (U * V)][0] = j + (U * V) + V;
-                        faces[j + (U * V)][1] = j + 1 + (U * V) + V;
-                        faces[j + (U * V)][2] = j + 1;
-                        faces[j + (U * V)][3] = j;
+                        faces[j + (U * V)][0] = vertices[j + (U * V) + V].Key;
+                        faces[j + (U * V)][1] = vertices[j + 1 + (U * V) + V].Key;
+                        faces[j + (U * V)][2] = vertices[j + 1].Key;
+                        faces[j + (U * V)][3] = vertices[j].Key;
                     }
                     else
                     {
                         faces[j + (U * V)] = new int[4];
-                        faces[j + (U * V)][0] = j + (U * V) + V;
-                        faces[j + (U * V)][1] = (U * V) + V;
-                        faces[j + (U * V)][2] = 0;
-                        faces[j + (U * V)][3] = j;
+                        faces[j + (U * V)][0] = vertices[j + (U * V) + V].Key;
+                        faces[j + (U * V)][1] = vertices[(U * V) + V].Key;
+                        faces[j + (U * V)][2] = vertices[0].Key;
+                        faces[j + (U * V)][3] = vertices[j].Key;
                     }
                     // inner faces
                     for (int i = 0; i < U; i++)
                     {
                         faces[(j + (i * V)) + (U * V) + V] = new int[4];
-                        faces[(j + (i * V)) + (U * V) + V][0] = (j + (i * V)) + (U * V) + V;
-                        faces[(j + (i * V)) + (U * V) + V][1] = (j + (i * V) + V) + (U * V) + V;
-                        faces[(j + (i * V)) + (U * V) + V][2] = (((j + 1) % V) + V + (i * V)) + (U * V) + V;
-                        faces[(j + (i * V)) + (U * V) + V][3] = (((j + 1) % V) + (i * V)) + (U * V) + V;
+                        faces[(j + (i * V)) + (U * V) + V][0] = vertices[(j + (i * V)) + (U * V) + V].Key;
+                        faces[(j + (i * V)) + (U * V) + V][1] = vertices[(j + (i * V) + V) + (U * V) + V].Key;
+                        faces[(j + (i * V)) + (U * V) + V][2] = vertices[(((j + 1) % V) + V + (i * V)) + (U * V) + V].Key;
+                        faces[(j + (i * V)) + (U * V) + V][3] = vertices[(((j + 1) % V) + (i * V)) + (U * V) + V].Key;
                     }
                     // bottom faces
                     if (j != (V - 1))
                     {
                         faces[j + (2 * (U * V)) + V] = new int[4];
-                        faces[j + (2 * (U * V)) + V][0] = j + (U * V);
-                        faces[j + (2 * (U * V)) + V][1] = j + 1 + (U * V);
-                        faces[j + (2 * (U * V)) + V][2] = j + 1 + (U * V) + V + (U * V);
-                        faces[j + (2 * (U * V)) + V][3] = j + (U * V) + V + (U * V);
+                        faces[j + (2 * (U * V)) + V][0] = vertices[j + (U * V)].Key;
+                        faces[j + (2 * (U * V)) + V][1] = vertices[j + 1 + (U * V)].Key;
+                        faces[j + (2 * (U * V)) + V][2] = vertices[j + 1 + (U * V) + V + (U * V)].Key;
+                        faces[j + (2 * (U * V)) + V][3] = vertices[j + (U * V) + V + (U * V)].Key;
                     }
                     else
                     {
                         faces[j + (2 * (U * V)) + V] = new int[4];
-                        faces[j + (2 * (U * V)) + V][0] = j + (U * V);
-                        faces[j + (2 * (U * V)) + V][1] = (V * U);
-                        faces[j + (2 * (U * V)) + V][2] = vertices.Length - 1 - j;
-                        faces[j + (2 * (U * V)) + V][3] = vertices.Length - 1;
+                        faces[j + (2 * (U * V)) + V][0] = vertices[j + (U * V)].Key;
+                        faces[j + (2 * (U * V)) + V][1] = vertices[(V * U)].Key;
+                        faces[j + (2 * (U * V)) + V][2] = vertices[vertices.Length - 1 - j].Key;
+                        faces[j + (2 * (U * V)) + V][3] = vertices[vertices.Length-1].Key;
                     }
                 }
 

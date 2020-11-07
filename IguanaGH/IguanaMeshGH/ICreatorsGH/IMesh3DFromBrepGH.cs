@@ -51,7 +51,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Iguana Volume Mesh.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana volume mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 
         public override GH_Exposure Exposure
         {
-            get { return GH_Exposure.secondary; }
+            get { return GH_Exposure.tertiary; }
         }
 
         public override void DrawViewportMeshes(IGH_PreviewArgs args)

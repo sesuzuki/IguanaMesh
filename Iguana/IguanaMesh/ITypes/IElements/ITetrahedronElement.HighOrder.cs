@@ -20,6 +20,11 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 /// </summary>
                 public ITetrahedron10(int[] vertices) : base(vertices) { }
 
+                public override IElement CleanCopy()
+                {
+                    return new ITetrahedron10(Vertices);
+                }
+
                 /// <summary>
                 /// <para> Element´s description . </para>
                 /// </summary>

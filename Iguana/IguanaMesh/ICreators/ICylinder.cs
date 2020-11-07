@@ -10,7 +10,7 @@ namespace Iguana.IguanaMesh.ICreators
     {
         private Plane pl = new Plane();
         private double r1 = 1, r2 = 1, h = 1;
-        private int u = 30, v = 20, keyVertex = 0, keyElement = 0;
+        private int u = 30, v = 20, keyVertex = 1, keyElement = 1;
         private List<ITopologicVertex> vertices = new List<ITopologicVertex>();
         private List<IElement> faces = new List<IElement>();
 
@@ -74,7 +74,7 @@ namespace Iguana.IguanaMesh.ICreators
                     if (idxA == (u - 1)) idxB = 0;
                     for (int j = 0; j < v; j++)
                     {
-                        ISurfaceElement f = new ISurfaceElement(idxA * (v + 1) + j, idxA * (v + 1) + j + 1, idxB * (v + 1) + j + 1, idxB * (v + 1) + j);
+                        ISurfaceElement f = new ISurfaceElement((idxA * (v + 1) + j)+1, (idxA * (v + 1) + j + 1)+1, (idxB * (v + 1) + j + 1)+1, (idxB * (v + 1) + j)+1);
                         f.Key = keyElement;
                         faces.Add(f);
 

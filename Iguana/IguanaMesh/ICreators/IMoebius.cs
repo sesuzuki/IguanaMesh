@@ -9,8 +9,8 @@ namespace Iguana.IguanaMesh.ICreators
     class IMoebius : ICreatorInterface
     {
         private double x, y, z, u, v, r1=1, r2=1, h=1;
-        private int U = 5, V = 5, keyElement = 0;
-        private List<Point3d> vertices = new List<Point3d>();
+        private int U = 5, V = 5, keyElement = 1, keyNode=1;
+        private List<ITopologicVertex> vertices = new List<ITopologicVertex>();
         private List<IElement> faces = new List<IElement>();
         private Plane pl;
 
@@ -70,7 +70,8 @@ namespace Iguana.IguanaMesh.ICreators
                         z = h * ( (v / 2) * Math.Sin(u / 2) );
                         pt = pl.PointAt(x, y, z);
 
-                        vertices.Add(pt);
+                        vertices.Add(new ITopologicVertex(pt.X,pt.Y,pt.Z,u,v,0,keyNode));
+                        keyNode++;
                     }
                 }
 
@@ -80,17 +81,17 @@ namespace Iguana.IguanaMesh.ICreators
                     for (int j = 0; j < V - 1; j++)
                     {
                         int[] f = new int[4];
-                        f[0] = i * V + j;
-                        f[1] = i * V + (j + 1);
-                        f[2] = (i + 1) * V + (j + 1);
-                        f[3] = (i + 1) * V + j;
+                        f[0] = (i * V + j)+1;
+                        f[1] = (i * V + (j + 1))+ 1;
+                        f[2] = ((i + 1) * V + (j + 1))+ 1;
+                        f[3] = ((i + 1) * V + j)+ 1;
 
                         if (i == U - 2)
                         {
-                            f[0] = i * V + j;
-                            f[1] = i * V + (j + 1);
-                            f[2] = (V - 1) - (j + 1);
-                            f[3] = (V - 1) - (j);
+                            f[0] = (i * V + j)+ 1;
+                            f[1] = (i * V + (j + 1))+ 1;
+                            f[2] = ((V - 1) - (j + 1))+ 1;
+                            f[3] = ((V - 1) - (j))+ 1;
                         }
 
                         ISurfaceElement iF = new ISurfaceElement(f);

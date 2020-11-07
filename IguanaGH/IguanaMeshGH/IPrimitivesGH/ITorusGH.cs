@@ -30,7 +30,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             pManager.AddIntegerParameter("U Count", "U", "Number of faces along the {x} direction.", GH_ParamAccess.item, 30);
             pManager.AddIntegerParameter("V Count", "V", "Number of faces along the {y} direction.", GH_ParamAccess.item, 10);
             pManager.AddNumberParameter("Semi major", "R1", "Parameter for the semi major axis.", GH_ParamAccess.item, 5.0);
-            pManager.AddNumberParameter("Semi minor", "R2", "Parameter for the semi minor axis.", GH_ParamAccess.item, 5.0);
+            pManager.AddNumberParameter("Semi minor", "R2", "Parameter for the semi minor axis.", GH_ParamAccess.item, 2.0);
             pManager.AddIntervalParameter("Domain {x}", "D1", "Domain in the {x} direction. The domain should be bounded between 0 to 2π.", GH_ParamAccess.item, new Interval(0, 2 * Math.PI));
             pManager.AddIntervalParameter("Domain {y}", "D2", "Domain in the {y} direction. The domain should be bounded between 0 to 2π.", GH_ParamAccess.item, new Interval(0, 2 * Math.PI));
             pManager.AddPlaneParameter("Plane", "Pl", "Construction plane.", GH_ParamAccess.item, Plane.WorldXY);

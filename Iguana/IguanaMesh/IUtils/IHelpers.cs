@@ -21,6 +21,17 @@ namespace Iguana.IguanaMesh.IUtils
             return arr;
         }
 
+        public static void UnpackKey(Int64 keyPair, out Int32 elementID, out Int32 halfFacetID)
+        {
+            elementID = (Int32)(keyPair >> 32);
+            halfFacetID = (Int32)keyPair;
+        }
+
+        public static Int64 PackKeyPair(Int32 elementID, Int32 halfFacetID)
+        {
+            return (Int64)elementID << 32 | (Int64)halfFacetID;
+        }
+
 
         public static Tuple<int, int>[] GraftIntTupleArray(int[] data)
         {

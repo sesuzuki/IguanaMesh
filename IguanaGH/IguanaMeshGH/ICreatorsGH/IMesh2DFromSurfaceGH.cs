@@ -12,6 +12,7 @@ using Iguana.IguanaMesh.IUtils;
 using System.Windows.Forms;
 using static Iguana.IguanaMesh.IUtils.IRhinoGeometry;
 using GH_IO.Serialization;
+using System.Linq;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -53,7 +54,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Iguana Surface Mesh.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                 // Extract required data from base surface
                 if (!b.IsSolid && b.Faces.Count == 1)
                 {
-                    Curve crv;
+                    Curve[] crv;
                     List<Point3d> patch;
                     IRhinoGeometry.GetBrepFaceMeshingData(b, 0, solverOptions.MinimumCurvePoints, out crv, out patch);
 
@@ -101,11 +102,45 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
                     if (constraints.Count > 0) synchronize = false;
 
                     // Suface construction
-                    int wireTag = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(crv, solverOptions.TargetMeshSizeAtNodes[0]);
-                    int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(wireTag, patch, synchronize);
+                    int wireTag = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(crv[0], solverOptions.TargetMeshSizeAtNodes[0]);
+                    int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(wireTag, patch, false);
+                    Tuple<int, int>[] objectDimTag = new Tuple<int, int>[] { Tuple.Create(2, surfaceTag) };
+
+                    //Tool
+                    Point3d centroid = new Point3d();
+                    Interval dom = crv[0].Domain;
+                    int count = 10;
+                    double t = Math.Abs(dom.Length) / count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        centroid += crv[0].PointAt(dom.T0 + i * t);
+                    }
+                    centroid /= count;
+
+                    double u, v;
+                    b.Surfaces[0].ClosestPoint(centroid, out u, out v);
+                    Vector3d n = b.Surfaces[0].NormalAt(u, v);
+
+                    List<Tuple<int, int>> toolDimTags = new List<Tuple<int, int>>();
+                    for (int i = 1; i < crv.Length; i++)
+                    {
+                        Curve cA = crv[i].DuplicateCurve();
+                        cA.Translate(n);
+                        Curve cB = crv[i].DuplicateCurve();
+                        cB.Translate(-n);
+                        int wireTag2 = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(cA, 10);
+                        int wireTag3 = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(cB, 10);
+                        Tuple<int, int>[] temp;
+                        IguanaGmsh.Model.GeoOCC.AddThruSections(new[] { wireTag2, wireTag3 }, out temp, -1, true, true);
+                        toolDimTags.AddRange(temp);
+                    }
+
+                    Tuple<int, int>[] dimTag;
+                    IguanaGmsh.Model.GeoOCC.Cut(objectDimTag, toolDimTags.ToArray(), out dimTag, -1, true, true);
 
                     // Embed constraints
-                    if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true);
+                    if (!synchronize) IguanaGmshFactory.GeoOCC.EmbedConstraintsOnSurface(constraints, surfaceTag, true); 
+                    else IguanaGmsh.Model.GeoOCC.Synchronize();
 
                     //Transfinite
                     if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
@@ -126,6 +161,11 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
             recompute = true;
             DA.SetData(0, mesh);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         public override void DrawViewportMeshes(IGH_PreviewArgs args)

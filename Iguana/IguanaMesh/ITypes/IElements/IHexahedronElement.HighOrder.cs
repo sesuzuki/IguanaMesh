@@ -17,7 +17,12 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             /// </summary>
             public class IHexahedron20 : IHexahedronElement
             {
-                public IHexahedron20(int[] vertices) : base(vertices) { }
+                public IHexahedron20(int[] vertices) : base(vertices) { this.SetElementType(17); }
+
+                public override IElement CleanCopy()
+                {
+                    return new IHexahedron20(Vertices);
+                }
 
                 public override string ToString()
                 {

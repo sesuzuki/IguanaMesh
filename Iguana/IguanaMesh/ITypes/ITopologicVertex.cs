@@ -3,10 +3,11 @@ using GH_IO.Serialization;
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
+using Grasshopper.Kernel;
 
 namespace Iguana.IguanaMesh.ITypes
 {
-    public struct ITopologicVertex : IGH_Goo, ICloneable
+    public struct ITopologicVertex : IGH_Goo, ICloneable, IGH_PreviewData
     {
         public double X { get => _pos.X; set => _pos.X = value; }
         public double Y { get => _pos.Y; set => _pos.Y = value; }
@@ -15,11 +16,11 @@ namespace Iguana.IguanaMesh.ITypes
         public double V { get; set; }
         public double W { get; set; }
         public int Key { get; set; }
-        public IVector3D Normal { get; set; }
         public IVector3D Position { get => _pos; set => _pos = value; }
 
         private IVector3D _pos;
         private Int64 _v2hf;
+        private bool[] _visits;
 
         public ITopologicVertex(double _x, double _y, double _z, int _key=-1)
         {
@@ -28,8 +29,8 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = 0;
             this.W = 0;
             this.Key = _key;
-            this.Normal = new IVector3D();
             this._v2hf = 0;
+            _visits = new bool[2];
         }
 
         public ITopologicVertex(Point3d pt, int _key=-1)
@@ -39,8 +40,30 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = 0;
             this.W = 0;
             this.Key = _key;
-            this.Normal = new IVector3D();
             this._v2hf = 0;
+            _visits = new bool[2];
+        }
+
+        public ITopologicVertex(ITopologicVertex v)
+        {
+            this._pos = new IVector3D(v.X, v.Y, v.Z);
+            this.U = v.U;
+            this.V = v.V;
+            this.W = v.W;
+            this.Key = v.Key;
+            this._v2hf = 0;
+            _visits = new bool[2];
+        }
+
+        public ITopologicVertex(IVector3D v, int _key = -1)
+        {
+            this._pos = v;
+            this.U = 0;
+            this.V = 0;
+            this.W = 0;
+            this.Key = _key;
+            this._v2hf = 0;
+            _visits = new bool[2];
         }
 
         public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w, int _key=-1)
@@ -50,8 +73,13 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = _v;
             this.W = _w;
             this.Key = _key;
-            this.Normal = new IVector3D();
             this._v2hf = 0;
+            _visits = new bool[2];
+        }
+
+        public void CleanTopologicalData()
+        {
+            _v2hf = 0;
         }
 
         public void SetV2HF(Int32 elementID, Int32 halfFacetID)
@@ -65,36 +93,12 @@ namespace Iguana.IguanaMesh.ITypes
         }
 
         public Int32 GetElementID() {
-            Int64 sibData = _v2hf;
-            if (sibData < 0) sibData *= -1;
-            return (Int32)(sibData >> 32);
+            return (Int32)(_v2hf >> 32);
         }
 
         public Int32 GetHalfFacetID()
         {
-            Int64 sibData = _v2hf;
-            if (sibData < 0) sibData *= -1;
-            return (Int32)sibData;
-        }
-
-        public void RegisterHalfFacetVisit()
-        {
-            if(_v2hf > 0) _v2hf *= -1;
-        }
-        public void ClearHalfFacetVisit()
-        {
-            if (_v2hf < 0) _v2hf *= -1;
-        }
-        public Boolean IsHalfFacetVisited()
-        {
-            if (_v2hf < 0) return true;
-            else return false;
-        }
-
-        public Boolean IsNakedHalfFacet()
-        {
-            if (_v2hf == 0) return true;
-            else return false;
+            return (Int32)_v2hf;
         }
 
         public Int64 V2HF
@@ -128,6 +132,23 @@ namespace Iguana.IguanaMesh.ITypes
             ITopologicVertex v = new ITopologicVertex(X, Y, Z, U, V, W);
             v.Key = Key;
             return v;
+        }
+
+        /// <summary>
+        /// Copy without topologic data.
+        /// </summary>
+        /// <returns></returns>
+        public ITopologicVertex CleanCopy()
+        {
+            ITopologicVertex copy = new ITopologicVertex(X, Y, Z, U, V, W, Key);
+            return copy;
+        }
+
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args) { }
+
+        public void DrawViewportWires(GH_PreviewWireArgs args)
+        {
+            args.Pipeline.DrawPoint(RhinoPoint, Rhino.Display.PointStyle.X, 5, args.Color);
         }
 
         public override bool Equals(object obj)
@@ -178,7 +199,7 @@ namespace Iguana.IguanaMesh.ITypes
         #region IGH_Goo methods
         public bool IsValid
         {
-            get => this.Equals(null);
+            get => this!=null;
         }
 
         public string IsValidWhyNot
@@ -201,6 +222,8 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get => ToString();
         }
+
+        public BoundingBox ClippingBox => new BoundingBox(new[] { RhinoPoint });
 
         public IGH_Goo Duplicate()
         {

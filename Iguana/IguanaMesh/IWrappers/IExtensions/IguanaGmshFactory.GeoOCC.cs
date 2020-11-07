@@ -1,4 +1,5 @@
-﻿using Iguana.IguanaMesh.IWrappers.ISolver;
+﻿using Iguana.IguanaMesh.IUtils;
+using Iguana.IguanaMesh.IWrappers.ISolver;
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,14 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             public static int CurveLoopFromRhinoCurve(Curve crv, double size)
             {
                 int[] crvTags = SplinesFromRhinoCurve(crv, size);
+                int wireTag = IguanaGmsh.Model.GeoOCC.AddWire(crvTags);
+                return wireTag;
+            }
+
+            public static int PolylineFromRhinoCurve(Polyline poly, double size)
+            {
+                List<int> ptsTag = new List<int>();
+                int[] crvTags = LinesFromRhinoPolyline(poly, size, ref ptsTag);
                 int wireTag = IguanaGmsh.Model.GeoOCC.AddWire(crvTags);
                 return wireTag;
             }
@@ -212,6 +221,101 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
                     if (ptsTags.Count > 0) IguanaGmsh.Model.Mesh.Embed(0, ptsTags.ToArray(), 2, surfaceTag);
                     if (crvTags.Count > 0) IguanaGmsh.Model.Mesh.Embed(1, crvTags.ToArray(), 2, surfaceTag);
+                }
+            }
+
+            public static void EmbedConstraintsOnBrep(List<IguanaGmshConstraint> constraints, bool synchronize = false)
+            {
+                int count = constraints.Count;
+
+                if (count > 0)
+                {
+                    List<int> ptsTags = new List<int>();
+                    Dictionary<Int64, List<int>> embedPoints = new Dictionary<Int64, List<int>>();
+                    Dictionary<Int64, List<int>> embedCurve = new Dictionary<Int64, List<int>>();
+                    Dictionary<Int64, List<int>> embedSurface = new Dictionary<Int64, List<int>>();
+
+                    PointCloud pts = new PointCloud();
+
+                    IguanaGmshConstraint data;
+                    Point3d p;
+                    Polyline poly;
+                    Curve crv;
+                    Brep b;
+                    double t = 0.0001;
+                    int tag, idx;
+                    Int64 key;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        data = constraints[i];
+
+                        switch (data.Dim)
+                        {
+                            case 0:
+                                p = (Point3d)data.RhinoGeometry;
+                                idx = EvaluatePoint(pts, p, t);
+
+                                if (idx == -1)
+                                {
+                                    tag = IguanaGmsh.Model.GeoOCC.AddPoint(p.X, p.Y, p.Z, data.Size);
+                                    ptsTags.Add(tag);
+                                    pts.Add(p);
+
+                                    key = (Int64)data.EntityDim << 32 | (Int64)data.EntityID;
+                                    if (!embedPoints.ContainsKey(key)) embedPoints.Add(key, new List<int>());
+                                    embedPoints[key].Add(tag);
+                                }
+
+                                break;
+
+                            case 1:
+                                poly = (Polyline)data.RhinoGeometry;
+                                int[] polyTags = LinesFromRhinoPolyline(poly, data.Size, ref ptsTags, pts, t);
+
+                                key = (Int64)data.EntityDim << 32 | (Int64)data.EntityID;
+                                if (!embedCurve.ContainsKey(key)) embedPoints.Add(key, new List<int>());
+                                embedCurve[key].AddRange(polyTags);
+                                break;
+
+                            case 2:
+                                crv = (Curve)data.RhinoGeometry;
+                                int[] crvTags = SplinesFromRhinoCurve(crv, data.Size);
+
+                                key = (Int64)data.EntityDim << 32 | (Int64)data.EntityID;
+                                if (!embedCurve.ContainsKey(key)) embedCurve.Add(key, new List<int>());
+                                embedCurve[key].AddRange(crvTags);
+                                break;
+
+                            case 3:
+                                b = (Brep)data.RhinoGeometry;
+                                List<Point3d> patch;
+                                Curve[] crvArr;
+                                IRhinoGeometry.GetBrepFaceMeshingData(b, 0, 20, out crvArr, out patch);
+                                int wireTag = IguanaGmshFactory.GeoOCC.CurveLoopFromRhinoCurve(crvArr[0], data.Size);
+                                int surfaceTag = IguanaGmshFactory.GeoOCC.SurfacePatch(wireTag, patch, false);
+
+                                key = (Int64)data.EntityDim << 32 | (Int64)data.EntityID;
+                                if (!embedSurface.ContainsKey(key)) embedSurface.Add(key, new List<int>());
+                                embedSurface[key].Add(surfaceTag);
+                                break;
+                        }
+                    }
+
+                    if (synchronize) IguanaGmsh.Model.Geo.Synchronize();
+
+                    if (embedPoints.Count > 0)
+                    {
+                        foreach (Int64 id in embedPoints.Keys) IguanaGmsh.Model.Mesh.Embed(0, embedPoints[id].ToArray(), (Int32)(id >> 32), (Int32)id);
+                    }
+                    if (embedCurve.Count > 0)
+                    {
+                        foreach (Int64 id in embedCurve.Keys) IguanaGmsh.Model.Mesh.Embed(1, embedCurve[id].ToArray(), (Int32)(id >> 32), (Int32)id);
+                    }
+                    if (embedSurface.Count > 0)
+                    {
+                        foreach (Int64 id in embedSurface.Keys) IguanaGmsh.Model.Mesh.Embed(2, embedSurface[id].ToArray(), (Int32)(id >> 32), (Int32)id);
+                    }
                 }
             }
         }

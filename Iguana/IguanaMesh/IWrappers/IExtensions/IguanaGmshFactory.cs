@@ -12,6 +12,7 @@ using System.Linq;
 using Rhino;
 using System.Xml.Serialization;
 using Iguana.IguanaMesh.IUtils;
+using Iguana.IguanaMesh.IModifiers;
 
 namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
@@ -36,13 +37,13 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             }
         }
 
-        public static void TryGetEntitiesID(out double[][] entititesID)
+        public static void TryGetEntitiesID(out double[][] entititesID, int dim=-1)
         {
             Tuple<int, int>[] dimTags;
-            IguanaGmsh.Model.GetEntities(out dimTags);
+            IguanaGmsh.Model.GetEntities(out dimTags, dim);
 
             entititesID = new double[dimTags.Length][];
-            int dim, tag;
+            int tag;
             for (int i = 0; i < dimTags.Length; i++)
             {
                 dim = dimTags[i].Item1;
@@ -85,7 +86,6 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
             // Iguana mesh construction
             IMesh mesh = new IMesh(vertices, elements);
-            mesh.BuildTopology();
 
             return mesh;
         }
@@ -147,6 +147,62 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             }
         }
 
+        public static void GetConstructiveDataFromIguanaSurfaceMesh(IMesh mesh, out List<long> nodes, out List<long> triangles, out List<double> xyz)
+        {
+            GetConstructiveDataFromIguanaSurfaceMeshes(new IMesh[] { mesh }, out nodes, out triangles, out xyz);
+        }
+
+        public static void GetConstructiveDataFromIguanaSurfaceMeshes(IMesh[] meshes, out List<long> nodes, out List<long> triangles, out List<double> xyz)
+        {
+            nodes = new List<long>();
+            triangles = new List<long>();
+            xyz = new List<double>();
+
+            int count = meshes.Length;
+            IMesh m;
+            Point3d p;
+            long key = 1;
+
+            PointCloud cloud = new PointCloud();
+            int idx;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (meshes[i].IsSurfaceMesh)
+                {
+                    m = IModifier.Triangulate2DElements(meshes[i]);
+
+                    Dictionary<long,long> temp = new Dictionary<long, long>();
+
+                    foreach(ITopologicVertex v in m.Vertices.VerticesValues)
+                    {
+                        p = v.RhinoPoint;
+                        key = v.Key + 1;
+                        idx = cloud.ClosestPoint(p);
+
+                        bool flag = false;
+
+                        if (idx == -1) flag = true;
+                        else if (cloud[idx].Location.DistanceTo(p) > RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) flag = true;
+
+                        if (flag)
+                        {
+                            nodes.Add(key);
+                            xyz.AddRange(new double[] { p.X, p.Y, p.Z });
+                            cloud.Add(p);
+                            idx = nodes.Count - 1;
+                        }
+                        temp.Add(v.Key,nodes[idx]);
+                    }
+
+                    foreach(IElement e in m.Elements.ElementsValues)
+                    {
+                        triangles.AddRange(new long[] { temp[e.Vertices[0]], temp[e.Vertices[1]], temp[e.Vertices[2]] });
+                    }
+                }
+            }
+        }
+
         public static void GetConstructiveDataFromBrep(Brep b, out List<long> nodes, out List<long> triangles, out List<double> xyz)
         {
             Mesh[] meshes = Mesh.CreateFromBrep(b, MeshingParameters.Default);
@@ -159,6 +215,113 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             int idx = pts.ClosestPoint(p);
             if (idx != -1 && p.DistanceTo(pts[idx].Location) > t) idx = -1;
             return idx;
+        }
+
+
+        public static void GetElementDataFromIguanaMesh(IMesh mesh, out int[] elementTypes, out long[][] elementTags, out long[][] elementNodes)
+        {
+            Dictionary<int, List<long>> eTags = new Dictionary<int, List<long>>();
+            Dictionary<int, List<long>> eNodes = new Dictionary<int, List<long>>();
+            foreach (IElement e in mesh.Elements.ElementsValues)
+            {
+
+                if (!eTags.ContainsKey(e.ElementType))
+                {
+                    eTags.Add(e.ElementType, new List<long>());
+                    eNodes.Add(e.ElementType, new List<long>());
+                }
+
+                eTags[e.ElementType].Add(e.Key);
+                int[] vertices = e.GetGmshFormattedVertices();
+                foreach (int vk in vertices) eNodes[e.ElementType].Add((long)vk);
+            }
+
+            elementTypes = eTags.Keys.ToArray();
+            elementTags = new long[eTags.Count][];
+            elementNodes = new long[eTags.Count][];
+            for (int i = 0; i < elementTypes.Length; i++)
+            {
+                int eType = elementTypes[i];
+                elementTags[i] = eTags[eType].ToArray();
+                elementNodes[i] = eNodes[eType].ToArray();
+            }
+        }
+
+        public static void GetNodeDataFromIguanaMesh(IMesh mesh, out long[] nodeTags, out double[] position)
+        {
+
+            int count = mesh.Vertices.Count;
+            nodeTags = new long[count];
+            position = new double[count * 3];
+            int i = 0;
+            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            {
+                nodeTags[i] = v.Key;
+                position[i * 3] = v.X;
+                position[i * 3 + 1] = v.Y;
+                position[i * 3 + 2] = v.Z;
+                i++;
+            }
+        }
+
+        public static void GetTriangulatedDataFromIguanaMesh(IMesh mesh, out long[] nodeTags, out double[] position, out int[] elementTypes, out long[][] elementTags, out long[][] elementNodes)
+        {
+            List<long> vertexKeys = new List<long>();
+            List<double> vertexPos = new List<double>();
+            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            {
+                vertexKeys.Add(v.Key);
+                vertexPos.AddRange(new double[] {v.X,v.Y,v.Z });
+            }
+
+            // Elements (only triangular surface elements)
+            List<long> eTags = new List<long>();
+            List<long> eNodes = new List<long>();
+            int vkey = mesh.Vertices.FindNextKey();
+            int eKey = 1;
+            foreach (IElement e in mesh.Elements.ElementsValues)
+            {
+                if (e.TopologicDimension == 2)
+                {
+                    if (e.VerticesCount == 3)
+                    {
+                        eNodes.AddRange(new long[] { (long)e.Vertices[0], (long)e.Vertices[1], (long)e.Vertices[2] });
+                        eTags.Add(eKey);
+                        eKey++;
+                    }
+                    else if (e.VerticesCount == 4)
+                    {
+                        eNodes.AddRange(new long[] { (long)e.Vertices[0], (long)e.Vertices[1], (long)e.Vertices[3] });
+                        eTags.Add(eKey);
+                        eKey++;
+                        eNodes.AddRange(new long[] { (long)e.Vertices[3], (long)e.Vertices[1], (long)e.Vertices[2] });
+                        eTags.Add(eKey);
+                        eKey++;
+                    }
+                    else
+                    {
+                        IVector3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, mesh);
+                        vertexPos.AddRange(new double[] { pos.X, pos.Y, pos.Z });
+                        vertexKeys.Add(vkey);
+                        for (int i = 1; i <= e.HalfFacetsCount; i++)
+                        {
+                            int[] hf;
+                            e.GetHalfFacet(i, out hf);
+                            eNodes.AddRange(new long[] { hf[0], hf[1], vkey });
+                            eTags.Add(eKey);
+                            eKey++;
+                        }
+                        vkey++;
+                    }
+                }
+            }
+
+            //To arrays
+            nodeTags = vertexKeys.ToArray();
+            position = vertexPos.ToArray();
+            elementTypes = new int[] { 2 };
+            elementTags = new long[1][] { eTags.ToArray() };
+            elementNodes = new long[1][] { eNodes.ToArray() };
         }
     }
 }

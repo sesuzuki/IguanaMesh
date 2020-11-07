@@ -11,7 +11,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// NOTE: Vertices on an AHF-IElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html
         /// <para><paramref name="vertices"/> : List of vertices. </para>
         /// </summary>
-        public IHexahedronElement(int[] vertices) : base(vertices, 6, 3) { }
+        public IHexahedronElement(int[] vertices) : base(vertices, 6, 3, 5) { }
 
         /// <summary>
         /// Generic constructor for an 8-node hexahedron element.
@@ -27,7 +27,12 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="N8"/> : Eighth vertex identifier. </para>
         /// </summary>
         ///
-        public IHexahedronElement(int N1, int N2, int N3, int N4, int N5, int N6, int N7, int N8) : base(new int[] { N1, N2, N3, N4, N5, N6, N7, N8 }, 6, 3) { }
+        public IHexahedronElement(int N1, int N2, int N3, int N4, int N5, int N6, int N7, int N8) : base(new int[] { N1, N2, N3, N4, N5, N6, N7, N8 }, 6, 3, 5) { }
+
+        public override IElement CleanCopy()
+        {
+            return new IHexahedronElement(Vertices);
+        }
 
         /// <summary>
         /// <para> Element´s description . </para>
@@ -68,7 +73,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     halfFacets = new int[] { Vertices[5], Vertices[1], Vertices[2], Vertices[6] };
                     break;
                 case 6:
-                    halfFacets = new int[] { Vertices[1], Vertices[8], Vertices[0], Vertices[9], Vertices[3], Vertices[13], Vertices[2], Vertices[11] };
+                    halfFacets = new int[] { Vertices[1], Vertices[0], Vertices[3], Vertices[2] };
                     break;
                 default:
                     flag = false;
@@ -91,6 +96,11 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)
         {
             return GetHalfFacet(index, out halfFacets);
+        }
+
+        public override int[] GetGmshFormattedVertices()
+        {
+            return Vertices;
         }
     }
 }

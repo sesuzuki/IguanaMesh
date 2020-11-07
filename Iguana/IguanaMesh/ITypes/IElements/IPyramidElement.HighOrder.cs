@@ -18,7 +18,12 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 /// Element Type Reference: 19
                 /// NOTE: Vertices on an AHF-IElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html
                 /// </summary>
-                public IPyramid13(int[] vertices) : base(vertices) { }
+                public IPyramid13(int[] vertices) : base(vertices) { SetElementType(19); }
+
+                public override IElement CleanCopy()
+                {
+                    return new IPyramid13(Vertices);
+                }
 
                 /// <summary>
                 /// <para> Element´s description . </para>

@@ -13,8 +13,8 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         /// Initializes a new instance of the AHF_INakedVertices class.
         /// </summary>
         public INakedVerticesGH()
-          : base("iNakedVertices", "iNV",
-              "Retrieve the naked vertices of an Array-Based Half-Facet (AHF) Mesh Data Structure",
+          : base("iNakedVertices", "iNakedVertices",
+              "Retrieve all naked vertices",
               "Iguana", "Topology")
         {
         }
@@ -24,7 +24,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "The Iguana mesh to extract naked edges.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -32,8 +32,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddPointParameter("Naked Vertices", "V", "Naked vertices of the AHF-IMesh", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Naked Vertices Keys", "iNV", "Naked vertices keys of the AHF-IMesh", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iNakedVertices", "iNakedVertices", "Naked vertices.", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -45,16 +44,14 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             IMesh mesh = new IMesh();
             DA.GetData(0, ref mesh);
 
-            List<int> naked = mesh.Topology.GetNakedVertices();
-            List<Point3d> vNaked = new List<Point3d>();
+            ITopologicVertex[] naked = mesh.Topology.GetNakedVertices();
 
-            foreach(int vK in naked)
-            {
-                vNaked.Add(mesh.Vertices.GetVertexWithKey(vK).RhinoPoint);
-            }
+            DA.SetDataList(0, naked);
+        }
 
-            DA.SetDataList(0, vNaked);
-            DA.SetDataList(1, naked);
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

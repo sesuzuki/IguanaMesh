@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Grasshopper.Kernel;
+using Rhino.Geometry;
+using System;
 using System.Linq;
 
 namespace Iguana.IguanaMesh.ITypes.IElements
@@ -7,10 +9,15 @@ namespace Iguana.IguanaMesh.ITypes.IElements
     {
         /// <summary>
         /// <para> General constructor for a polygonal face. </para>
+        /// Element Type Reference: -1 por poligonal faces with more thant 4 edges per node, 2 for triangular faces and 3 for quadrangular faces.
         /// <para><paramref name="vertices"/> : A collection of vertex identifiers. </para>
         /// </summary>
         ///
-        public ISurfaceElement(int[] vertices) : base(vertices, vertices.Length, 2) {}
+        public ISurfaceElement(int[] vertices) : base(vertices, vertices.Length, 2, -1) 
+        {
+            if (vertices.Length == 3) this.SetElementType(2);
+            else if (vertices.Length == 4) this.SetElementType(3);
+        }
 
         /// <summary>
         /// Constructor for a quadrangular face.
@@ -21,7 +28,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="D"/> : Fourth vertex identifier. </para>
         /// </summary>
         ///
-        public ISurfaceElement(int A, int B, int C, int D) : base(new int[] { A, B, C, D}, 4, 2) { }
+        public ISurfaceElement(int A, int B, int C, int D) : base(new int[] { A, B, C, D}, 4, 2, 3) { }
 
         /// <summary>
         /// Constructor for a triangle face.
@@ -30,8 +37,12 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="B"/> : Second vertex identifier. </para>
         /// <para><paramref name="C"/> : Third vertex identifier. </para>
         /// </summary>
-        public ISurfaceElement(int A, int B, int C) : base(new int[] { A, B, C }, 3, 2) { }
+        public ISurfaceElement(int A, int B, int C) : base(new int[] { A, B, C }, 3, 2, 2) { }
 
+        public override IElement CleanCopy()
+        {
+            return new ISurfaceElement(Vertices);
+        }
 
         /// <summary>
         /// <para> Element´s description . </para>
@@ -110,7 +121,10 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                         }
                     }
 
-                    init(tempV, tempV.Length, 2);
+                    int eT = -1;
+                    if (tempV.Length == 3) eT = 2;
+                    else if (tempV.Length == 4) eT = 3;
+                    init(tempV, tempV.Length, 2, eT);
 
                     return true;
                 }
@@ -123,5 +137,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             return GetHalfFacet(index, out halfFacets);
         }
 
+        public override int[] GetGmshFormattedVertices()
+        {
+            return Vertices;
+        }
     }
 }

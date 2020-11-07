@@ -4,11 +4,13 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IModifiers;
 using Iguana.IguanaMesh.ITypes;
 using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
+using Rhino.PlugIns;
 
 namespace Iguana.IguanaMesh.IUtils
 {
@@ -71,14 +73,14 @@ namespace Iguana.IguanaMesh.IUtils
             crv = loops[0].To3dCurve();
         }
 
-        public static bool GetBrepFaceMeshingData(Brep b, int indexFace, int count, out Curve nakedBoundary, out List<Point3d> patchingPoints)
+        public static bool GetBrepFaceMeshingData(Brep b, int indexFace, int count, out Curve[] nakedBoundary, out List<Point3d> patchingPoints)
         {
             nakedBoundary = null;
             patchingPoints = new List<Point3d>();
 
             try
             {
-                GetBrepFaceOuterNakedBoundary(b, indexFace, out nakedBoundary);
+                GetBrepFaceNakedBoundaries(b, indexFace, out nakedBoundary);
 
                 // Surface points
                 Point3d p;
@@ -102,7 +104,7 @@ namespace Iguana.IguanaMesh.IUtils
                 patchingPoints = new List<Point3d>();
                 foreach (Point3d pt in pts)
                 {
-                    if (nakedBoundary.Contains(pt, pl, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == PointContainment.Inside) patchingPoints.Add(pt);
+                    if (nakedBoundary[0].Contains(pt, pl, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == PointContainment.Inside) patchingPoints.Add(pt);
                 }
                 return true;
             }
@@ -271,6 +273,145 @@ namespace Iguana.IguanaMesh.IUtils
                 }
             }
             return crv;
+        }
+
+        public static Polyline[] GetPolylinesFromElement(IMesh mesh, int eKey)
+        {
+            List<Polyline> faces = new List<Polyline>();
+            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            if (e.TopologicDimension == 2)
+            {
+                Point3d[] pts = new Point3d[e.VerticesCount + 1];
+
+                for (int i = 0; i < e.VerticesCount; i++)
+                {
+                    pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                }
+                pts[e.VerticesCount] = pts[0];
+
+                Polyline pl = new Polyline(pts);
+                faces.Add(pl);
+            }
+            else
+            {
+                for (int i = 1; i <= e.HalfFacetsCount; i++)
+                {
+                    int[] hf;
+                    e.GetHalfFacetWithPrincipalNodesOnly(i, out hf);
+
+                    Point3d[] pts = new Point3d[hf.Length + 1];
+
+                    for (int j = 0; j < hf.Length; j++)
+                    {
+                        pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                    }
+                    pts[pts.Length - 1] = pts[0];
+
+                    Polyline pl = new Polyline(pts);
+                    faces.Add(pl);
+                }
+            }
+            return faces.ToArray();
+        }
+
+        public static Brep GetBrepFromElement(IMesh mesh, int eKey)
+        {
+            Brep brep = new Brep();
+            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            if (e.TopologicDimension == 2)
+            {
+                Surface f;
+                Point3d[] pts = new Point3d[e.VerticesCount];
+                for (int i = 0; i < e.VerticesCount; i++)
+                {
+                    pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                }
+
+                if (pts.Length == 4) f = NurbsSurface.CreateFromCorners(pts[0], pts[1], pts[2], pts[3]);
+                else if (pts.Length == 3) f = NurbsSurface.CreateFromCorners(pts[0], pts[1], pts[2]);
+                else
+                {
+                    f = Brep.CreateEdgeSurface(new PolylineCurve[] { new PolylineCurve(pts), new PolylineCurve(new Point3d[] { pts[pts.Length - 1], pts[0] }) }).Surfaces[0];
+                }
+                brep = f.ToBrep();
+            }
+            else
+            {
+                Brep[] faces = new Brep[e.HalfFacetsCount];
+
+                for (int i = 1; i <= e.HalfFacetsCount; i++)
+                {
+                    int[] hf;
+                    e.GetHalfFacetWithPrincipalNodesOnly(i, out hf);
+
+                    Point3d[] pts = new Point3d[hf.Length];
+
+                    for (int j = 0; j < hf.Length; j++)
+                    {
+                        pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                    }
+
+                    if (pts.Length == 4) faces[i - 1] = Brep.CreateFromCornerPoints(pts[0], pts[1], pts[2], pts[3], RhinoDoc.ActiveDoc.ModelAbsoluteTolerance);
+                    else faces[i - 1] = Brep.CreateFromCornerPoints(pts[0], pts[1], pts[2], RhinoDoc.ActiveDoc.ModelAbsoluteTolerance);
+                }
+
+                brep = Brep.JoinBreps(faces, RhinoDoc.ActiveDoc.ModelAbsoluteTolerance)[0];
+
+            }
+
+            return brep;
+        }
+
+        public static Mesh TryGetRhinoMesh(IMesh iM)
+        {
+            Mesh rM = new Mesh();
+
+            Dictionary<int,int> maps = new Dictionary<int, int>();
+            int idx = 0;
+            foreach(ITopologicVertex v in iM.Vertices.VerticesValues)
+            {
+                rM.Vertices.Add(v.RhinoPoint);
+                maps.Add(v.Key, idx);
+                idx++;
+            }
+
+            int vKey;
+            int[] hf;
+            foreach (IElement e in iM.Elements.ElementsValues)
+            {
+                if (e.TopologicDimension == 2)
+                {
+                    if (e.VerticesCount == 3) rM.Faces.AddFace(new MeshFace(maps[e.Vertices[0]], maps[e.Vertices[1]], maps[e.Vertices[2]]));
+                    else if (e.VerticesCount == 4) rM.Faces.AddFace(new MeshFace(maps[e.Vertices[0]], maps[e.Vertices[1]], maps[e.Vertices[2]], maps[e.Vertices[3]]));
+                    else
+                    {
+                        IVector3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, iM);
+                        rM.Vertices.Add(new Point3d( pos.X, pos.Y, pos.Z ));
+                        vKey = rM.Vertices.Count-1;
+                        maps.Add(vKey, idx);
+                        idx++;
+                        for (int i = 1; i <= e.HalfFacetsCount; i++)
+                        {
+                            e.GetHalfFacet(i, out hf);
+                            rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], vKey));
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i <= e.HalfFacetsCount; i++)
+                    {
+                        if (e.IsNakedSiblingHalfFacet(i))
+                        {
+                            e.GetHalfFacet(i, out hf);
+                            if(hf.Length==3) rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]]));
+                            else rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]], maps[hf[3]]));
+                        }
+                    }
+                }
+            }
+            //rM.Vertices.CullUnused();
+            return rM;
         }
     }
 }

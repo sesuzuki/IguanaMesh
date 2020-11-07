@@ -110,45 +110,83 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshFree(parametricCoord);
                 }
 
+                public static void TryGetIVertexCollection22(out IVertexCollection vertices, int dim = -1, int tag = -1)
+                {
+                    IntPtr nodeTags, coord, parametricCoord;
+                    long nodeTags_Number, coord_Number, parametricCoord_Number;
+                    IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+
+                    var nodeTags_out = new long[nodeTags_Number];
+                    var coord_out = new double[nodeTags_Number][];
+                    var parametricCoord_out = new double[nodeTags_Number][];
+                    ITopologicVertex v;
+
+                    vertices = new IVertexCollection();
+                    // Tags
+                    if (nodeTags_Number > 0)
+                    {
+                        // Coordinates
+                        var xyz = new double[coord_Number];
+                        Marshal.Copy(coord, xyz, 0, (int)coord_Number);
+                        // Keys
+                        var keys = new long[nodeTags_Number];
+                        Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
+                        // uvw
+                        var uvw = new double[parametricCoord_Number];
+                        Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
+
+                        for (int i = 0; i < nodeTags_Number; i++)
+                        {
+                            v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2]);
+                            v.Key = (int) keys[i];
+
+                            //if (dim == 1) v.TextureCoordinates = new double[] { uvw[i * dim] };
+                            //else if (dim == 2) v.TextureCoordinates = new double[] { uvw[i * dim], uvw[i * dim + 1] };
+                            //else if (dim == 3) v.TextureCoordinates = new double[] { uvw[i * dim], uvw[i * dim + 1], uvw[i * dim + 2] };
+
+                            vertices.AddVertex(v.Key, v);
+                        }
+                    }
+
+                    // Delete unmanaged allocated memory
+                    IWrappers.GmshFree(nodeTags);
+                    IWrappers.GmshFree(coord);
+                    IWrappers.GmshFree(parametricCoord);
+                }
+
                 public static bool TryGetIVertexCollection(out IVertexCollection vertices, int dim = -1, int tag = -1)
                 {
                     vertices = new IVertexCollection();
-                    try
-                    {
-                        IntPtr nodeTags, coord, parametricCoord;
-                        long nodeTags_Number, coord_Number, parametricCoord_Number;
-                        IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
+                    IntPtr nodeTags, coord, parametricCoord;
+                    long nodeTags_Number, coord_Number, parametricCoord_Number;
+                    IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
 
-                        if (coord_Number > 0 && nodeTags_Number > 0)
+                    if (nodeTags_Number > 0)
+                    {
+                        // Coordinates
+                        var xyz = new double[coord_Number];
+                        Marshal.Copy(coord, xyz, 0, (int)coord_Number);
+                        // Keys
+                        var keys = new long[nodeTags_Number];
+                        Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
+                        // uvw
+                        var uvw = new double[parametricCoord_Number];
+                        Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
+
+                        for (int i = 0; i < nodeTags_Number; i++)
                         {
-                            // Coordinates
-                            var xyz = new double[coord_Number];
-                            Marshal.Copy(coord, xyz, 0, (int)coord_Number);
-                            // Keys
-                            var keys = new long[nodeTags_Number];
-                            Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
-                            // uvw
-                            var uvw = new double[parametricCoord_Number];
-                            Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
-
-                            for (int i = 0; i < nodeTags_Number; i++)
-                            {
-                                ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
-                                vertices.AddVertex((int)keys[i], v);
-                            }
+                            ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
+                            
+                            if(!vertices.ContainsKey(v.Key)) vertices.AddVertex(v.Key, v);
                         }
-
-                        // Delete unmanaged allocated memory
-                        IWrappers.GmshFree(nodeTags);
-                        IWrappers.GmshFree(coord);
-                        IWrappers.GmshFree(parametricCoord);
-
-                        return true;
                     }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
+
+                    // Delete unmanaged allocated memory
+                    IWrappers.GmshFree(nodeTags);
+                    IWrappers.GmshFree(coord);
+                    IWrappers.GmshFree(parametricCoord);
+
+                    return true;
                 }
 
                 /// <summary>

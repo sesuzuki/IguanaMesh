@@ -55,9 +55,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IguanaMesh\ITypes\IMesh.Build.cs" />
+    <Compile Include="IguanaMesh\IModifiers\IReactionDiffusion.cs" />
+    <Compile Include="IguanaMesh\IModifiers\ISubdividor.CatmullClark.cs" />
+    <Compile Include="IguanaMesh\IModifiers\ISubdividor.cs" />
+    <Compile Include="IguanaMesh\IModifiers\ISubdividor.Loop.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITopologicHalfFacet.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.IGH_Goo.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.Preview.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITopologicEdge.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITopologicSiblingHalfFacet.cs" />
+    <Compile Include="IguanaMesh\IUtils\ITransform.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshConstraint.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.Geo.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.GeoOCC.cs" />
@@ -91,9 +98,7 @@
     <Compile Include="IguanaMesh\ITypes\IMesh.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.HighOrder.cs" />
     <Compile Include="IguanaMesh\ITypes\ICollections\IVertexCollection.cs" />
-    <Compile Include="IguanaMesh\ITypes\ICollections\IElementCollectionInterface.cs" />
     <Compile Include="IguanaMesh\IUtils\ITopology.cs" />
-    <Compile Include="IguanaMesh\IUtils\ITopologyInterface.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicVertex.cs" />
     <Compile Include="IguanaMesh\ICreators\IMeshCreator.cs" />
     <Compile Include="IguanaMesh\ICreators\ICreatorInterface.cs" />
@@ -109,15 +114,12 @@
     <Compile Include="IguanaMesh\ITypes\IElements\IElement.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.cs" />
     <Compile Include="IguanaMesh\IUtils\IRhinoGeometry.cs" />
-    <Compile Include="IguanaMesh\ICreators\ISolidCube.cs" />
     <Compile Include="IguanaMesh\ICreators\ITorus.cs" />
     <Compile Include="IguanaMesh\ICreators\ITube.cs" />
     <Compile Include="IguanaMesh\IModifiers\IModifier.cs" />
-    <Compile Include="IguanaMesh\IModifiers\IReactionDiffusion.cs" />
     <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IguanaMesh\ITypes\IVector3D.cs" />
-    <Compile Include="IguanaMesh\ITypes\ICollections\IVertexCollectionInterface.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

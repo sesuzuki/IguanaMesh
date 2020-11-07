@@ -14,7 +14,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// NOTE: Vertices on an AHF-IElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html
         /// <para><paramref name="vertices"/> : List of vertices. </para>
         /// </summary>
-        public IPyramidElement(int[] vertices) : base(vertices, 5, 3) { }
+        public IPyramidElement(int[] vertices) : base(vertices, 5, 3, 7) { }
 
 
         /// <summary>
@@ -28,7 +28,12 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="N5"/> : Fifth vertex identifier. </para>
         /// </summary>
         ///
-        public IPyramidElement(int N1, int N2, int N3, int N4, int N5) : base(new int[] { N1, N2, N3, N4, N5 }, 5, 3) { }
+        public IPyramidElement(int N1, int N2, int N3, int N4, int N5) : base(new int[] { N1, N2, N3, N4, N5 }, 5, 3, 7) { }
+
+        public override IElement CleanCopy()
+        {
+            return new IPyramidElement(Vertices);
+        }
 
         /// <summary>
         /// <para> Element´s description . </para>
@@ -88,6 +93,11 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)
         {
             return GetHalfFacet(index, out halfFacets);
+        }
+
+        public override int[] GetGmshFormattedVertices()
+        {
+            return Vertices;
         }
     }
 }

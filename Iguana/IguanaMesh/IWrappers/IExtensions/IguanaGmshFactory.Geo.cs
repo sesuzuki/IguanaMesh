@@ -1,4 +1,5 @@
-﻿using Iguana.IguanaMesh.IUtils;
+﻿using Iguana.IguanaMesh.ITypes;
+using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Rhino.Geometry;
 using System;
@@ -267,8 +268,9 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             case 3:
                                 b = (Brep)data.RhinoGeometry;
                                 List<Point3d> patch;
-                                IRhinoGeometry.GetBrepFaceMeshingData(b, 0, 20, out crv, out patch);
-                                int wireTag = IguanaGmshFactory.Geo.CurveLoopFromRhinoCurve(crv, data.Size);
+                                Curve[] crvArr;
+                                IRhinoGeometry.GetBrepFaceMeshingData(b, 0, 20, out crvArr, out patch);
+                                int wireTag = IguanaGmshFactory.Geo.CurveLoopFromRhinoCurve(crvArr[0], data.Size);
                                 int surfaceTag = IguanaGmshFactory.Geo.SurfacePatch(wireTag, patch, false);
 
                                 key = (Int64)data.EntityDim << 32 | (Int64)data.EntityID;
@@ -284,14 +286,14 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                     {
                         foreach(Int64 id in embedPoints.Keys) IguanaGmsh.Model.Mesh.Embed(0, embedPoints[id].ToArray(), (Int32)(id >> 32), (Int32)id);
                     }
-                    /*if (embedCurve.Count > 0)
+                    if (embedCurve.Count > 0)
                     {
                         foreach (Int64 id in embedCurve.Keys) IguanaGmsh.Model.Mesh.Embed(1, embedCurve[id].ToArray(), (Int32)(id >> 32), (Int32)id);
                     }
                     if (embedSurface.Count > 0)
                     {
                         foreach (Int64 id in embedSurface.Keys) IguanaGmsh.Model.Mesh.Embed(2, embedSurface[id].ToArray(), (Int32)(id >> 32), (Int32)id);
-                    }*/
+                    }
                 }
             }
 
@@ -438,6 +440,44 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                 }
 
                 return crvTags;
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="mesh"></param>
+            /// <param name="dim"></param>
+            /// <param name="tag"></param>
+            /// <param name="triangulate"> Return triangulated data from the given Iguana mesh </param>
+            /// <param name="angle"></param>
+            /// <param name="curveAngle"></param>
+            /// <param name="forceParametrizablePatches"> For complex geometries, patches can be too complex, too elongated or too large to be parametrized; setting the following option will force the creation of patches that are amenable to reparametrization:</param>
+            /// <param name="includeBoundary"> For open surfaces include the boundary edges in the classification process: </param>
+            public static void GmshFromIguanaMesh(IMesh mesh, int dim, int tag, bool triangulate =false, double angle=0, double curveAngle=180, bool forceParametrizablePatches = true, bool includeBoundary = true)
+            {
+                int[] elementTypes;
+                long[][] elementTags, elementNodes;
+                long[] nodeTags;
+                double[] position;
+                if (!triangulate)
+                {
+                    GetElementDataFromIguanaMesh(mesh, out elementTypes, out elementTags, out elementNodes);
+                    GetNodeDataFromIguanaMesh(mesh, out nodeTags, out position);
+                }
+                else GetTriangulatedDataFromIguanaMesh(mesh, out nodeTags, out position, out elementTypes, out elementTags, out elementNodes);
+
+                IguanaGmsh.Model.AddDiscreteEntity(dim, tag, new int[] { });
+                IguanaGmsh.Model.Mesh.AddNodes(dim, tag, nodeTags, position);
+
+                for (int i = 0; i < elementTypes.Length; i++)
+                {
+                    IguanaGmsh.Model.Mesh.AddElementsByType(tag, elementTypes[i], elementTags[i], elementNodes[i]);
+                }
+
+                IguanaGmsh.Model.Mesh.ClassifySurfaces(angle * Math.PI / 180, includeBoundary, forceParametrizablePatches, curveAngle * Math.PI / 180);
+                IguanaGmsh.Model.Mesh.CreateGeometry();
+
+                IguanaGmsh.Model.Geo.Synchronize();
             }
         }
     }

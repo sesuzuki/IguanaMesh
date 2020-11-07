@@ -89,12 +89,5 @@ namespace Iguana.IguanaMesh.ICreators
             IMesh mesh = data.BuildMesh();
             return mesh;
         }
-
-        public static IMesh CreateCubeSolid(Box box, int U, int V, int W)
-        {
-            ISolidCube data = new ISolidCube(box, U, V, W);
-            IMesh mesh = data.BuildMesh();
-            return mesh;
-        }
     }
 }

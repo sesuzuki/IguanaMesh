@@ -1,23 +1,39 @@
 ﻿using System;
 using System.Linq;
 using GH_IO.Serialization;
+using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
+using Rhino.Geometry.Collections;
 
 namespace Iguana.IguanaMesh.ITypes
 {
     /// <summary>
-    /// <para> Abstract class for the explicit construction of a d-dimensional entitiy in an Array-based Data Structure. 
+    /// Abstract class for the explicit construction of a d-dimensional entitiy in an Array-based Data Structure. 
     /// </summary>
     ///
-    public abstract class IElement : IGH_Goo, ICloneable
+    public abstract class IElement : IGH_Goo, ICloneable, IGH_PreviewData
     {
         public int TopologicDimension { get; set; }
         public int Key { get; set; } = -1;
 
-        //Default value Int64 is 0. This values denotes naked hf or not intiliazed values. 
-        public Int64[] _siblingHalfFacets;
+        /// <summary>
+        /// Sibling half-facets are packed within a 64-bits integer. The default value is 0 representing naked half-facets when the topology is build or not intiliazed values when the topology wasn´t built. 
+        /// </summary>
+        private Int64[] _siblingHalfFacets;
+        private bool[] _visits;
+        private Brep brep;
+        private int _elementType;
+
+        public int ElementType { get => _elementType; }
         public int[] Vertices { get; set; }
+
+        /// <summary>
+        /// Copy without topologic data.
+        /// </summary>
+        /// <returns></returns>
+        public abstract IElement CleanCopy();
 
         /// <summary>
         /// <para> Customizable constructor. </para>
@@ -25,16 +41,36 @@ namespace Iguana.IguanaMesh.ITypes
         /// <paramref name="dimension"/> : The topologic dimension of the element. The dimension should be larger than 0 and smaller or equal to 3.  
         /// </summary>
         ///
-        public IElement(int[] vKeys, int halfFacetCount, int topologicDimension)
+        public IElement(int[] vKeys, int halfFacetCount, int topologicDimension, int elementType)
         {
-            init(vKeys, halfFacetCount, topologicDimension);
+            init(vKeys, halfFacetCount, topologicDimension, elementType);
         }
 
-        public void init(int[] vKeys, int halfFacetCount, int topologicDimension)
+        /// <summary>
+        /// Initializes element data
+        /// </summary>
+        protected void init(int[] vKeys, int halfFacetCount, int topologicDimension, int elementType)
         {
             Vertices = vKeys;
             TopologicDimension = topologicDimension;
             _siblingHalfFacets = new Int64[halfFacetCount];
+            _visits = new bool[halfFacetCount];
+            _elementType = elementType;
+        }
+
+        /// <summary>
+        /// Return the index of the half-facet containing the given vertices keys. Return -1 if the given combination of vertices keys is not found in a half-facet of the element. 
+        /// </summary>
+        public int GetHalfFacetIndexContainingVertices(int[] vertexKeys)
+        {
+            int[] hf;
+            for(int i=1; i<=HalfFacetsCount; i++)
+            {
+                GetHalfFacet(i, out hf);
+                hf.ToList();
+                if (vertexKeys.All(vK => hf.Contains(vK))) return i;
+            }
+            return -1;
         }
 
         /// <summary>
@@ -46,160 +82,111 @@ namespace Iguana.IguanaMesh.ITypes
             get => Vertices.Length;
         }
 
+        public void CleanTopologicalData()
+        {
+            _siblingHalfFacets = new Int64[HalfFacetsCount];
+        }
+
         public int HalfFacetsCount
         {
             get => _siblingHalfFacets.Length;
         }
 
+        public abstract int[] GetGmshFormattedVertices();
+
         public Int32 GetSiblingElementID(int index)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                Int64 sibData = _siblingHalfFacets[index - 1];
-                if (sibData < 0) sibData *= -1;
-                return (Int32)(sibData >> 32);
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 1.");
-                return -1;
-            }
+            return (Int32)(_siblingHalfFacets[index - 1] >> 32);
         }
 
         public Int32 GetSiblingHalfFacetID(int index)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                Int64 sibData = _siblingHalfFacets[index - 1];
-                if (sibData < 0) sibData *= -1;
-                return (Int32) sibData;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 1.");
-                return 0;
-            }
+            return (Int32)_siblingHalfFacets[index - 1];
         }
 
-        public void RegisterSiblingHalfFacetVisit(int index)
+        public void RegisterHalfFacetVisit(int index)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                if(_siblingHalfFacets[index-1] > 0) _siblingHalfFacets[index - 1] *= -1;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 1.");
-            }
+            _visits[index - 1] = true;         
         }
+
+        internal void SetElementType(int elementType) 
+        { 
+            _elementType = elementType; 
+        }
+
+        /// <summary>
+        /// Local Half-Facet indexing convention starts with 1;
+        /// </summary>
         public void ClearSiblingHalfFacetVisit(int index)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                if (_siblingHalfFacets[index - 1] < 0) _siblingHalfFacets[index-1] *= -1;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 1.");
-            }
-        }
-        public Boolean IsSiblingHalfFacetVisited(int index)
-        {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                if (_siblingHalfFacets[index-1] < 0) return true;
-                else return false;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 1.");
-                return false;
-            }
+
+            _visits = new bool[HalfFacetsCount];
         }
 
+        /// <summary>
+        /// Local Half-Facet indexing convention starts with 1;
+        /// </summary>
+        public Boolean IsHalfFacetVisited(int index)
+        {
+            return _visits[index - 1];
+        }
+
+        /// <summary>
+        /// Local Half-Facet indexing convention starts with 1;
+        /// </summary>
         public Boolean IsNakedSiblingHalfFacet(int index)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                if (_siblingHalfFacets[index - 1] == 0) return true;
-                else return false;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 1.");
-                return false;
-            }
+            if (_siblingHalfFacets[index - 1] == 0) return true;
+            else return false;
         }
 
+        /// <summary>
+        /// Local Half-Facet indexing convention starts with 1;
+        /// </summary>
         public void SetSiblingHalfFacet(int index, Int32 elementID, Int32 halfFacetID)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                _siblingHalfFacets[index - 1] = (Int64)elementID << 32 | (Int64)halfFacetID;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 0.");
-            }
+            _siblingHalfFacets[index - 1] = (Int64)elementID << 32 | (Int64)halfFacetID;
         }
 
+        /// <summary>
+        /// Local Half-Facet indexing convention starts with 1;
+        /// </summary>
         public void SetSiblingHalfFacet(int index, Int64 sibData)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                _siblingHalfFacets[index - 1] = sibData;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 0.");
-            }
+            _siblingHalfFacets[index - 1] = sibData;
         }
 
+        /// <summary>
+        /// Local Half-Facet indexing convention starts with 1;
+        /// </summary>
         public Int64 GetSiblingHalfFacet(int index)
         {
-            //local indexing convention of half-facets start with 1;
-            try
-            {
-                return _siblingHalfFacets[index - 1];
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Console.WriteLine($"{e.GetType().Name}: {index} is outside the bounds of the array. Local indexing convention of half-facets start with 0.");
-                return 0;
-            }
+            return _siblingHalfFacets[index - 1];
         }
 
         public void RegisterVisitForAllSiblingHalfFacets(int halfFacetID, IMesh iM)
         {
             IElement element_sibling, e = this;
             int elementID_sibling, halfFacetID_sibling;
-            bool visited = e.IsSiblingHalfFacetVisited(halfFacetID);
+            bool visited = false;
 
             if (!e.IsNakedSiblingHalfFacet(halfFacetID)){
-                while (visited == false)
+                while (!visited)
                 {
                     //Register Visit
-                    e.RegisterSiblingHalfFacetVisit(halfFacetID);
+                    e.RegisterHalfFacetVisit(halfFacetID);
 
                     //Collect information of siblings
                     elementID_sibling = e.GetSiblingElementID(halfFacetID);
                     halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
                     element_sibling = iM.Elements.GetElementWithKey(elementID_sibling);
 
-                    visited = element_sibling.IsSiblingHalfFacetVisited(halfFacetID_sibling);
+                    visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
 
                     halfFacetID = halfFacetID_sibling;
                     e = element_sibling;
                 }
-            }else e.RegisterSiblingHalfFacetVisit(halfFacetID);
+            }else e.RegisterHalfFacetVisit(halfFacetID);
         }
 
         public Int64[] GetSiblingHalfFacets()
@@ -210,12 +197,12 @@ namespace Iguana.IguanaMesh.ITypes
         /// <summary>
         /// Removes all vertex identifiers. 
         /// </summary>
-        ///
         public void Clear()
         {
             Vertices = new int[0];
             _siblingHalfFacets = new Int64[0];
             TopologicDimension = 0;
+            _visits = new bool[0];
         }
 
         /// <summary>
@@ -230,24 +217,17 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get
             {
-                foreach(Int64 data in _siblingHalfFacets)
+                foreach(bool v in _visits)
                 {
-                    if (data > 0) return false;
-                    else if (data == 0)
-                    {
-                        if (BitConverter.GetBytes(data) != BitConverter.GetBytes(-0)) return false;
-                    }
+                    if (v==false) return false;
                 }
                 return true;
             }
             set
             {
-                for (int i=0; i<_siblingHalfFacets.Length; i++)
+                for (int i=0; i<_visits.Length; i++)
                 {
-                    Int64 sibData = _siblingHalfFacets[i];
-                    if (value == true && sibData > 0) sibData *= -1;
-                    else if (value == false && sibData < 0) sibData *= -1;
-                    _siblingHalfFacets[i] = sibData;
+                    _visits[i] = value;
                 };
             }
         }
@@ -284,13 +264,25 @@ namespace Iguana.IguanaMesh.ITypes
         public abstract Boolean GetHalfFacet(int index, out int[] halfFacets);
 
 
+        public int GetHalFacetContainingVertices(int[] vKey)
+        {
+            for(int i=1; i<=HalfFacetsCount; i++)
+            {
+                int[] hf;
+                GetHalfFacet(i, out hf);
+                var eval = vKey.Intersect(hf);
+                if (eval.Count() == vKey.Length) return i;
+            }
+            return 0;
+        }
+
         /// <summary>
         /// <para> Element´s description . </para>
         /// </summary>
         ///
         public override string ToString()
         {
-            string msg = "AHF-IElement{";
+            string msg = "IElement{";
             for(int i=0; i< VerticesCount; i++)
             {
                 int idx = Vertices[i];
@@ -323,6 +315,29 @@ namespace Iguana.IguanaMesh.ITypes
         {
             return this.MemberwiseClone();
         }
+
+        #region IGH_Preview methods
+        public void BuildRhinoGeometry(IMesh mesh)
+        {
+            brep = IRhinoGeometry.GetBrepFromElement(mesh, Key);
+        }
+
+        public BoundingBox ClippingBox => throw new NotImplementedException();
+
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args)
+        {
+            args.Pipeline.DrawBrepShaded(brep, args.Material);
+        }
+
+        public void DrawViewportWires(GH_PreviewWireArgs args)
+        {
+            Curve[] temp = brep.DuplicateNakedEdgeCurves(true, true);
+            foreach (Curve c in temp)
+            {
+                args.Pipeline.DrawCurve(c, args.Color);
+            }
+        }
+        #endregion
 
         #region IGH_Goo methods
         public bool IsValid
@@ -411,6 +426,6 @@ namespace Iguana.IguanaMesh.ITypes
         {
             return true;
         }
-        #endregion 
+        #endregion
     }
 }

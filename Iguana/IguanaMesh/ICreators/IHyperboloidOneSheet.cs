@@ -8,9 +8,9 @@ namespace Iguana.IguanaMesh.ICreators
 {
     class IHyperboloidOneSheet : ICreatorInterface
     {
-        private List<Point3d> vertices = new List<Point3d>();
+        private List<ITopologicVertex> vertices = new List<ITopologicVertex>();
         private List<IElement> faces = new List<IElement>();
-        private int U = 30, V = 10, keyElement=0;
+        private int U = 30, V = 10, keyElement=1;
         private double uStep, vStep, a, b, c;
         private Plane pl;
         private Interval D1 = new Interval(0, 2 * Math.PI);
@@ -53,7 +53,7 @@ namespace Iguana.IguanaMesh.ICreators
                 Point3d pt;
                 List<Point3d> tempV = new List<Point3d>();
                 Boolean flag;
-                int keyMap;
+                int keyMap = 1;
                 Dictionary<int, int> maps = new Dictionary<int, int>();
 
                 if (D2.T0 < 0) D2.T0 = 0;
@@ -87,7 +87,11 @@ namespace Iguana.IguanaMesh.ICreators
                         vertices.ForEach(eval => {
                             if (eval.DistanceTo(pt) < Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) flag = false;
                         });
-                        if (flag) vertices.Add(pt);
+                        if (flag)
+                        {
+                            vertices.Add(new ITopologicVertex(pt.X,pt.Y,pt.Z,u,v,0,keyMap));
+                            keyMap++;
+                        }
 
                     }
                 }
@@ -98,7 +102,7 @@ namespace Iguana.IguanaMesh.ICreators
                     pt = tempV[i];
                     keyMap = -1;
                     vertices.ForEach(eval => {
-                        if (eval.DistanceTo(pt) < 0.01) keyMap = vertices.IndexOf(eval);
+                        if (eval.DistanceTo(pt) < 0.01) keyMap = eval.Key;
                     });
                     maps.Add(i, keyMap);
                 }

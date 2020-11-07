@@ -19,6 +19,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         public static HashSet<int> TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref IElementCollection elements)
         {
             HashSet<int> parsedNodes = new HashSet<int>();
+            int elementKey = elements.FindNextKey();
             if (IsElementImplemented(elementType))
             {
                 for (int j = 0; j < number_of_elements; j++)
@@ -47,27 +48,27 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
                         //2nd-order 6-node triangle 
                         case 9:
-                            e = new ISurfaceElement.HighOrder.Triangle6(eD);
+                            e = new ISurfaceElement.HighOrder.ITriangle6(eD);
                             break;
 
                         //2nd-order 8-node quadrangle
                         case 16:
-                            e = new ISurfaceElement.HighOrder.Quadrangle8(eD);
+                            e = new ISurfaceElement.HighOrder.IQuadrangle8(eD);
                             break;
 
                         //3rd-order 9-node incomplete triangle 
                         case 20:
-                            e = new ISurfaceElement.HighOrder.Triangle9(eD);
+                            e = new ISurfaceElement.HighOrder.ITriangle9(eD);
                             break;
 
                         //4th-order 12-node incomplete triangle
                         case 22:
-                            e = new ISurfaceElement.HighOrder.Triangle12(eD);
+                            e = new ISurfaceElement.HighOrder.ITriangle12(eD);
                             break;
 
                         //5t-order 15-node incomplete triangle 
                         case 24:
-                            e = new ISurfaceElement.HighOrder.Triangle15(eD);
+                            e = new ISurfaceElement.HighOrder.ITriangle15(eD);
                             break;
 
                         //2nd-order 10-node tetrahedron
@@ -111,7 +112,11 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             break;
                     }
 
-                    if (e != null) elements.AddElement(e);
+                    if (e != null)
+                    {
+                        elements.AddElement(elementKey, e);
+                        elementKey++;
+                    }
                 }
             }
             return parsedNodes;

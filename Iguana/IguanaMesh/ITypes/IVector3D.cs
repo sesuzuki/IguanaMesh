@@ -43,7 +43,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public override String ToString()
         {
-            String text = "( " + String.Format("{0,4}", X , Y , Z) + " )";
+            String text = "( " + X + " :: " + Y + " :: " + Z + ")"; //String.Format("{0,4}", X , Y , Z) + " )";
             return text;
         }
 

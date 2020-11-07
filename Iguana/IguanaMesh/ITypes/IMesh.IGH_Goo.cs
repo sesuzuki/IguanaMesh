@@ -38,7 +38,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo) this.MemberwiseClone();
+            return (IGH_Goo) this.DeepCopy();
         }
 
         public IGH_GooProxy EmitProxy()

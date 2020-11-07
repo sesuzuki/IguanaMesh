@@ -5,7 +5,7 @@ using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.IModifiers
 {
-    public class IReactionDiffusion : IModifier
+    public class IReactionDiffusion
     {
         public double FeedFactor { get; set; } = 0.055;
         public double KillFactor { get; set; } = 0.062;
@@ -48,15 +48,15 @@ namespace Iguana.IguanaMesh.IModifiers
             for (int i = 0; i < count; i++)
             {
                 int vK = mesh.Vertices.VerticesKeys[i];
-                List<int> vStart = mesh.Topology.GetVertexAdjacentVertices(vK);
+                int[] vStart = mesh.Topology.GetVertexAdjacentVertices(vK);
                 ITopologicVertex vertex = mesh.Vertices.GetVertexWithKey(vK);
 
                 A[i] = 1;
                 B[i] = 0;
 
-                coef[i] = new double[vStart.Count];
+                coef[i] = new double[vStart.Length];
 
-                for (int j = 0; j < vStart.Count; j++)
+                for (int j = 0; j < vStart.Length; j++)
                 {
                     ITopologicVertex neighbor = mesh.Vertices.GetVertexWithKey(vStart[j]);
                     direction = neighbor.Position - vertex;
@@ -104,14 +104,14 @@ namespace Iguana.IguanaMesh.IModifiers
                         double dxB = 0.0;
 
                         int vK = mesh.Vertices.VerticesKeys[i];
-                        List<int> vStart = mesh.Topology.GetVertexAdjacentVertices(vK);
+                        int[] vStart = mesh.Topology.GetVertexAdjacentVertices(vK);
 
-                        for (int j = 0; j < vStart.Count; j++)
+                        for (int j = 0; j < vStart.Length; j++)
                         {
                             int idx = vStart[j];
 
-                            dxA += coef[i][j] * (A[idx] - A[i]) / vStart.Count;
-                            dxB += coef[i][j] * (B[idx] - B[i]) / vStart.Count;
+                            dxA += coef[i][j] * (A[idx] - A[i]) / vStart.Length;
+                            dxB += coef[i][j] * (B[idx] - B[i]) / vStart.Length;
                         }
 
                         //Reaction-diffusion equation
@@ -129,8 +129,6 @@ namespace Iguana.IguanaMesh.IModifiers
                     }
                 }
 
-                mesh.Topology.ComputeAllVerticesNormals();
-
                 for (int i = 0; i < count; i++)
                 {
                     int vK = mesh.Vertices.VerticesKeys[i];
@@ -138,7 +136,7 @@ namespace Iguana.IguanaMesh.IModifiers
 
                     double param = (A[i] - B[i]);
 
-                    IVector3D n = vertex.Normal;
+                    IVector3D n = mesh.Topology.ComputeVertexNormal(vK);
                     n*= (A[i] - B[i]);
 
                     vertex.Position += n;

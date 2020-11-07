@@ -8,9 +8,9 @@ namespace Iguana.IguanaMesh.ICreators
 {
     class IPlaneGrid : ICreatorInterface
     {
-        private int U = 1, V = 1, keyElement=0;
+        private int U = 1, V = 1, keyElement=1;
         private double sizeU, sizeV;
-        private List<Point3d> vertices = new List<Point3d>();
+        private List<ITopologicVertex> vertices = new List<ITopologicVertex>();
         private List<IElement> faces = new List<IElement>();
         private List<Tuple<double, double>> uv = new List<Tuple<double, double>>();
         private Plane pl;
@@ -34,6 +34,7 @@ namespace Iguana.IguanaMesh.ICreators
                 double stepV = sizeV / V;
                 double mapU = 1.0 / U;
                 double mapV = 1.0 / V;
+                int keyNode = 1;
 
                 //Creation of vertices
                 for(int i=0; i<=U; i++)
@@ -43,8 +44,8 @@ namespace Iguana.IguanaMesh.ICreators
                         Point3d pt = pl.PointAt(i*stepU - sizeU/2, j*stepV - sizeV/2, 0);
                         Tuple<double, double> uvPt = Tuple.Create(i*mapU, j*mapV);
 
-                        vertices.Add(pt);
-                        uv.Add(uvPt);
+                        vertices.Add(new ITopologicVertex(pt.X,pt.Y,pt.Z, i * mapU, j * mapV, 0, keyNode));
+                        keyNode++;
                     }
                 }
 
@@ -54,10 +55,10 @@ namespace Iguana.IguanaMesh.ICreators
                     for (int j = 0; j < V; j++)
                     {
                         int[] f = new int[4];
-                        f[0] = (i * (V + 1)) + j;
-                        f[1] = (i * (V + 1)) + (j + 1);
-                        f[2] = ((i + 1) * (V + 1)) + (j + 1);
-                        f[3] = ((i + 1) * (V + 1)) + j;
+                        f[0] = ((i * (V + 1)) + j) +1;
+                        f[1] = ((i * (V + 1)) + (j + 1))+1;
+                        f[2] = (((i + 1) * (V + 1)) + (j + 1)) +1;
+                        f[3] = (((i + 1) * (V + 1)) + j) +1;
 
                         ISurfaceElement iF = new ISurfaceElement(f);
                         iF.Key = keyElement;

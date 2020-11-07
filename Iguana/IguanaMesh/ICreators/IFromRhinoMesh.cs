@@ -11,7 +11,7 @@ namespace Iguana.IguanaMesh.ICreators
         private Mesh rhinoMesh;
         private List<ITopologicVertex> vertices;
         private List<IElement> faces;
-        private int keyElement;
+        private int keyElement = 1;
 
         public IFromRhinoMesh(Mesh _rhinoMesh)
         {
@@ -48,7 +48,7 @@ namespace Iguana.IguanaMesh.ICreators
                     if (flag) uvw = rhinoMesh.TextureCoordinates[i];
 
                     ITopologicVertex v = new ITopologicVertex(rhinoMesh.Vertices[i]);
-                    v.Key = i;
+                    v.Key = i+1;
                     v.TextureCoordinates = new double[] { uvw.X, uvw.Y, 0 };          
 
                     vertices.Add(v);
@@ -56,8 +56,8 @@ namespace Iguana.IguanaMesh.ICreators
 
                 foreach (MeshFace f in rhinoMesh.Faces)
                 {
-                    ISurfaceElement iF = new ISurfaceElement(f.A, f.B, f.C);
-                    if (f.IsQuad) iF = new ISurfaceElement(f.A, f.B, f.C, f.D);
+                    ISurfaceElement iF = new ISurfaceElement(vertices[f.A].Key, vertices[f.B].Key, vertices[f.C].Key);
+                    if (f.IsQuad) iF = new ISurfaceElement(vertices[f.A].Key, vertices[f.B].Key, vertices[f.C].Key, vertices[f.D].Key);
 
                     iF.Key = keyElement;
                     faces.Add(iF);

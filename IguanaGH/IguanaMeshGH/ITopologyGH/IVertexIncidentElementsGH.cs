@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
+using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
 using Rhino.Geometry;
 
@@ -12,8 +14,8 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         /// Initializes a new instance of the IVertexIncidentElementsGH class.
         /// </summary>
         public IVertexIncidentElementsGH()
-          : base("Vertex Incident Elements", "VIE",
-              "Retrieve the incident elements of a given vertex.",
+          : base("iVertexIncidentElements", "iVIE",
+              "Retrieve all incident elements of a given vertex.",
               "Iguana", "Topology")
         {
         }
@@ -23,8 +25,8 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "The Iguana mesh to explore.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Vertex Key", "iK", "The key of the vertex.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("VertexKey", "v-Key", "Vertex key.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -32,7 +34,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddIntegerParameter("Elements Keys", "ID", "Incident elements keys.", GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Elements", "e-Key", "Element keys.", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -42,13 +44,19 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             IMesh mesh = new IMesh();
-            int key = -1;
+            int vKey = -1;
             DA.GetData(0, ref mesh);
-            DA.GetData(1, ref key);
+            DA.GetData(1, ref vKey);
 
-            List<int> eIdx = mesh.Topology.GetVertexIncidentElements(key);
+            int[] eIdx = mesh.Topology.GetVertexIncidentElements(vKey);
 
             DA.SetDataList(0, eIdx);
+        }
+
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>
