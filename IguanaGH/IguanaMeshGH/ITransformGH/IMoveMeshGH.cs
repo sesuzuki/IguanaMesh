@@ -54,6 +54,11 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
             DA.SetData(0, mesh);
         }
 
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
+        }
+
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>

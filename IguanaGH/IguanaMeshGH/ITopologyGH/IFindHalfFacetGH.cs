@@ -50,7 +50,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             DA.GetData(1, ref eKey);
             DA.GetData(2, ref hfKey);
 
-            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            IElement e = mesh.GetElementWithKey(eKey);
             int[] hf;
             e.GetHalfFacet(hfKey, out hf);
             int dim = 1;

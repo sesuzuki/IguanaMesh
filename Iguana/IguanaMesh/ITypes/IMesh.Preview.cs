@@ -39,8 +39,8 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 idxA = (Int32)(pair >> 32);
                 idxB = (Int32)pair;
-                start = this.Vertices.GetVertexWithKey(idxA).RhinoPoint;
-                end = this.Vertices.GetVertexWithKey(idxB).RhinoPoint;
+                start = GetVertexWithKey(idxA).RhinoPoint;
+                end = GetVertexWithKey(idxB).RhinoPoint;
                 ln =  new Line(start, end);
                 doc.Objects.AddLine(ln, att1);
             }
@@ -57,8 +57,8 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 idxA = (Int32)(pair >> 32);
                 idxB = (Int32) pair;
-                start = this.Vertices.GetVertexWithKey(idxA).RhinoPoint;
-                end = this.Vertices.GetVertexWithKey(idxB).RhinoPoint;
+                start = this.GetVertexWithKey(idxA).RhinoPoint;
+                end = this.GetVertexWithKey(idxB).RhinoPoint;
                 args.Pipeline.DrawLine(start, end, args.Color, args.Thickness);
             }
         }

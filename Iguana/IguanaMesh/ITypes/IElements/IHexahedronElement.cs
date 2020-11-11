@@ -31,7 +31,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
         public override IElement CleanCopy()
         {
-            return new IHexahedronElement(Vertices);
+            IElement e = new IHexahedronElement(Vertices);
+            e.Key = Key;
+            return e;
         }
 
         /// <summary>

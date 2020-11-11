@@ -49,7 +49,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             DA.GetData(0, ref mesh);
             DA.GetData(1, ref eKey);
 
-            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            IElement e = mesh.GetElementWithKey(eKey);
             e.BuildRhinoGeometry(mesh);
 
             DA.SetData(0, e);

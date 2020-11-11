@@ -44,7 +44,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             IMesh mesh = new IMesh();
             DA.GetData(0, ref mesh);
 
-            ITopologicVertex[] vertices = mesh.Vertices.VerticesValues.ToArray();
+            List<ITopologicVertex> vertices = mesh.Vertices;
 
             DA.SetDataList(0, vertices);
         }

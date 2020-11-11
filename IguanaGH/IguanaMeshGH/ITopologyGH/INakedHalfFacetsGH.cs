@@ -49,7 +49,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             List<int> elementsID = new List<int>();
             List<int> halfFacetsID = new List<int>();
             int[] hf;
-            foreach (IElement e in iM.Elements.ElementsValues)
+            foreach (IElement e in iM.Elements)
             {
                 for (int i = 1; i <= e.HalfFacetsCount; i++)
                 {

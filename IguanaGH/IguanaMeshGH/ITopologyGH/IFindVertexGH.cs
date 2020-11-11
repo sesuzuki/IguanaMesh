@@ -47,7 +47,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             DA.GetData(0, ref mesh);
             DA.GetData(1, ref vKey);
 
-            ITopologicVertex v = mesh.Vertices.GetVertexWithKey(vKey);
+            ITopologicVertex v = mesh.GetVertexWithKey(vKey);
 
             DA.SetData(0, v);
         }

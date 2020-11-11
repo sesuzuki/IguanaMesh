@@ -22,7 +22,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new IPyramid13(Vertices);
+                    IElement e = new IPyramid13(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 /// <summary>

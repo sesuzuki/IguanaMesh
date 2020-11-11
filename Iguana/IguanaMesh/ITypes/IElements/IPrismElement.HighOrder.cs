@@ -24,7 +24,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new IPrism15(Vertices);
+                    IElement e = new IPrism15(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 /// <summary>

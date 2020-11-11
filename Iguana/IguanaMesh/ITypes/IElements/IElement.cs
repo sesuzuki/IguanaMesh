@@ -179,7 +179,7 @@ namespace Iguana.IguanaMesh.ITypes
                     //Collect information of siblings
                     elementID_sibling = e.GetSiblingElementID(halfFacetID);
                     halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
-                    element_sibling = iM.Elements.GetElementWithKey(elementID_sibling);
+                    element_sibling = iM.GetElementWithKey(elementID_sibling);
 
                     visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
 

@@ -120,8 +120,8 @@ namespace Iguana.IguanaMesh.IUtils
             {
                 idxA = (Int32)(pair >> 32);
                 idxB = (Int32) pair;
-                start = mesh.Vertices.GetVertexWithKey(idxA).RhinoPoint;
-                end = mesh.Vertices.GetVertexWithKey(idxB).RhinoPoint;
+                start = mesh.GetVertexWithKey(idxA).RhinoPoint;
+                end = mesh.GetVertexWithKey(idxB).RhinoPoint;
                 edges.Add(new Line(start, end));
             }
             return edges;
@@ -130,7 +130,7 @@ namespace Iguana.IguanaMesh.IUtils
         public static List<Polyline> GetAllFacesAsPolylines(IMesh mesh)
         {
             List<Polyline> faces = new List<Polyline>();
-            foreach (IElement e in mesh.Elements.ElementsValues)
+            foreach (IElement e in mesh.Elements)
             {
                 if (e.TopologicDimension == 2)
                 {
@@ -138,7 +138,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                     for (int i = 0; i < e.VerticesCount; i++)
                     {
-                        pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                        pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                     }
                     pts[e.VerticesCount] = pts[0];
 
@@ -156,7 +156,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                         for (int j = 0; j < hf.Length; j++)
                         {
-                            pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                            pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
                         pts[pts.Length-1] = pts[0];
 
@@ -172,14 +172,14 @@ namespace Iguana.IguanaMesh.IUtils
         {
             List<Surface> faces = new List<Surface>();
             Surface f;
-            foreach (IElement e in mesh.Elements.ElementsValues)
+            foreach (IElement e in mesh.Elements)
             {
                 if (e.TopologicDimension == 2)
                 {
                     Point3d[] pts = new Point3d[e.VerticesCount];
                     for (int i = 0; i < e.VerticesCount; i++)
                     {
-                        pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                        pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                     }
 
                     if (pts.Length == 4) f = NurbsSurface.CreateFromCorners(pts[0], pts[1], pts[2], pts[3]);
@@ -203,7 +203,7 @@ namespace Iguana.IguanaMesh.IUtils
             Brep[] faces;
 
 
-            foreach(IElement e in mesh.Elements.ElementsValues)
+            foreach(IElement e in mesh.Elements)
             {
                 if (e.TopologicDimension == 3)
                 {
@@ -219,7 +219,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                         for (int j = 0; j < hf.Length; j++)
                         {
-                            pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                            pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
 
                         if (pts.Length == 4) faces[i - 1] = Brep.CreateFromCornerPoints(pts[0], pts[1], pts[2], pts[3], RhinoDoc.ActiveDoc.ModelAbsoluteTolerance);
@@ -237,7 +237,7 @@ namespace Iguana.IguanaMesh.IUtils
         public static IEnumerable<Point3d> GetVerticesAsPoints(IMesh mesh)
         {
             List<Point3d> pts = new List<Point3d>();
-            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in mesh.Vertices)
             {
                 pts.Add(v.RhinoPoint);
             }
@@ -247,9 +247,9 @@ namespace Iguana.IguanaMesh.IUtils
         public static Dictionary<int, List<PolylineCurve>> GetSolidsAsPoly(IMesh mesh)
         {
             Dictionary<int, List<PolylineCurve>> crv = new Dictionary<int, List<PolylineCurve>>();
-            foreach (int eK in mesh.Elements.ElementsKeys)
+            foreach (int eK in mesh.ElementsKeys)
             {
-                IElement e = mesh.Elements.GetElementWithKey(eK);
+                IElement e = mesh.GetElementWithKey(eK);
 
                 if (e.TopologicDimension == 3)
                 {
@@ -263,7 +263,7 @@ namespace Iguana.IguanaMesh.IUtils
                         Point3d[] pts = new Point3d[hf.Length + 1];
                         for (int j = 0; j < hf.Length; j++)
                         {
-                            pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                            pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
 
                         pts[hf.Length] = pts[0];
@@ -278,14 +278,14 @@ namespace Iguana.IguanaMesh.IUtils
         public static Polyline[] GetPolylinesFromElement(IMesh mesh, int eKey)
         {
             List<Polyline> faces = new List<Polyline>();
-            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            IElement e = mesh.GetElementWithKey(eKey);
             if (e.TopologicDimension == 2)
             {
                 Point3d[] pts = new Point3d[e.VerticesCount + 1];
 
                 for (int i = 0; i < e.VerticesCount; i++)
                 {
-                    pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                    pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                 }
                 pts[e.VerticesCount] = pts[0];
 
@@ -303,7 +303,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                     for (int j = 0; j < hf.Length; j++)
                     {
-                        pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                        pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                     }
                     pts[pts.Length - 1] = pts[0];
 
@@ -317,14 +317,14 @@ namespace Iguana.IguanaMesh.IUtils
         public static Brep GetBrepFromElement(IMesh mesh, int eKey)
         {
             Brep brep = new Brep();
-            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            IElement e = mesh.GetElementWithKey(eKey);
             if (e.TopologicDimension == 2)
             {
                 Surface f;
                 Point3d[] pts = new Point3d[e.VerticesCount];
                 for (int i = 0; i < e.VerticesCount; i++)
                 {
-                    pts[i] = mesh.Vertices.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                    pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                 }
 
                 if (pts.Length == 4) f = NurbsSurface.CreateFromCorners(pts[0], pts[1], pts[2], pts[3]);
@@ -348,7 +348,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                     for (int j = 0; j < hf.Length; j++)
                     {
-                        pts[j] = mesh.Vertices.GetVertexWithKey(hf[j]).RhinoPoint;
+                        pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                     }
 
                     if (pts.Length == 4) faces[i - 1] = Brep.CreateFromCornerPoints(pts[0], pts[1], pts[2], pts[3], RhinoDoc.ActiveDoc.ModelAbsoluteTolerance);
@@ -368,7 +368,7 @@ namespace Iguana.IguanaMesh.IUtils
 
             Dictionary<int,int> maps = new Dictionary<int, int>();
             int idx = 0;
-            foreach(ITopologicVertex v in iM.Vertices.VerticesValues)
+            foreach(ITopologicVertex v in iM.Vertices)
             {
                 rM.Vertices.Add(v.RhinoPoint);
                 maps.Add(v.Key, idx);
@@ -377,7 +377,7 @@ namespace Iguana.IguanaMesh.IUtils
 
             int vKey;
             int[] hf;
-            foreach (IElement e in iM.Elements.ElementsValues)
+            foreach (IElement e in iM.Elements)
             {
                 if (e.TopologicDimension == 2)
                 {
@@ -385,7 +385,7 @@ namespace Iguana.IguanaMesh.IUtils
                     else if (e.VerticesCount == 4) rM.Faces.AddFace(new MeshFace(maps[e.Vertices[0]], maps[e.Vertices[1]], maps[e.Vertices[2]], maps[e.Vertices[3]]));
                     else
                     {
-                        IVector3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, iM);
+                        IPoint3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, iM);
                         rM.Vertices.Add(new Point3d( pos.X, pos.Y, pos.Z ));
                         vKey = rM.Vertices.Count-1;
                         maps.Add(vKey, idx);

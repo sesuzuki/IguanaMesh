@@ -36,8 +36,8 @@ namespace Iguana.IguanaMesh.ICreators
             if (flag)
             {
                 mesh = new IMesh();
-                mesh.Vertices.AddRangeVertices(vertices);
-                mesh.Elements.AddRangeElements(faces);
+                mesh.AddRangeVertices(vertices);
+                mesh.AddRangeElements(faces);
 
                 mesh.BuildTopology();
             }

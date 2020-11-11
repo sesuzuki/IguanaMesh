@@ -21,7 +21,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new IHexahedron20(Vertices);
+                    IElement e  = new IHexahedron20(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 public override string ToString()

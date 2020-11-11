@@ -2,41 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Iguana.IguanaMesh.ITypes.ICollections
+namespace Iguana.IguanaMesh.ITypes
 {
-    public class IVertexCollection
+    public partial class IMesh
     {
-        private Dictionary<int, ITopologicVertex> _vertices = new Dictionary<int, ITopologicVertex>();
-
-        public IVertexCollection ShallowCopy()
-        {
-            return (IVertexCollection)this.MemberwiseClone();
-        }
-
-        public IVertexCollection DeepCopy()
-        {
-            IVertexCollection copy = ShallowCopy();
-            copy._vertices = new Dictionary<int, ITopologicVertex>(_vertices);
-            return copy;
-        }
-
-        /// <summary>
-        /// Copy without topologic data.
-        /// </summary>
-        public IVertexCollection CleanCopy()
-        {
-           IVertexCollection copy = new IVertexCollection();
-           _vertices.Values.All(v =>
-           {
-               copy.AddVertex(v.Key, v.CleanCopy());
-               return true;
-           });
-           return copy;
-        }
-
-        public void CleanTopologicalData()
+        public void CleanAllVerticesTopologicalData()
         {
             ITopologicVertex v;
             foreach (int vK in VerticesKeys)
@@ -50,12 +23,12 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
         public void CullUnparsedNodes(IEnumerable<int> parsedNodes)
         {
             var cullNodes = VerticesKeys.Except(parsedNodes);
-            cullNodes.All(vKey => DeleteVertex(vKey));
+            cullNodes.All(vKey => _vertices.Remove(vKey));
         }
 
         public void AddVertex(int key, ITopologicVertex vertex)
         {
-            if (key <= 0) key = FindNextKey();
+            if (key <= 0) key = FindNextVertexKey();
             vertex.Key = key;
             _vertices.Add(key, vertex);
         }
@@ -70,7 +43,7 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             AddVertex(key, new ITopologicVertex(x, y, z, u, v, w));
         }
 
-        public int FindNextKey()
+        public int FindNextVertexKey()
         {
             List<int> keys = VerticesKeys;
             keys.Sort();
@@ -86,11 +59,11 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
         public void SetVertexPosition(int key, Point3d point)
         {
             ITopologicVertex v = _vertices[key];
-            v.Position = new IVector3D(point.X, point.Y, point.Z);
+            v.Position = new IPoint3D(point.X, point.Y, point.Z);
             _vertices[key] = v;
         }
 
-        public void SetVertexPosition(int key, IVector3D position)
+        public void SetVertexPosition(int key, IPoint3D position)
         {
             ITopologicVertex v = _vertices[key];
             v.Position = position;
@@ -101,7 +74,7 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
         public void SetVertexPosition(int key, double x, double y, double z)
         {
             ITopologicVertex v = _vertices[key];
-            v.Position = new IVector3D(x, y, z);
+            v.Position = new IPoint3D(x, y, z);
             _vertices[key] = v;
         }
 
@@ -112,7 +85,7 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             _vertices[key] = vertex;
         }
 
-        public void Clean()
+        public void CleanVertices()
         {
             _vertices = new Dictionary<int, ITopologicVertex>();
         }
@@ -125,17 +98,34 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             }
         }
 
-        internal bool DeleteVertex(int key)
+        public void DeleteVertex(int vKey, bool updateTopology = true)
         {
-            return _vertices.Remove(key);
+            int[] eKeys = Topology.GetVertexIncidentElements(vKey);
+            eKeys.All(eK =>
+            {
+                if (_elements.ContainsKey(eK)) _elements.Remove(eK);
+                return true;
+            });
+            _vertices.Remove(vKey);
+            if (updateTopology) BuildTopology(true);
         }
 
-        internal bool DeleteVertex(ITopologicVertex vertex)
+        public void DeleteVertices(IEnumerable<int> vKeys, bool updateTopology = true)
         {
-            return _vertices.Remove(vertex.Key);
+            foreach (int vK in vKeys)
+            {
+                int[] eKeys = Topology.GetVertexIncidentElements(vK);
+                eKeys.All(eK =>
+                {
+                    if (_elements.ContainsKey(eK)) _elements.Remove(eK);
+                    return true;
+                });
+                _vertices.Remove(vK);
+            }
+            if (updateTopology) BuildTopology(true);
         }
 
-        public bool ContainsKey(int key)
+        public bool ContainsVertexKey(int key)
         {
             return _vertices.ContainsKey(key);
         }
@@ -145,16 +135,16 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             return _vertices[key];
         }
 
-        public void DeleteTextureCoordinates(int key)
+        public void DeleteVertexTextureCoordinates(int key)
         {
             ITopologicVertex v = _vertices[key];
             v.TextureCoordinates = new double[] { 0, 0, 0 };
             SetVertex(key, v);
         }
 
-        public void DeleteAllTextureCoordinates()
+        public void DeleteAllVertexTextureCoordinates()
         {
-            foreach(int key in _vertices.Keys)
+            foreach (int key in _vertices.Keys)
             {
                 ITopologicVertex v = _vertices[key];
                 v.TextureCoordinates = new double[] { 0, 0, 0 };
@@ -167,19 +157,14 @@ namespace Iguana.IguanaMesh.ITypes.ICollections
             get => _vertices.Keys.ToList();
         }
 
-        public List<ITopologicVertex> VerticesValues
+        public List<ITopologicVertex> Vertices
         {
             get => _vertices.Values.ToList();
         }
 
-        public int Count
+        public int VerticesCount
         {
             get => _vertices.Count;
-        }
-
-        public override string ToString()
-        {
-            return "IVertexCollection{"+Count+"}";
         }
     }
 }

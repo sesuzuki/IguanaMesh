@@ -47,9 +47,9 @@ namespace Iguana.IguanaMesh.IModifiers
 
             for (int i = 0; i < count; i++)
             {
-                int vK = mesh.Vertices.VerticesKeys[i];
+                int vK = mesh.VerticesKeys[i];
                 int[] vStart = mesh.Topology.GetVertexAdjacentVertices(vK);
-                ITopologicVertex vertex = mesh.Vertices.GetVertexWithKey(vK);
+                ITopologicVertex vertex = mesh.GetVertexWithKey(vK);
 
                 A[i] = 1;
                 B[i] = 0;
@@ -58,8 +58,8 @@ namespace Iguana.IguanaMesh.IModifiers
 
                 for (int j = 0; j < vStart.Length; j++)
                 {
-                    ITopologicVertex neighbor = mesh.Vertices.GetVertexWithKey(vStart[j]);
-                    direction = neighbor.Position - vertex;
+                    ITopologicVertex neighbor = mesh.GetVertexWithKey(vStart[j]);
+                    direction = neighbor.Position - vertex.Position;
 
                     teta = 1.0;
                     if (AuxiliarVectorField != null && AuxiliarVectorField.Length>0)
@@ -103,7 +103,7 @@ namespace Iguana.IguanaMesh.IModifiers
                         double dxA = 0.0;
                         double dxB = 0.0;
 
-                        int vK = mesh.Vertices.VerticesKeys[i];
+                        int vK = mesh.VerticesKeys[i];
                         int[] vStart = mesh.Topology.GetVertexAdjacentVertices(vK);
 
                         for (int j = 0; j < vStart.Length; j++)
@@ -131,8 +131,8 @@ namespace Iguana.IguanaMesh.IModifiers
 
                 for (int i = 0; i < count; i++)
                 {
-                    int vK = mesh.Vertices.VerticesKeys[i];
-                    ITopologicVertex vertex = mesh.Vertices.GetVertexWithKey(vK);
+                    int vK = mesh.VerticesKeys[i];
+                    ITopologicVertex vertex = mesh.GetVertexWithKey(vK);
 
                     double param = (A[i] - B[i]);
 
@@ -141,10 +141,10 @@ namespace Iguana.IguanaMesh.IModifiers
 
                     vertex.Position += n;
 
-                    nMesh.Vertices.AddVertex(vK, vertex);
+                    nMesh.AddVertex(vK, vertex);
                 }
 
-                nMesh.Elements.AddRangeElements(mesh.Elements.ElementsValues);
+                nMesh.AddRangeElements(mesh.Elements);
 
                 nMesh.BuildTopology();
 

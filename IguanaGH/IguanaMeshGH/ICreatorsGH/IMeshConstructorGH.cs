@@ -5,7 +5,6 @@ using Rhino.Geometry;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
 using System.Windows.Forms;
-using Iguana.IguanaMesh.ITypes.ICollections;
 
 namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 {
@@ -44,26 +43,29 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IVertexCollection vertices = new IVertexCollection();
-            IElementCollection elements = new IElementCollection();
             IMesh mesh = new IMesh();
 
             foreach (var obj in base.Params.Input[0].VolatileData.AllData(true))
             {
                 ITopologicVertex v;
                 obj.CastTo<ITopologicVertex>(out v);
-                if (v != null) vertices.AddVertex(v.Key, v);
+                if (v != null) mesh.AddVertex(v.Key, v);
             }
 
             foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
             {
                 IElement e;
                 obj.CastTo<IElement>(out e);
-                if (e != null) elements.AddElement(e.Key, e);
+                if (e != null) mesh.AddElement(e.Key, e);
             }
-            mesh = new IMesh(vertices, elements);
+            mesh.BuildTopology();
 
             DA.SetData(0, mesh);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.secondary; }
         }
 
         /// <summary>

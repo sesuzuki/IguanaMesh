@@ -56,26 +56,43 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IHexahedronElementGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromBrepGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromCurveExtrusion.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromLoftGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromBrepGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromLoftGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromSurfaceExtrusionGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IPolygonalFaceGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IPrismElementGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IPyramidElementGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IQuadrangularFaceGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\ITetrahedronElementGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\ITopolologicVertexGH.cs" />
+    <Compile Include="IguanaMeshGH\IModifiersGH\ILaplacianGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICube3DGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ISphere3DGH.cs" />
+    <Compile Include="IguanaMeshGH\ITopologyGH\IEdgeNormalsGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IElementAdjacentElementsGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IElementsNormalsGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IFindHalfFacetGH.cs" />
+    <Compile Include="IguanaMeshGH\ITopologyGH\IGaussCurvatureGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\INakedHalfFacetsGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IVertexNormalsGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\IExpandMeshGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IAlingToPlaneGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\IDeleteElementGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IDeleteVertexGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\IExtrudeElementEdgesGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\IExtrudeElementGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IMoveElementGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IMoveMeshGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IMoveVertexGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IRotateMeshGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IScaleMeshGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\ISkewGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\IStretchGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\ITwistGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IMeshFromIguanaMeshGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\ISurfaceElementsGH.cs" />
     <Compile Include="IguanaMeshGH\IFieldsGH\IAnisoCurveFieldGH.cs" />
@@ -144,8 +161,7 @@
     <Compile Include="IguanaMeshGH\IUtilsGH\IDeconstructHalfFacetGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IExportGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IImportGH.cs" />
-    <Compile Include="IguanaMeshGH\ICreatorsGH\IPolygonalFaceGH.cs" />
-    <Compile Include="IguanaMeshGH\ICreatorsGH\IHexahedronSolidGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\ITriangularFaceGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\INakedEdgesGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\INakedVerticesGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IBRepElementsGH.cs" />

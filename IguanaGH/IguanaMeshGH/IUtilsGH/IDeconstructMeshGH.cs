@@ -58,10 +58,10 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             Int64 sibData;
             GH_Path path;
             GH_Path oPath = new GH_Path(0);
-            foreach (int eK in mesh.Elements.ElementsKeys)
+            foreach (int eK in mesh.ElementsKeys)
             {
                 path = new GH_Path(eK);
-                e = mesh.Elements.GetElementWithKey(eK);
+                e = mesh.GetElementWithKey(eK);
 
                 elements.Append(new GH_String(e.ToString()), oPath);
                 eKeys.Append(new GH_Number(eK), oPath);
@@ -91,7 +91,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             GH_Structure<GH_Point> vertices = new GH_Structure<GH_Point>();
             GH_Structure<GH_Number> vKeys = new GH_Structure<GH_Number>();
 
-            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in mesh.Vertices)
             {
                 GH_String msg = new GH_String("Empty");
                 if (v.V2HF > 0) msg.Value = v.SiblingHalfFacetDataToString();

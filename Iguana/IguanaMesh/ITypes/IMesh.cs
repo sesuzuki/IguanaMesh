@@ -1,14 +1,35 @@
-﻿using System;
+﻿/******************************************************************************
+ *
+ * The MIT License (MIT)
+ *
+ * IguanaMesh, Copyright (c) 2020 Seiichi Suzuki
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *  
+ *****************************************************************************/
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Rhino.Geometry;
-using Grasshopper.Kernel.Types;
-using GH_IO.Serialization;
 using Iguana.IguanaMesh.IUtils;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.ITypes.IElements;
-using System.Deployment.Internal;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -17,27 +38,22 @@ namespace Iguana.IguanaMesh.ITypes
         //Guides
         private string message = "IMesh not initialized";
         private int dim = -1;
+        private int elementKey = 1;
         private ITopology _topology;
 
+        private Dictionary<int, IElement> _elements;
+        private Dictionary<int, ITopologicVertex> _vertices;
+
+        //Temporary data structures for construction
+        private Dictionary<Int32, List<Int64>> _tempVertexToHalfFacets;
+
         //Half-Facet Data Structure
-        public IVertexCollection Vertices { get; set; }
-        public IElementCollection Elements { get; set; }
         public ITopology Topology { get => _topology; }
 
         /// <summary>
         /// <para> General constructor of a AHF-Mesh Data Structure. </para>
         /// </summary>
         public IMesh() { _topology = new ITopology(this); initData(); }
-
-        public IMesh(IVertexCollection vertices, IElementCollection elements)
-        {
-            initData();
-
-            Vertices = vertices;
-            Elements = elements;
-
-            BuildTopology();
-        }
 
         /// <summary>
         /// <para> Constructor of a AHF-Mesh Data Structure. </para>
@@ -50,7 +66,7 @@ namespace Iguana.IguanaMesh.ITypes
             // Initialize vertices
             for(int vK=1; vK<=mesh.Vertices.Count; vK++)
             {
-                Vertices.AddVertex(vK, new ITopologicVertex(mesh.Vertices[vK-1]));
+                AddVertex(vK, new ITopologicVertex(mesh.Vertices[vK-1]));
             }
 
             //Initialize Elements
@@ -60,7 +76,7 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] vList = new int[]{ f.A+1, f.B+1, f.C+1 };
                 if (f.IsQuad) vList = new int[]{ f.A+1, f.B+1, f.C+1, f.D+1 };
 
-                this.Elements.AddElement(eK, new ISurfaceElement(vList));
+                this.AddElement(eK, new ISurfaceElement(vList));
             }
 
             this.BuildTopology();
@@ -68,8 +84,9 @@ namespace Iguana.IguanaMesh.ITypes
 
         private void initData()
         {
-            Vertices = new IVertexCollection();
-            Elements = new IElementCollection();
+            _vertices = new Dictionary<int, ITopologicVertex>();
+            _elements = new Dictionary<int, IElement>();
+            _tempVertexToHalfFacets = new Dictionary<Int32, List<Int64>>();
             _topology = new ITopology(this);
         }
 
@@ -85,18 +102,18 @@ namespace Iguana.IguanaMesh.ITypes
             Boolean flag;
 
             //Add Vertices
-            int keyVertex = this.Vertices.FindNextKey();
-            foreach(int i in mesh.Vertices.VerticesKeys)
+            int keyVertex = FindNextVertexKey();
+            foreach(int i in mesh.VerticesKeys)
             {
-                ITopologicVertex pt = mesh.Vertices.GetVertexWithKey(i);
+                ITopologicVertex pt = mesh.GetVertexWithKey(i);
 
                 if (weld)
                 {
                     flag = false;
 
-                    Parallel.ForEach<int>(this.Vertices.VerticesKeys, oldKey =>
+                    Parallel.ForEach<int>(this.VerticesKeys, oldKey =>
                     {
-                        ITopologicVertex oldVertex = this.Vertices.GetVertexWithKey(oldKey);
+                        ITopologicVertex oldVertex = this.GetVertexWithKey(oldKey);
 
                         if (oldVertex.DistanceTo(pt) < tolerance)
                         {
@@ -108,7 +125,7 @@ namespace Iguana.IguanaMesh.ITypes
                     if (flag == false)
                     {
                         maps.Add(i, keyVertex);
-                        this.Vertices.AddVertex(keyVertex, pt);
+                        this.AddVertex(keyVertex, pt);
                         keyVertex++;
                     }
                 }
@@ -116,14 +133,14 @@ namespace Iguana.IguanaMesh.ITypes
                 else
                 {
                     maps.Add(i, keyVertex);
-                    this.Vertices.AddVertex(keyVertex, pt);
+                    this.AddVertex(keyVertex, pt);
                     keyVertex++;
                 }
             }
 
             //Add Elements
-            int keyElement = Elements.FindNextKey();
-            foreach (IElement e in mesh.Elements.ElementsValues)
+            int keyElement = FindNextElementKey();
+            foreach (IElement e in mesh.Elements)
             {
                 int[] vList = new int[e.VerticesCount];
                 for(int i=0; i<e.VerticesCount; i++)
@@ -133,7 +150,7 @@ namespace Iguana.IguanaMesh.ITypes
                 }
                 e.Vertices = vList;
 
-                this.Elements.AddElement(keyElement, e);
+                this.AddElement(keyElement, e);
             }
 
             this.BuildTopology();
@@ -152,7 +169,7 @@ namespace Iguana.IguanaMesh.ITypes
             Boolean flag;
 
             //Add Vertices
-            int keyVertex = this.Vertices.FindNextKey();
+            int keyVertex = FindNextVertexKey();
             for (int mapKey=0; mapKey<mesh.Vertices.Count; mapKey++)
             {
                 Point3d pt = mesh.Vertices[mapKey];
@@ -161,7 +178,7 @@ namespace Iguana.IguanaMesh.ITypes
                 {
                     flag = false;
 
-                    Parallel.ForEach<ITopologicVertex>(this.Vertices.VerticesValues, v =>
+                    Parallel.ForEach<ITopologicVertex>(Vertices, v =>
                     {
                         if (v.DistanceTo(pt) < tolerance)
                         {
@@ -173,27 +190,27 @@ namespace Iguana.IguanaMesh.ITypes
                     if (!flag)
                     {
                         maps.Add(mapKey, keyVertex);
-                        this.Vertices.AddVertex(keyVertex, new ITopologicVertex(pt));
+                        AddVertex(keyVertex, new ITopologicVertex(pt));
                         keyVertex++;
                     }
                 }
                 else
                 {
                     maps.Add(mapKey, keyVertex);
-                    this.Vertices.AddVertex(keyVertex, new ITopologicVertex(pt));
+                    AddVertex(keyVertex, new ITopologicVertex(pt));
                     keyVertex++;
                 }
             }
 
             //Add Elements
-            int keyElement = this.Elements.FindNextKey();
+            int keyElement = FindNextElementKey();
             foreach (MeshFace f in mesh.Faces)
             {
                 int[] vList = new int[] { maps[f.A], maps[f.B], maps[f.C] };
                 if (f.IsQuad) vList = new int[]{ maps[f.A], maps[f.B], maps[f.C], maps[f.D] };
 
                 ISurfaceElement e = new ISurfaceElement(vList);
-                this.Elements.AddElement(keyElement, e);
+                this.AddElement(keyElement, e);
                 keyElement++;
             }
 
@@ -209,7 +226,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             List<int> topo = new List<int>();
             string msg = "Undefined Dimensionality";
-            foreach(IElement e in Elements.ElementsValues)
+            foreach(IElement e in Elements)
             {
                 int dim = e.TopologicDimension;
                 if (!topo.Contains(dim)) topo.Add(dim);
@@ -236,35 +253,6 @@ namespace Iguana.IguanaMesh.ITypes
             }
 
             return msg;
-        }
-
-        public IMesh ShallowCopy()
-        {
-            return (IMesh) this.MemberwiseClone();
-        }
-
-        public IMesh DeepCopy()
-        {
-            IMesh copy = new IMesh();
-            copy.Vertices = Vertices.DeepCopy();
-            copy.Elements = Elements.DeepCopy();
-            return copy;
-        }
-
-        /// <summary>
-        /// Copy without topological data.
-        /// </summary>
-        public IMesh CleanCopy()
-        {
-            IMesh copy = new IMesh();
-            copy.Vertices = Vertices.CleanCopy();
-            copy.Elements = Elements.CleanCopy();
-            copy.dim = dim;
-            copy.message = "IMesh not initialized";
-            //copy._tempVertexToAdjacentHalfFacets = new Dictionary<long, List<int>>();
-            //copy._tempVertexToHalfFacets = new Dictionary<int, List<long>>();
-            copy._topology = new ITopology(this);
-            return copy;
         }
 
         public bool IsSurfaceMesh
@@ -300,103 +288,6 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 if (dim == 4) return true;
                 else return false;
-            }
-        }
-
-        /// <summary>
-        /// Second Step: Construction of mapping from vertex to an incident half-facet (v2hf).
-        /// From element´s connectivity and cyclic mapping of sibblings half-V (input), it returns a collection of maps from vertices to incident half-facet (output).
-        /// </summary>
-        private Boolean BuildVertexToHalfFacet()
-        {
-            Boolean flag = true;
-            try
-            {
-                foreach (Int32 elementID in Elements.ElementsKeys)
-                {
-                    IElement e = Elements.GetElementWithKey(elementID);
-                    ITopologicVertex v;
-
-                    //Give border V higher priorities
-                    for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
-                    {
-                        //Vertices of the facet
-                        int[] hf;
-                        e.GetHalfFacet(halfFacetID, out hf);
-
-                        foreach (int vKey in hf)
-                        {
-                            v = Vertices.GetVertexWithKey(vKey);
-
-                            if (v.V2HF == 0)
-                            {
-                                v.SetV2HF(elementID, halfFacetID);
-                                Vertices.SetVertex(vKey, v);
-                            }
-
-                            if (e.GetSiblingHalfFacet(halfFacetID) == 0)
-                            {
-                                if (v.GetElementID() != elementID || v.GetHalfFacetID() != halfFacetID)
-                                {
-                                    v.SetV2HF(elementID, halfFacetID);
-                                    Vertices.SetVertex(vKey, v);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception) { flag = false; }
-
-            return flag;
-        }
-
-        private void UpdateVertexToHalfFacet(int elementID, int halfFacetID)
-        {
-            //Vertices of the facet
-            int[] hf;
-            IElement e = Elements.GetElementWithKey(elementID);
-            e.GetHalfFacet(halfFacetID, out hf);
-            ITopologicVertex v;
-
-            foreach (int vKey in hf)
-            {
-                v = Vertices.GetVertexWithKey(vKey);
-                v.SetV2HF(elementID, halfFacetID);
-                Vertices.SetVertex(vKey, v);
-
-                if (e.GetSiblingHalfFacet(halfFacetID) == 0)
-                {
-                    if (v.GetElementID() != elementID || v.GetHalfFacetID() != halfFacetID)
-                    {
-                        v.SetV2HF(elementID, halfFacetID);
-                        Vertices.SetVertex(vKey, v);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Build topologic relationships.
-        /// </summary>
-        internal void BuildTopology()
-        {
-            //BuildSiblingHalfFacets
-            Boolean flag1 = Elements.BuildTopologicalData();
-            Boolean flag2 = BuildVertexToHalfFacet();
-
-            string type = this.GetMeshTypeDescription();
-            message = "IMesh (Vertices: " + Vertices.Count + "; Elements: " + Elements.Count + " ; Type: " + type + ")";
-
-            if (!flag1 || !flag2)
-            {
-                message += "\n\n||||| Invalid Data-Structure |||||\nSibling Half-Facets (sibhfs): ";
-                if (flag1) message += " Built;\n";
-                else if (!flag1) message += " Errors Found;\n";
-
-                message += "Vertex to Half-Facet (v2hf): ";
-                if (flag2) message += " Built;\n";
-                else if (!flag2) message += " Errors Found;\n";
             }
         }
     }

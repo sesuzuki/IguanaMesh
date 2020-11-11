@@ -44,11 +44,11 @@ namespace Iguana.IguanaMesh.ICreators
             if (flag)
             {
                 mesh = new IMesh();
-                mesh.Vertices.AddRangeVertices(vertices.ToList());
-                int elementKey = mesh.Elements.FindNextKey();
+                mesh.AddRangeVertices(vertices.ToList());
+                int elementKey = mesh.FindNextElementKey();
                 foreach (int[] f in faces)
                 {
-                    mesh.Elements.AddElement(elementKey, new ISurfaceElement(f[0], f[1], f[2], f[3]));
+                    mesh.AddElement(elementKey, new ISurfaceElement(f[0], f[1], f[2], f[3]));
                     elementKey++;
                 }
 

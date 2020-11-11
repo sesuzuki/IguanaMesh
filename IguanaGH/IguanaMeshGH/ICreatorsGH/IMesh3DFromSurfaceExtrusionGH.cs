@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
 using Iguana.IguanaMesh.IWrappers.ISolver;

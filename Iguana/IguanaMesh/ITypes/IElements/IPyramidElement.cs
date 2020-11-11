@@ -32,7 +32,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
         public override IElement CleanCopy()
         {
-            return new IPyramidElement(Vertices);
+            IElement e = new IPyramidElement(Vertices);
+            e.Key = Key;
+            return e;
         }
 
         /// <summary>

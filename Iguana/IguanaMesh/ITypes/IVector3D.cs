@@ -24,6 +24,13 @@ namespace Iguana.IguanaMesh.ITypes
             this.Z = vector.Z;
         }
 
+        public IVector3D(IPoint3D pt)
+        {
+            this.X = pt.X;
+            this.Y = pt.Y;
+            this.Z = pt.Z;
+        }
+
         public IVector3D(Vector3d vector)
         {
             this.X = vector.X;
@@ -41,10 +48,30 @@ namespace Iguana.IguanaMesh.ITypes
             return Math.Abs(X * X + Y * Y + Z * Z);
         }
 
+        public static IVector3D CreateVector(IPoint3D To, IPoint3D From)
+        {
+            return new IVector3D(To.X-From.X, To.Y - From.Y, To.Z - From.Z);
+        }
+
+        public static IVector3D CreateVector(Point3d To, Point3d From)
+        {
+            return new IVector3D(To.X - From.X, To.Y - From.Y, To.Z - From.Z);
+        }
+
         public override String ToString()
         {
             String text = "( " + X + " :: " + Y + " :: " + Z + ")"; //String.Format("{0,4}", X , Y , Z) + " )";
             return text;
+        }
+
+        public double Dot(IVector3D vector)
+        {
+            return X * vector.X + Y * vector.Y + Z * vector.Z;
+        }
+
+        public double Dot(IPoint3D pt)
+        {
+            return X * pt.X + Y * pt.Y + Z * pt.Z;
         }
 
         public void Set(double _x, double _y, double _z)
@@ -120,8 +147,17 @@ namespace Iguana.IguanaMesh.ITypes
 
         public static IVector3D operator -(IVector3D vector1, IVector3D vector2)
         {
-            IVector3D newVector = new IVector3D(vector1.X - vector2.X, vector1.Y - vector2.Y, vector1.Z - vector2.Z);
-            return newVector;
+            return new IVector3D(vector1.X - vector2.X, vector1.Y - vector2.Y, vector1.Z - vector2.Z);
+        }
+
+        public static IVector3D operator -(IVector3D vector, IPoint3D point)
+        {
+            return new IVector3D(vector.X - point.X, vector.Y - point.Y, vector.Z - point.Z);
+        }
+
+        public static IVector3D operator +(IVector3D vector, IPoint3D point)
+        {
+            return new IVector3D(vector.X + point.X, vector.Y + point.Y, vector.Z + point.Z);
         }
 
         public static IVector3D Mult(IVector3D vector, double scalar)
@@ -209,10 +245,10 @@ namespace Iguana.IguanaMesh.ITypes
             return angle;
         }
 
-        public static double AngleBetween(IVector3D vector1, IVector3D vector2, IVector3D origin)
+        public static double AngleBetween(IPoint3D pt1, IPoint3D pt2, IPoint3D origin)
         {
-            IVector3D v1 = IVector3D.Sub(vector1, origin);
-            IVector3D v2 = IVector3D.Sub(vector2, origin);
+            IVector3D v1 = IVector3D.CreateVector(pt1, origin);
+            IVector3D v2 = IVector3D.CreateVector(pt2, origin);
             double dot = IVector3D.Dot(v1, v2);
             double cos = dot / (v1.Mag() * v2.Mag());
             double angle = Math.Acos(cos);
@@ -225,6 +261,27 @@ namespace Iguana.IguanaMesh.ITypes
             IVector3D unit = new IVector3D(vector);
             unit.Norm();
             return unit;
+        }
+
+        public double GetVectorComponent(int index)
+        {
+            double val = X;
+            switch (index)
+            {
+                case 0:
+                    val = X;
+                    break;
+                case 1:
+                    val = Y;
+                    break;
+                case 2:
+                    val = Z;
+                    break;
+                default:
+                    val = 0;
+                    break;
+            }
+            return val;
         }
 
         public static IVector3D VectorWithMagnitude(IVector3D vector, double magnitude)
@@ -392,28 +449,6 @@ namespace Iguana.IguanaMesh.ITypes
             this.Mult(magnitude);
         }
 
-        public Double? GetVectorComponent(int index)
-        {
-            Double? value;
-            switch (index)
-            {
-                case 0:
-                    value = X;
-                    break;
-                case 1:
-                    value = Y;
-                    break;
-                case 2:
-                    value = Z;
-                    break;
-                default:
-                    value = null;
-                    break;
-            }
-
-            return value;
-        }
-
         public void SetVectorComponent(int index, double value)
         {
             switch (index)
@@ -439,5 +474,9 @@ namespace Iguana.IguanaMesh.ITypes
         {
             return new List<double>(){ X, Y, Z };
         }
+
+        public static IVector3D UnitZ { get => new IVector3D(0, 0, 1); }
+        public static IVector3D UnitY { get => new IVector3D(0, 1, 0); }
+        public static IVector3D UnitX { get => new IVector3D(1, 0, 0); }
     }
 }

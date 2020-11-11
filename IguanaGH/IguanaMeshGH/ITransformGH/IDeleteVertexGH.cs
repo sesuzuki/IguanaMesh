@@ -14,7 +14,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         /// </summary>
         public IDeleteVertexGH()
           : base("iDeleteVertex", "iDeleteVertex",
-              "Delete vertex",
+              "Delete vertices and update topologic relationships.",
               "Iguana", "Transform")
         {
         }
@@ -25,7 +25,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Vertex", "v-Key", "Vertex key.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Vertices", "v-Key", "Vertices keys.", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -34,7 +34,6 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Iguana mesh.", GH_ParamAccess.item);
-
         }
 
         /// <summary>
@@ -44,15 +43,20 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             IMesh mesh = new IMesh();
-            int vKey = 0;
+            List<int> vKey = new List<int>();
 
             DA.GetData(0, ref mesh);
-            DA.GetData(1, ref vKey);
+            DA.GetDataList(1, vKey);
 
             IMesh dM = mesh.DeepCopy();
-            dM.Topology.DeleteVertex(vKey);
+            dM.DeleteVertices(vKey);
 
             DA.SetData(0, dM);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.tertiary; }
         }
 
         /// <summary>
@@ -73,7 +77,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("c1ff5956-39d2-4861-9e8a-05cb344e1767"); }
+            get { return new Guid("436e28db-992f-410a-8c1a-207f23d9c66e"); }
         }
     }
 }

@@ -50,11 +50,11 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
             Plane world = Plane.WorldXY;
 
             IMesh dM = mesh.DeepCopy();
-            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in mesh.Vertices)
             {
                 Point3d p;
                 target.RemapToPlaneSpace(v.RhinoPoint, out p);
-                dM.Vertices.SetVertexPosition(v.Key, new IVector3D(p.X,p.Y,p.Z));
+                dM.SetVertexPosition(v.Key, p.X,p.Y,p.Z);
             }
 
             DA.SetData(0, dM);

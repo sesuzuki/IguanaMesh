@@ -1,5 +1,4 @@
 ﻿using Grasshopper.Kernel.Geometry.SpatialTrees;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IWrappers;
 using System;
 using System.Collections.Generic;

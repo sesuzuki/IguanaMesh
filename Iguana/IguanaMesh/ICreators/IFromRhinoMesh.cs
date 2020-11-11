@@ -27,8 +27,8 @@ namespace Iguana.IguanaMesh.ICreators
             Boolean flag = BuildDataBase();
             if (flag)
             {
-                mesh.Vertices.AddRangeVertices(vertices);
-                mesh.Elements.AddRangeElements(faces);
+                mesh.AddRangeVertices(vertices);
+                mesh.AddRangeElements(faces);
 
                 mesh.BuildTopology();
             }

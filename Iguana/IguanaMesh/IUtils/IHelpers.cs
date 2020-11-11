@@ -21,15 +21,15 @@ namespace Iguana.IguanaMesh.IUtils
             return arr;
         }
 
-        public static void UnpackKey(Int64 keyPair, out Int32 elementID, out Int32 halfFacetID)
+        public static void UnpackKey(Int64 keyPair, out Int32 firstPart, out Int32 secondPart)
         {
-            elementID = (Int32)(keyPair >> 32);
-            halfFacetID = (Int32)keyPair;
+            firstPart = (Int32)(keyPair >> 32);
+            secondPart = (Int32)keyPair;
         }
 
-        public static Int64 PackKeyPair(Int32 elementID, Int32 halfFacetID)
+        public static Int64 PackKeyPair(Int32 firstPart, Int32 secondPart)
         {
-            return (Int64)elementID << 32 | (Int64)halfFacetID;
+            return (Int64)firstPart << 32 | (Int64)secondPart;
         }
 
 

@@ -59,6 +59,14 @@
     <Compile Include="IguanaMesh\IModifiers\ISubdividor.CatmullClark.cs" />
     <Compile Include="IguanaMesh\IModifiers\ISubdividor.cs" />
     <Compile Include="IguanaMesh\IModifiers\ISubdividor.Loop.cs" />
+    <Compile Include="IguanaMesh\IModifiers\ITransformX.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMatrix.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMesh.Build.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMesh.Copy.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMesh.Elements.cs" />
+    <Compile Include="IguanaMesh\ITypes\IMesh.Vertices.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPlane.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPoint3D.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicHalfFacet.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.IGH_Goo.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.Preview.cs" />
@@ -85,7 +93,6 @@
     <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.cs" />
     <Compile Include="IguanaMesh\IWrappers\IguanaLoader.cs" />
-    <Compile Include="IguanaMesh\ITypes\ICollections\IElementCollection.cs" />
     <Compile Include="IguanaMesh\IUtils\IHelpers.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.HighOrder.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.cs" />
@@ -97,7 +104,6 @@
     <Compile Include="IguanaMesh\ITypes\IElements\ITetrahedronElement.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.cs" />
     <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.HighOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\ICollections\IVertexCollection.cs" />
     <Compile Include="IguanaMesh\IUtils\ITopology.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicVertex.cs" />
     <Compile Include="IguanaMesh\ICreators\IMeshCreator.cs" />
@@ -138,5 +144,6 @@
   <ItemGroup>
     <None Include="Resources\gmsh-4.6.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

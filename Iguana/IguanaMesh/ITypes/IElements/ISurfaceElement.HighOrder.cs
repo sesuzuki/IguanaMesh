@@ -21,7 +21,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new ITriangle6(Vertices);
+                    IElement e = new ITriangle6(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 public override string ToString()
@@ -46,7 +48,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new IQuadrangle8(Vertices);
+                    IElement e = new IQuadrangle8(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 public override string ToString()
@@ -72,7 +76,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new ITriangle9(Vertices);
+                    IElement e = new ITriangle9(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 public override string ToString()
@@ -100,7 +106,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new ITriangle12(Vertices);
+                    IElement e = new ITriangle12(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 public override string ToString()
@@ -131,7 +139,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override IElement CleanCopy()
                 {
-                    return new ITriangle15(Vertices);
+                    IElement e = new ITriangle15(Vertices);
+                    e.Key = Key;
+                    return e;
                 }
 
                 public override string ToString()

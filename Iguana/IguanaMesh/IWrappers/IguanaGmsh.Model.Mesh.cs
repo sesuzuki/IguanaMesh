@@ -1,5 +1,4 @@
 ﻿using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.ITypes.IElements;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
@@ -110,19 +109,12 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshFree(parametricCoord);
                 }
 
-                public static void TryGetIVertexCollection22(out IVertexCollection vertices, int dim = -1, int tag = -1)
+                public static bool TryParseITopologicVertices(ref IMesh mesh, int dim = -1, int tag = -1)
                 {
                     IntPtr nodeTags, coord, parametricCoord;
                     long nodeTags_Number, coord_Number, parametricCoord_Number;
                     IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
-
-                    var nodeTags_out = new long[nodeTags_Number];
-                    var coord_out = new double[nodeTags_Number][];
-                    var parametricCoord_out = new double[nodeTags_Number][];
-                    ITopologicVertex v;
-
-                    vertices = new IVertexCollection();
-                    // Tags
+                    mesh.CleanVertices();
                     if (nodeTags_Number > 0)
                     {
                         // Coordinates
@@ -137,47 +129,9 @@ namespace Iguana.IguanaMesh.IWrappers
 
                         for (int i = 0; i < nodeTags_Number; i++)
                         {
-                            v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2]);
-                            v.Key = (int) keys[i];
-
-                            //if (dim == 1) v.TextureCoordinates = new double[] { uvw[i * dim] };
-                            //else if (dim == 2) v.TextureCoordinates = new double[] { uvw[i * dim], uvw[i * dim + 1] };
-                            //else if (dim == 3) v.TextureCoordinates = new double[] { uvw[i * dim], uvw[i * dim + 1], uvw[i * dim + 2] };
-
-                            vertices.AddVertex(v.Key, v);
-                        }
-                    }
-
-                    // Delete unmanaged allocated memory
-                    IWrappers.GmshFree(nodeTags);
-                    IWrappers.GmshFree(coord);
-                    IWrappers.GmshFree(parametricCoord);
-                }
-
-                public static bool TryGetIVertexCollection(out IVertexCollection vertices, int dim = -1, int tag = -1)
-                {
-                    vertices = new IVertexCollection();
-                    IntPtr nodeTags, coord, parametricCoord;
-                    long nodeTags_Number, coord_Number, parametricCoord_Number;
-                    IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
-
-                    if (nodeTags_Number > 0)
-                    {
-                        // Coordinates
-                        var xyz = new double[coord_Number];
-                        Marshal.Copy(coord, xyz, 0, (int)coord_Number);
-                        // Keys
-                        var keys = new long[nodeTags_Number];
-                        Marshal.Copy(nodeTags, keys, 0, (int)nodeTags_Number);
-                        // uvw
-                        var uvw = new double[parametricCoord_Number];
-                        Marshal.Copy(parametricCoord, uvw, 0, (int)parametricCoord_Number);
-
-                        for (int i = 0; i < nodeTags_Number; i++)
-                        {
-                            ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2], (int)keys[i]);
+                            ITopologicVertex v = new ITopologicVertex(xyz[i * 3], xyz[i * 3 + 1], xyz[i * 3 + 2]);
                             
-                            if(!vertices.ContainsKey(v.Key)) vertices.AddVertex(v.Key, v);
+                            if(!mesh.ContainsVertexKey((int)keys[i])) mesh.AddVertex((int)keys[i], v);
                         }
                     }
 
@@ -257,11 +211,10 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// </summary>
                 /// <param name="dim"> 2 for surface element, 3 for volume elements and -1 for all elements. Default is -1. </param>
                 /// <returns></returns>
-                public static bool TryGetIElementCollection(out IElementCollection elements, out HashSet<int> parsedNodes, int dim = -1)
+                public static bool TryParseIElement(ref IMesh mesh, out HashSet<int> parsedNodes, int dim = -1)
                 {
                     parsedNodes = new HashSet<int>();
-                    elements = new IElementCollection();
-
+                    mesh.CleanElements();
                     try
                     {
                         IntPtr elementTypes, elementTags, nodeTags, elementTags_n, nodeTags_n;
@@ -301,8 +254,7 @@ namespace Iguana.IguanaMesh.IWrappers
                             int nodes_per_element = (int)(nTags_n[i] / eTags_n[i]);
                             int number_of_elements = nTags_val[i].Length / nodes_per_element;
 
-                            parsedNodes = IguanaGmshElementType.TryParseToIguanaElement(element_type, nTags_val[i], nodes_per_element, number_of_elements, ref elements);
-
+                            parsedNodes = IguanaGmshElementType.TryParseToIguanaElement(element_type, nTags_val[i], nodes_per_element, number_of_elements, ref mesh);
                         }
 
                         // Delete unmanaged allocated memory

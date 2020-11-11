@@ -23,17 +23,8 @@ namespace Iguana.IguanaMesh.IUtils
 
         public void CleanTopologicalData()
         {
-            iM.Elements.CleanTopologicalData();
-            iM.Vertices.CleanTopologicalData();
-        }
-
-        public void DeleteVertex(int vKey)
-        {
-            int[] eKeys = GetVertexIncidentElements(vKey);
-            foreach (int eK in eKeys) iM.Elements.DeleteElement(eK);
-            iM.Vertices.DeleteVertex(vKey);
-            CleanTopologicalData();
-            iM.BuildTopology();
+            iM.CleanAllElementsTopologicalData();
+            iM.CleanAllVerticesTopologicalData();
         }
 
         public void GetSortedVerticesID(out int[] naked, out int[] clothed, out int[] corners)
@@ -41,13 +32,13 @@ namespace Iguana.IguanaMesh.IUtils
             List<int> clothed_temp = new List<int>();
             List<int> naked_temp = new List<int>();
             List<int> corners_temp = new List<int>();
-            foreach (int vKey in iM.Vertices.VerticesKeys)
+            foreach (int vKey in iM.VerticesKeys)
             {
-                ITopologicVertex v = iM.Vertices.GetVertexWithKey(vKey);
+                ITopologicVertex v = iM.GetVertexWithKey(vKey);
 
                 if (v.V2HF != 0)
                 {
-                    IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                    IElement e = iM.GetElementWithKey(v.GetElementID());
                     Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                     if (sibhe != 0)
                     {
@@ -70,11 +61,11 @@ namespace Iguana.IguanaMesh.IUtils
             List<ITopologicVertex> clothed_temp = new List<ITopologicVertex>();
             List<ITopologicVertex> naked_temp = new List<ITopologicVertex>();
             List<ITopologicVertex> corners_temp = new List<ITopologicVertex>();
-            foreach (ITopologicVertex v in iM.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in iM.Vertices)
             {
                 if (v.V2HF != 0)
                 {
-                    IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                    IElement e = iM.GetElementWithKey(v.GetElementID());
                     Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                     if (sibhe != 0)
                     {
@@ -95,13 +86,13 @@ namespace Iguana.IguanaMesh.IUtils
         public int[] GetClothedVerticesID()
         {
             List<int> clothed = new List<int>();
-            foreach (int vKey in iM.Vertices.VerticesKeys)
+            foreach (int vKey in iM.VerticesKeys)
             {
-                ITopologicVertex v = iM.Vertices.GetVertexWithKey(vKey);
+                ITopologicVertex v = iM.GetVertexWithKey(vKey);
 
                 if (v.V2HF != 0)
                 {
-                    IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                    IElement e = iM.GetElementWithKey(v.GetElementID());
                     Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                     if (sibhe != 0)
                     {
@@ -115,11 +106,11 @@ namespace Iguana.IguanaMesh.IUtils
         public ITopologicVertex[] GetClothedVertices()
         {
             List<ITopologicVertex> clothed = new List<ITopologicVertex>();
-            foreach (ITopologicVertex v in iM.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in iM.Vertices)
             {
                 if (v.V2HF != 0)
                 {
-                    IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                    IElement e = iM.GetElementWithKey(v.GetElementID());
                     Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                     if (sibhe != 0)
                     {
@@ -162,21 +153,21 @@ namespace Iguana.IguanaMesh.IUtils
         public int[] GetVertexIncidentElements(int vertexKey)
         {
             List<Int32> neighbor = new List<Int32>();
-            iM.Elements.CleanVisits();
+            iM.CleanElementsVisits();
 
             Int64[] nK;
             int key;
 
-            List<int> oldK = new List<int>() { iM.Vertices.GetVertexWithKey(vertexKey).GetElementID() };
-            List<int> newK;
+            HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID() };
+            HashSet<int> newK;
             while (oldK.Count() > 0)
             {
-                newK = new List<int>();
+                newK = new HashSet<int>();
 
                 foreach (int eK in oldK)
                 {
                     neighbor.Add(eK);
-                    nK = iM.Elements.GetElementWithKey(eK).GetSiblingHalfFacets();
+                    nK = iM.GetElementWithKey(eK).GetSiblingHalfFacets();
 
                     foreach (Int64 eData in nK)
                     {
@@ -184,7 +175,7 @@ namespace Iguana.IguanaMesh.IUtils
                         {
                             key = (Int32)(eData >> 32);
 
-                            IElement e = iM.Elements.GetElementWithKey(key);
+                            IElement e = iM.GetElementWithKey(key);
 
                             if (e.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
                             {
@@ -202,74 +193,123 @@ namespace Iguana.IguanaMesh.IUtils
         public int[] GetVertexAdjacentVertices(int vertexKey)
         {
             List<Int32> neighbor = new List<Int32>();
-            List<Int32> vNeighbor = new List<int>();
-            iM.Elements.CleanVisits();
+            List<Int32> vNeighbor = new List<Int32>();
+            iM.CleanElementsVisits();
 
             Int64[] nK;
             int key;
+            IElement e, nE;
 
-            List<int> oldK = new List<int>() { iM.Vertices.GetVertexWithKey(vertexKey).GetElementID() };
-            List<int> newK;
+            HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID() };
+            HashSet<int> newK;
             while (oldK.Count() > 0)
             {
-                newK = new List<int>();
+
+                newK = new HashSet<int>();
 
                 foreach (int eK in oldK)
                 {
                     neighbor.Add(eK);
-                    nK = iM.Elements.GetElementWithKey(eK).GetSiblingHalfFacets();
+                    e = iM.GetElementWithKey(eK);
+                    for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                    {
+                        int[] hf;
+                        e.GetHalfFacet(halfFacetID, out hf);
 
+                        if (hf.Contains(vertexKey))
+                        {
+                            int hfIdx = hf.ToList().IndexOf(vertexKey);
+
+                            int next = hfIdx + 1;
+                            int prev = hfIdx - 1;
+
+                            if (next > hf.Length - 1) next = 0;
+                            if (prev < 0) prev = hf.Length - 1;
+
+                            int nextV = hf[next];
+                            int prevV = hf[prev];
+
+                            if (!vNeighbor.Contains(nextV)) vNeighbor.Add(nextV);
+                            if (!vNeighbor.Contains(prevV)) vNeighbor.Add(prevV);
+                        }
+                    }
+
+                    //Check for siblings
+                    nK = e.GetSiblingHalfFacets();
                     foreach (Int64 eData in nK)
                     {
                         if (eData != 0)
                         {
-                            key = (Int32)(eData >> 32);
+                            key = (Int32) (eData >> 32);
 
-                            IElement e = iM.Elements.GetElementWithKey(key);
+                            nE = iM.GetElementWithKey(key);
 
-                            if (e.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                            if (nE.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
                             {
                                 newK.Add(key);
-
-                                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
-                                {
-                                    int[] hf;
-                                    e.GetHalfFacet(halfFacetID, out hf);
-
-                                    if (hf.Contains(vertexKey))
-                                    {
-                                        int hfIdx = hf.ToList().IndexOf(vertexKey);
-
-                                        int next = hfIdx + 1;
-                                        int prev = hfIdx - 1;
-
-                                        if (next > hf.Length - 1) next = 0;
-                                        if (prev < 0) prev = hf.Length - 1;
-
-                                        int nextV = hf[next];
-                                        int prevV = hf[prev];
-
-                                        if (!vNeighbor.Contains(nextV)) vNeighbor.Add(nextV);
-                                        if (!vNeighbor.Contains(prevV)) vNeighbor.Add(prevV);
-                                    }
-                                }
                             }
                         }
                     }
                 }
+
                 oldK = newK;
             }
             return vNeighbor.ToArray();
+        }
+
+        public int[] GetVertexIncidentElementsSorted(int vertexKey)
+        {
+            int[] nKeys = iM.Topology.GetVertexIncidentElements(vertexKey);
+
+            if (nKeys.Length > 1)
+            {
+
+                IPoint3D[] refPt = new IPoint3D[2];
+                refPt[0] = ComputeAveragePosition(iM.GetElementWithKey(nKeys[0]).Vertices);
+                refPt[1] = ComputeAveragePosition(iM.GetElementWithKey(nKeys[1]).Vertices);
+
+                IVector3D refVec = refPt[1] - refPt[0];
+
+                List<int> results = nKeys.Skip(1).OrderBy(nK =>
+                    IVector3D.AngleBetween(refVec, ComputeAveragePosition(iM.GetElementWithKey(nK).Vertices) - refPt[0])
+                ).ToList();
+
+                results.Insert(0, nKeys[0]);
+                nKeys = results.ToArray();
+            }
+            return nKeys;
+        }
+
+        public int[] GetVertexAdjacentVerticesSorted(int vertexKey)
+        {
+            int[] nKeys = iM.Topology.GetVertexAdjacentVertices(vertexKey);
+
+            if (nKeys.Length > 1)
+            {
+                IPoint3D[] refPt = new IPoint3D[2];
+                refPt[0] = iM.GetVertexWithKey(nKeys[0]).Position;
+                refPt[1] = iM.GetVertexWithKey(nKeys[1]).Position;
+
+                IVector3D refVec = refPt[1] - refPt[0];
+
+                List<int> results = nKeys.Skip(1).OrderBy(nK =>
+                    IVector3D.AngleBetween(refVec, iM.GetVertexWithKey(nK).Position - refPt[0])
+                ).ToList();
+
+                results.Insert(0, nKeys[0]);
+                nKeys = results.ToArray();
+            }
+            return nKeys;
         }
 
         public ITopologicEdge[] GetNakedEdges()
         {
             List<ITopologicEdge> naked = new List<ITopologicEdge>();
 
-            foreach (int eK in iM.Elements.ElementsKeys)
+            foreach (int eK in iM.ElementsKeys)
             {
 
-                IElement e = iM.Elements.GetElementWithKey(eK);
+                IElement e = iM.GetElementWithKey(eK);
 
                 if (e.TopologicDimension == 2)
                 {
@@ -285,7 +325,7 @@ namespace Iguana.IguanaMesh.IUtils
                             if (i == sibhf.Length - 1) B = 0;
                             vk1 = e.Vertices[A];
                             vk2 = e.Vertices[B];
-                            naked.Add(new ITopologicEdge(iM.Vertices.GetVertexWithKey(vk1), iM.Vertices.GetVertexWithKey(vk2)));
+                            naked.Add(new ITopologicEdge(iM.GetVertexWithKey(vk1), iM.GetVertexWithKey(vk2)));
                         }
                     }
                 }
@@ -297,12 +337,12 @@ namespace Iguana.IguanaMesh.IUtils
         public int[] GetNakedVerticesID()
         {
             List<int> naked = new List<int>();
-            foreach (int vKey in iM.Vertices.VerticesKeys)
+            foreach (int vKey in iM.VerticesKeys)
             {
-                ITopologicVertex v = iM.Vertices.GetVertexWithKey(vKey);
+                ITopologicVertex v = iM.GetVertexWithKey(vKey);
                 if (v.V2HF != 0)
                 {
-                    IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                    IElement e = iM.GetElementWithKey(v.GetElementID());
                     Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                     if (sibhe == 0)
                     {
@@ -315,10 +355,10 @@ namespace Iguana.IguanaMesh.IUtils
 
         public bool IsNakedVertex(int vKey)
         {
-            ITopologicVertex v = iM.Vertices.GetVertexWithKey(vKey);
+            ITopologicVertex v = iM.GetVertexWithKey(vKey);
             if (v.V2HF != 0)
             {
-                IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                IElement e = iM.GetElementWithKey(v.GetElementID());
                 Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                 if (sibhe == 0) return true;
             }
@@ -330,13 +370,13 @@ namespace Iguana.IguanaMesh.IUtils
         public ITopologicVertex[] GetNakedVertices()
         {
             List<ITopologicVertex> naked = new List<ITopologicVertex>();
-            foreach (int vKey in iM.Vertices.VerticesKeys)
+            foreach (int vKey in iM.VerticesKeys)
             {
-                ITopologicVertex v = iM.Vertices.GetVertexWithKey(vKey);
+                ITopologicVertex v = iM.GetVertexWithKey(vKey);
 
                 if (v.V2HF != 0)
                 {
-                    IElement e = iM.Elements.GetElementWithKey(v.GetElementID());
+                    IElement e = iM.GetElementWithKey(v.GetElementID());
                     Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
                     if (sibhe == 0) naked.Add(v);
                 }
@@ -351,9 +391,9 @@ namespace Iguana.IguanaMesh.IUtils
             int elementID_sibling, halfFacetID_sibling;
             Boolean visited;
 
-            foreach (int elementID in iM.Elements.ElementsKeys)
+            foreach (int elementID in iM.ElementsKeys)
             {
-                IElement e = iM.Elements.GetElementWithKey(elementID);
+                IElement e = iM.GetElementWithKey(elementID);
 
                 if (!e.Visited)
                 {
@@ -374,7 +414,7 @@ namespace Iguana.IguanaMesh.IUtils
                                     //Collect information of siblings
                                     elementID_sibling = e.GetSiblingElementID(halfFacetID);
                                     halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
-                                    element_sibling = iM.Elements.GetElementWithKey(elementID_sibling);
+                                    element_sibling = iM.GetElementWithKey(elementID_sibling);
 
                                     visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
 
@@ -415,7 +455,7 @@ namespace Iguana.IguanaMesh.IUtils
                     }
                 }
             }
-            iM.Elements.CleanVisits();
+            iM.CleanElementsVisits();
             return edges.ToArray();
         }
 
@@ -428,9 +468,9 @@ namespace Iguana.IguanaMesh.IUtils
         public int[] GetEdgeIncidentElements(int vKey1, int vKey2)
         {
             var neighbor = new int[0];
-            iM.Elements.CleanVisits();
+            iM.CleanElementsVisits();
             int[] e1,e2;
-            if (iM.Vertices.ContainsKey(vKey1) && iM.Vertices.ContainsKey(vKey2))
+            if (iM.ContainsVertexKey(vKey1) && iM.ContainsVertexKey(vKey2))
             {
                 e1 = iM.Topology.GetVertexIncidentElements(vKey1);
                 e2 = iM.Topology.GetVertexIncidentElements(vKey2);
@@ -450,8 +490,8 @@ namespace Iguana.IguanaMesh.IUtils
             ITopologicEdge[] edge = new ITopologicEdge[pairs.Length];
             ITopologicVertex v1, v2;
             for(int i=0; i<pairs.Length; i++) {
-                v1 = iM.Vertices.GetVertexWithKey((Int32)(pairs[i] >> 32));
-                v2 = iM.Vertices.GetVertexWithKey((Int32)pairs[i]);
+                v1 = iM.GetVertexWithKey((Int32)(pairs[i] >> 32));
+                v2 = iM.GetVertexWithKey((Int32)pairs[i]);
                 edge[i] = new ITopologicEdge(v1,v2);
             }
             return edge;
@@ -473,15 +513,15 @@ namespace Iguana.IguanaMesh.IUtils
             List<IVector3D> pos_List = new List<IVector3D>();
             List<int> keys_List = new List<int>();
 
-            foreach (int eK in iM.Elements.ElementsKeys)
+            foreach (int eK in iM.ElementsKeys)
             {
-                e = iM.Elements.GetElementWithKey(eK);
+                e = iM.GetElementWithKey(eK);
                 if (!e.Visited)
                 {
                     int[] nKeys = iM.Topology.GetElementAdjacentElements(eK);
                     foreach (int nK in nKeys)
                     {
-                        ee = iM.Elements.GetElementWithKey(nK);
+                        ee = iM.GetElementWithKey(nK);
                         if (!ee.Visited)
                         {
                             iM.Topology.ComputeTwoDimensionalElementNormal(nK, out n, out pos);
@@ -509,15 +549,15 @@ namespace Iguana.IguanaMesh.IUtils
             List<Point3d> pos_List = new List<Point3d>();
             List<int> keys_List = new List<int>();
 
-            foreach (int eK in iM.Elements.ElementsKeys)
+            foreach (int eK in iM.ElementsKeys)
             {
-                e = iM.Elements.GetElementWithKey(eK);
+                e = iM.GetElementWithKey(eK);
                 if (!e.Visited)
                 {
                     int[] nKeys = iM.Topology.GetElementAdjacentElements(eK);
                     foreach (int nK in nKeys)
                     {
-                        ee = iM.Elements.GetElementWithKey(nK);
+                        ee = iM.GetElementWithKey(nK);
                         if (!ee.Visited)
                         {
                             iM.Topology.ComputeTwoDimensionalElementNormal(nK, out n, out pos);
@@ -538,7 +578,7 @@ namespace Iguana.IguanaMesh.IUtils
 
         public bool ComputeTwoDimensionalElementNormal(int eKey, out IVector3D normal, out IVector3D position)
         {
-            IElement e = iM.Elements.GetElementWithKey(eKey);
+            IElement e = iM.GetElementWithKey(eKey);
             normal = new IVector3D();
             position = new IVector3D();
             if (e.TopologicDimension == 2)
@@ -553,9 +593,9 @@ namespace Iguana.IguanaMesh.IUtils
                     next_i = i + 1;
                     if (i == e.VerticesCount - 1) next_i = 0;
 
-                    vv0 = iM.Vertices.GetVertexWithKey(e.Vertices[i]);
-                    vv1 = iM.Vertices.GetVertexWithKey(e.Vertices[prev_i]);
-                    vv2 = iM.Vertices.GetVertexWithKey(e.Vertices[next_i]);
+                    vv0 = iM.GetVertexWithKey(e.Vertices[i]);
+                    vv1 = iM.GetVertexWithKey(e.Vertices[prev_i]);
+                    vv2 = iM.GetVertexWithKey(e.Vertices[next_i]);
 
                     v1 = vv1.Position - vv0.Position;
                     v2 = vv2.Position - vv0.Position;
@@ -573,7 +613,7 @@ namespace Iguana.IguanaMesh.IUtils
 
         public bool ComputeTwoDimensionalElementNormal(int eKey, out Vector3d normal, out Point3d position)
         {
-            IElement e = iM.Elements.GetElementWithKey(eKey);
+            IElement e = iM.GetElementWithKey(eKey);
             normal = new Vector3d();
             position = new Point3d();
             if (e.TopologicDimension == 2)
@@ -588,9 +628,9 @@ namespace Iguana.IguanaMesh.IUtils
                     next_i = i + 1;
                     if (i == e.VerticesCount - 1) next_i = 0;
 
-                    vv0 = iM.Vertices.GetVertexWithKey(e.Vertices[i]);
-                    vv1 = iM.Vertices.GetVertexWithKey(e.Vertices[prev_i]);
-                    vv2 = iM.Vertices.GetVertexWithKey(e.Vertices[next_i]);
+                    vv0 = iM.GetVertexWithKey(e.Vertices[i]);
+                    vv1 = iM.GetVertexWithKey(e.Vertices[prev_i]);
+                    vv2 = iM.GetVertexWithKey(e.Vertices[next_i]);
 
                     v1 = vv1.RhinoPoint - vv0.RhinoPoint;
                     v2 = vv2.RhinoPoint - vv0.RhinoPoint;
@@ -609,7 +649,7 @@ namespace Iguana.IguanaMesh.IUtils
         public Int64[] GetHalfFacetIncidentHalfFacets(Int64 hf_Key)
         {
             List<Int64> neighbor = new List<Int64>();
-            iM.Elements.CleanVisits();
+            iM.CleanElementsVisits();
 
             Int64 keyPair = hf_Key;
             Int64 nK;
@@ -619,7 +659,7 @@ namespace Iguana.IguanaMesh.IUtils
                 eKey = (Int32)(hf_Key >> 32);
                 hfKey = (Int32)hf_Key;
                 neighbor.Add(eKey);
-                nK = iM.Elements.GetElementWithKey(eKey).GetSiblingHalfFacet(hfKey);
+                nK = iM.GetElementWithKey(eKey).GetSiblingHalfFacet(hfKey);
 
                 if (nK != 0) keyPair = nK;
             }
@@ -630,9 +670,9 @@ namespace Iguana.IguanaMesh.IUtils
         {
 
             List<int> neighbor = new List<int>();
-            iM.Elements.CleanVisits();
+            iM.CleanElementsVisits();
 
-            IElement ee = iM.Elements.GetElementWithKey(eKey);
+            IElement ee = iM.GetElementWithKey(eKey);
 
             foreach (int vertexKey in ee.Vertices)
             {
@@ -701,7 +741,7 @@ namespace Iguana.IguanaMesh.IUtils
         /// <returns></returns>
         public double ComputeTwoDimensionalElementArea(int eKey)
         {
-            IElement e = iM.Elements.GetElementWithKey(eKey);
+            IElement e = iM.GetElementWithKey(eKey);
             if (e.TopologicDimension != 2) return 0;
 
             IVector3D n, pos;
@@ -724,9 +764,9 @@ namespace Iguana.IguanaMesh.IUtils
                 if (i == 0) prev_i = e.VerticesCount - 1;
                 next_i = i + 1;
                 if (i == e.VerticesCount - 1) next_i = 0;
-                prevV = iM.Vertices.GetVertexWithKey(e.Vertices[prev_i]);
-                v = iM.Vertices.GetVertexWithKey(e.Vertices[i]);
-                nextV = iM.Vertices.GetVertexWithKey(e.Vertices[next_i]);
+                prevV = iM.GetVertexWithKey(e.Vertices[prev_i]);
+                v = iM.GetVertexWithKey(e.Vertices[i]);
+                nextV = iM.GetVertexWithKey(e.Vertices[next_i]);
 
                 switch (coord)
                 {
@@ -757,7 +797,7 @@ namespace Iguana.IguanaMesh.IUtils
             return Math.Abs(area);
         }
 
-        public double ComputePolygonArea(IVector3D[] polygon)
+        public double ComputePolygonArea(IPoint3D[] polygon)
         {
             if (polygon.Length <= 2) return 0;
 
@@ -774,16 +814,18 @@ namespace Iguana.IguanaMesh.IUtils
             if (x >= y && x >= z) coord = 1;
             else if (y >= x && y >= z) coord = 2;
             int prev_i, next_i;
-            IVector3D prevV, v, nextV;
+            IVector3D prevV = new IVector3D();
+            IVector3D v = new IVector3D();
+            IVector3D nextV = new IVector3D();
             for (int i = 0; i < polygon.Length; i++)
             {
                 prev_i = i - 1;
                 if (i == 0) prev_i = polygon.Length - 1;
                 next_i = i + 1;
                 if (i == polygon.Length - 1) next_i = 0;
-                prevV = polygon[prev_i];
-                v = polygon[i];
-                nextV = polygon[next_i];
+                prevV += polygon[prev_i];
+                v += polygon[i];
+                nextV += polygon[next_i];
 
                 switch (coord)
                 {
@@ -838,9 +880,9 @@ namespace Iguana.IguanaMesh.IUtils
                 if (i == 0) prev_i = hf.Length - 1;
                 next_i = i + 1;
                 if (i == hf.Length - 1) next_i = 0;
-                prevV = iM.Vertices.GetVertexWithKey(hf[prev_i]);
-                v = iM.Vertices.GetVertexWithKey(hf[i]);
-                nextV = iM.Vertices.GetVertexWithKey(hf[next_i]);
+                prevV = iM.GetVertexWithKey(hf[prev_i]);
+                v = iM.GetVertexWithKey(hf[i]);
+                nextV = iM.GetVertexWithKey(hf[next_i]);
 
                 switch (coord)
                 {
@@ -880,7 +922,7 @@ namespace Iguana.IguanaMesh.IUtils
             int count = 0;
             eKeys.All(eK =>
             {
-                e = iM.Elements.GetElementWithKey(eK);
+                e = iM.GetElementWithKey(eK);
                 if (e.TopologicDimension == 2)
                 {
                     area += ComputeTwoDimensionalElementArea(eK);
@@ -915,9 +957,9 @@ namespace Iguana.IguanaMesh.IUtils
                     next_i = i + 1;
                     if (i == hf.Length - 1) next_i = 0;
 
-                    vv0 = iM.Vertices.GetVertexWithKey(hf[i]);
-                    vv1 = iM.Vertices.GetVertexWithKey(hf[prev_i]);
-                    vv2 = iM.Vertices.GetVertexWithKey(hf[next_i]);
+                    vv0 = iM.GetVertexWithKey(hf[i]);
+                    vv1 = iM.GetVertexWithKey(hf[prev_i]);
+                    vv2 = iM.GetVertexWithKey(hf[next_i]);
 
                     v1 = vv1.Position - vv0.Position;
                     v2 = vv2.Position - vv0.Position;
@@ -933,13 +975,16 @@ namespace Iguana.IguanaMesh.IUtils
             return false;
         }
 
-        public bool ComputePolygonNormal(IVector3D[] polygon, out IVector3D normal, out IVector3D position)
+        public bool ComputePolygonNormal(IPoint3D[] polygon, out IVector3D normal, out IVector3D position)
         {
             normal = new IVector3D();
             position = new IVector3D();
             if (polygon.Length > 2)
             {
-                IVector3D v1, v2, vv0, vv1, vv2;
+                IVector3D v1, v2;
+                IVector3D vv0 = new IVector3D();
+                IVector3D vv1 = new IVector3D();
+                IVector3D vv2 = new IVector3D();
                 int prev_i, next_i;
                 for (int i = 0; i < polygon.Length; i++)
                 {
@@ -948,9 +993,9 @@ namespace Iguana.IguanaMesh.IUtils
                     next_i = i + 1;
                     if (i == polygon.Length - 1) next_i = 0;
 
-                    vv0 = polygon[i];
-                    vv1 = polygon[prev_i];
-                    vv2 = polygon[next_i];
+                    vv0 += polygon[i];
+                    vv1 += polygon[prev_i];
+                    vv2 += polygon[next_i];
 
                     v1 = vv1 - vv0;
                     v2 = vv2 - vv0;
@@ -970,7 +1015,7 @@ namespace Iguana.IguanaMesh.IUtils
         {
             int[] eKeys = GetEdgeIncidentElements(vKey1, vKey2);
             normal = new IVector3D();
-            center = iM.Vertices.GetVertexWithKey(vKey1).Position + iM.Vertices.GetVertexWithKey(vKey2).Position;
+            center = iM.GetVertexWithKey(vKey1).Position + iM.GetVertexWithKey(vKey2).Position;
             center /= 2;
 
             if (eKeys.Length == 0) return false;
@@ -987,12 +1032,48 @@ namespace Iguana.IguanaMesh.IUtils
             return true;
         }
 
+        public void ComputeEdgeNormals(out IVector3D[] normals, out IVector3D[] centers, out ITopologicEdge[] edges)
+        {
+            Int64[] eKeys = iM.Topology.GetUniqueEdges();
+            edges = new ITopologicEdge[eKeys.Length];
+            normals = new IVector3D[eKeys.Length];
+            centers = new IVector3D[eKeys.Length];
+            int start, end;
+            for(int i=0; i<eKeys.Length; i++)
+            {
+                Int64 eK = eKeys[i];
+                IHelpers.UnpackKey(eK, out start, out end);
+                edges[i] = new ITopologicEdge(iM.GetVertexWithKey(start), iM.GetVertexWithKey(end));
+                iM.Topology.ComputeEdgeNormal(start, end, out normals[i], out centers[i]);
+            }
+        }
+
+        public void ComputeEdgeNormals(out Vector3d[] normals, out Point3d[] centers, out ITopologicEdge[] edges)
+        {
+            Int64[] eKeys = iM.Topology.GetUniqueEdges();
+            edges = new ITopologicEdge[eKeys.Length];
+            normals = new Vector3d[eKeys.Length];
+            centers = new Point3d[eKeys.Length];
+            int start, end;
+            IVector3D vv,pp;
+            for (int i = 0; i < eKeys.Length; i++)
+            {
+                Int64 eK = eKeys[i];
+                IHelpers.UnpackKey(eK, out start, out end);
+                edges[i] = new ITopologicEdge(iM.GetVertexWithKey(start), iM.GetVertexWithKey(end));
+                
+                iM.Topology.ComputeEdgeNormal(start, end, out vv, out pp);
+                normals[i] = new Vector3d(vv.X, vv.Y, vv.Z);
+                centers[i] = new Point3d(pp.X, pp.Y, pp.Z);
+            }
+        }
+
         public IVector3D GetHalfFacetCenter(int[] hf)
         {
             IVector3D center = new IVector3D();
             foreach (int eV in hf)
             {
-                center += iM.Vertices.GetVertexWithKey(eV).Position;
+                center += iM.GetVertexWithKey(eV).Position;
             }
             center /= hf.Length;
             return center;
@@ -1014,15 +1095,15 @@ namespace Iguana.IguanaMesh.IUtils
             double gauss = 0.0;
 
             int[] nKey = iM.Topology.GetVertexAdjacentVertices(vKey);
-            ITopologicVertex v = iM.Vertices.GetVertexWithKey(vKey);
+            ITopologicVertex v = iM.GetVertexWithKey(vKey);
             int next_i;
             for(int i=0; i<nKey.Length; i++)
             {
                 next_i = i + 1;
                 if (i == nKey.Length - 1) next_i = 0;
 
-                ITopologicVertex p1 = iM.Vertices.GetVertexWithKey(nKey[i]);
-                ITopologicVertex p2 = iM.Vertices.GetVertexWithKey(nKey[next_i]);
+                ITopologicVertex p1 = iM.GetVertexWithKey(nKey[i]);
+                ITopologicVertex p2 = iM.GetVertexWithKey(nKey[next_i]);
                 vect1 = IVector3D.CreateVector(v.Position, p1.Position);
                 vect2 = IVector3D.CreateVector(p1.Position, p2.Position);
                 vect3 = IVector3D.CreateVector(p2.Position, v.Position);
@@ -1072,8 +1153,8 @@ namespace Iguana.IguanaMesh.IUtils
         public double ComputeBarycentricVertexArea(int vKey)
         {
             int[] nKeys = GetVertexAdjacentVertices(vKey);
-            IVector3D v = iM.Vertices.GetVertexWithKey(vKey).Position;
-            IVector3D vv1, vv2;
+            IPoint3D v = iM.GetVertexWithKey(vKey).Position;
+            IPoint3D vv1, vv2;
 
             int next_i;
             double area = 0;
@@ -1084,19 +1165,19 @@ namespace Iguana.IguanaMesh.IUtils
 
                 vv1 = ComputeAveragePosition(new int[]{nKeys[i], vKey});
                 vv2 = ComputeAveragePosition(new int[]{ nKeys[next_i], vKey });
-                area += ComputePolygonArea(new IVector3D[]{vv1,vv2,v});                
+                area += ComputePolygonArea(new IPoint3D[]{vv1,vv2,v});                
             }
             area /= nKeys.Length;
 
             return area;
         }
 
-        internal IVector3D ComputeAveragePosition(int[] keys)
+        internal IPoint3D ComputeAveragePosition(int[] keys)
         {
             IVector3D v = new IVector3D();
-            for (int i = 0; i < keys.Length; i++) v += iM.Vertices.GetVertexWithKey(keys[i]).Position;
+            for (int i = 0; i < keys.Length; i++) v += iM.GetVertexWithKey(keys[i]).Position;
             v /= keys.Length;
-            return v;
+            return new IPoint3D(v.X,v.Y,v.Z);
         }
   
         public IVector3D ComputeVertexNormal(int vKey)

@@ -41,7 +41,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
         public override IElement CleanCopy()
         {
-            return new ISurfaceElement(Vertices);
+            IElement e = new ISurfaceElement(Vertices);
+            e.Key = Key;
+            return e;
         }
 
         /// <summary>

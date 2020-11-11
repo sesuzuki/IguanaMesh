@@ -13,13 +13,13 @@ namespace Iguana.IguanaMesh.IUtils
         {
             IMesh dup = mesh.DeepCopy();
 
-            Parallel.ForEach(mesh.Vertices.VerticesKeys, vK =>
+            Parallel.ForEach(mesh.VerticesKeys, vK =>
             {
-                ITopologicVertex v = mesh.Vertices.GetVertexWithKey(vK);
+                ITopologicVertex v = mesh.GetVertexWithKey(vK);
                 v.X *= sX;
                 v.Y *= sY;
                 v.Z *= sZ;
-                dup.Vertices.SetVertexPosition(vK, v.Position);
+                dup.SetVertexPosition(vK, v.Position);
             });
 
             return dup;
@@ -29,13 +29,13 @@ namespace Iguana.IguanaMesh.IUtils
         {
             IMesh dup = mesh.DeepCopy();
 
-            Parallel.ForEach(mesh.Vertices.VerticesKeys, vK =>
+            Parallel.ForEach(mesh.VerticesKeys, vK =>
             {
-                ITopologicVertex v = mesh.Vertices.GetVertexWithKey(vK);
+                ITopologicVertex v = mesh.GetVertexWithKey(vK);
                 v.X += sX;
                 v.Y += sY;
                 v.Z += sZ;
-                dup.Vertices.SetVertexPosition(vK, v.Position);
+                dup.SetVertexPosition(vK, v.Position);
             });
 
             return dup;
@@ -45,20 +45,20 @@ namespace Iguana.IguanaMesh.IUtils
         {
             IMesh dup = mesh.DeepCopy();
 
-            Parallel.ForEach(mesh.Vertices.VerticesKeys, vK =>
+            Parallel.ForEach(mesh.VerticesKeys, vK =>
             {
-                ITopologicVertex v = mesh.Vertices.GetVertexWithKey(vK);
-                IVector3D pos = RotateVertex(v,axis, angle);
-                dup.Vertices.SetVertexPosition(vK, pos);
+                ITopologicVertex v = mesh.GetVertexWithKey(vK);
+                IPoint3D pos = RotateVertexPosition(v,axis, angle);
+                dup.SetVertexPosition(vK, pos);
             });
 
             return dup;
         }
 
-        internal static IVector3D RotateVertex(ITopologicVertex v, IVector3D axis, double angle)
+        internal static IPoint3D RotateVertexPosition(ITopologicVertex v, IVector3D axis, double angle)
         {
             axis.Norm();
-            IVector3D nV = new IVector3D(v.Position);
+            IPoint3D nV = new IPoint3D(v.Position.X, v.Position.Y,v.Position.Z);
             double a = angle * Math.PI / 180;
             double t1 = 1 - Math.Cos(a);
             double cosA = Math.Cos(a);

@@ -7,7 +7,6 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Rhino;
 using Rhino.Geometry;
 
@@ -62,7 +61,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.GetData(0, ref mesh);
             DA.GetData(1, ref eKey);
 
-            IElement e = mesh.Elements.GetElementWithKey(eKey);
+            IElement e = mesh.GetElementWithKey(eKey);
             ITopologicHalfFacet[] hf = new ITopologicHalfFacet[e.HalfFacetsCount];
             ITopologicSiblingHalfFacet[] shf = new ITopologicSiblingHalfFacet[e.HalfFacetsCount];
             for (int i=0; i<e.HalfFacetsCount; i++)

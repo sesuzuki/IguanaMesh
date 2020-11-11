@@ -53,8 +53,8 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
 
             IMesh dM = mesh.DeepCopy();
 
-            ITopologicVertex v = dM.Vertices.GetVertexWithKey(vKey);
-            dM.Vertices.SetVertexPosition(vKey, v.Position + new IVector3D(vec.X, vec.Y, vec.Z));
+            ITopologicVertex v = dM.GetVertexWithKey(vKey);
+            dM.SetVertexPosition(vKey, v.Position + new IVector3D(vec.X, vec.Y, vec.Z));
 
             DA.SetData(0, dM);
         }

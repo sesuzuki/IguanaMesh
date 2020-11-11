@@ -54,11 +54,11 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
             IMesh dM = mesh.DeepCopy();
 
             ITopologicVertex v;
-            IElement e = dM.Elements.GetElementWithKey(eKey);
+            IElement e = dM.GetElementWithKey(eKey);
             foreach(int vK in e.Vertices)
             {
-                v = dM.Vertices.GetVertexWithKey(vK);
-                dM.Vertices.SetVertexPosition(vK, v.Position + new IVector3D(vec.X, vec.Y, vec.Z));
+                v = dM.GetVertexWithKey(vK);
+                dM.SetVertexPosition(vK, v.Position + new IVector3D(vec.X, vec.Y, vec.Z));
             }            
 
             DA.SetData(0, dM);

@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;

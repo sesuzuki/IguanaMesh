@@ -49,7 +49,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
             IVector3D v;
             int[] eKeys = new int[mesh.Vertices.Count];
             int idx = 0;
-            foreach (int vK in mesh.Vertices.VerticesKeys)
+            foreach (int vK in mesh.VerticesKeys)
             {
                 v = mesh.Topology.ComputeVertexNormal(vK);
                 normals[idx] = new Vector3d(v.X,v.Y,v.Z);

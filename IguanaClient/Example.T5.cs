@@ -1,5 +1,4 @@
-﻿using Iguana.IguanaMesh.ITypes.ICollections;
-using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.IWrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -167,16 +166,6 @@ namespace IguanaClient
             // gmsh::option::setNumber("Mesh.HighOrderOptimize", 2);
 
             IguanaGmsh.Model.Mesh.Generate(3);
-
-            // Iguana mesh construction
-            IVertexCollection vertices;
-            IElementCollection elements;
-            HashSet<int> parsedNodes;
-            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, 3);
-            //if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
-
-            Console.WriteLine(elements.Count);
 
             IguanaGmsh.Write("t5.msh");
 

@@ -10,38 +10,40 @@ namespace Iguana.IguanaMesh.IModifiers
 {
     public static partial class ISubdividor
     {
-        internal static IVector3D ComputeLoopEdgeVertexPosition(int[] keys, IMesh m)
+        internal static IPoint3D ComputeLoopEdgeVertexPosition(int[] keys, IMesh m)
         {
             IVector3D v = new IVector3D();
             if (!m.Topology.IsNakedEdge(keys[0], keys[1]))
             {
                 // Edge ends average
-                foreach(int vK in keys) v += m.Vertices.GetVertexWithKey(vK).Position;
+                foreach(int vK in keys) v += m.GetVertexWithKey(vK).Position;
 
                 //Face centers average
                 int[] incidentE = m.Topology.GetEdgeIncidentElements(keys[0], keys[1]);
                 IElement e;
                 foreach (int eKey in incidentE)
                 {
-                    e = m.Elements.GetElementWithKey(eKey);
+                    e = m.GetElementWithKey(eKey);
                     v += (ComputeAveragePosition(e.Vertices, m)*3);
                 }
                 v /= 8;
             }
             else
             {
-                for (int i = 0; i < keys.Length; i++) v += m.Vertices.GetVertexWithKey(keys[i]).Position;
+                for (int i = 0; i < keys.Length; i++) v += m.GetVertexWithKey(keys[i]).Position;
                 v /= keys.Length;
+
             }
 
-            return v;
+            return new IPoint3D(v.X,v.Y,v.Z);
         }
 
-        internal static IVector3D ComputeLoopVertexPosition(IMesh m, int vKey)
+        internal static IPoint3D ComputeLoopVertexPosition(IMesh m, int vKey)
         {
-            ITopologicVertex v = m.Vertices.GetVertexWithKey(vKey);
+            ITopologicVertex v = m.GetVertexWithKey(vKey);
             int[] vN = m.Topology.GetVertexAdjacentVertices(vKey);
-            IVector3D pos = new IVector3D();
+            IPoint3D pos = new IPoint3D();
+            IVector3D vec = new IVector3D();
             if (!m.Topology.IsNakedVertex(vKey))
             {
                 int n = vN.Length;
@@ -49,25 +51,23 @@ namespace Iguana.IguanaMesh.IModifiers
                 double coef = (3 / 16) * n;
                 if (n > 3) coef = (3 / (8 * n)) * n;
 
-                pos = ComputeAveragePosition(vN, m);
-                pos *= (1 - coef);
-                pos += (v.Position * coef);
+                vec = v.Position * coef;
+                vec += (ComputeAveragePosition(vN, m) * (1 - coef));
             }
             else
             {
-                pos = new IVector3D();
                 int count = 0;
                 foreach (int nKey in vN)
                 {
                     if (m.Topology.IsNakedEdge(nKey, vKey))
                     {
-                        pos += ComputeAveragePosition(ComputeAveragePosition(new[] { vKey, nKey }, m), v.Position);
+                        vec += ComputeAveragePosition(ComputeAveragePosition(new[] { vKey, nKey }, m), v.Position);
                         count++;
                     }
                 }
-                pos /= count;
+                vec /= count;
             }
-            return pos;
+            return new IPoint3D(vec.X,vec.Y,vec.Z);
         }
 
         public static IMesh Loop(IMesh mesh)
@@ -77,13 +77,13 @@ namespace Iguana.IguanaMesh.IModifiers
             IMesh sMesh = new IMesh();
 
             //Old vertices
-            foreach (int vK in triMesh.Vertices.VerticesKeys)
+            foreach (int vK in triMesh.VerticesKeys)
             {
-                sMesh.Vertices.AddVertex(vK, new ITopologicVertex(ComputeLoopVertexPosition(triMesh, vK)));
+                sMesh.AddVertex(vK, new ITopologicVertex(ComputeLoopVertexPosition(triMesh, vK)));
             }
 
             // Subidvision
-            int key = triMesh.Vertices.FindNextKey();
+            int key = triMesh.FindNextVertexKey();
             int[] hf;
             IElement element_sibling;
             int elementID_sibling, halfFacetID_sibling;
@@ -91,9 +91,9 @@ namespace Iguana.IguanaMesh.IModifiers
             Dictionary<int, int[]> eVertex = new Dictionary<int, int[]>();
 
             // Vertices
-            foreach (int elementID in triMesh.Elements.ElementsKeys)
+            foreach (int elementID in triMesh.ElementsKeys)
             {
-                IElement e = triMesh.Elements.GetElementWithKey(elementID);
+                IElement e = triMesh.GetElementWithKey(elementID);
 
                 if (!e.Visited)
                 {
@@ -110,7 +110,7 @@ namespace Iguana.IguanaMesh.IModifiers
                             {
                                 e.RegisterHalfFacetVisit(halfFacetID);
                                 e.GetHalfFacet(halfFacetID, out hf);
-                                sMesh.Vertices.AddVertex(key, new ITopologicVertex(ComputeAveragePosition(hf, triMesh)));
+                                sMesh.AddVertex(key, new ITopologicVertex(ComputeAveragePosition(hf, triMesh)));
                                 eVertex[elementID][halfFacetID - 1] = key;
 
                                 if (!e.IsNakedSiblingHalfFacet(halfFacetID))
@@ -122,7 +122,7 @@ namespace Iguana.IguanaMesh.IModifiers
                                         //Collect information of siblings
                                         elementID_sibling = e.GetSiblingElementID(halfFacetID);
                                         halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
-                                        element_sibling = triMesh.Elements.GetElementWithKey(elementID_sibling);
+                                        element_sibling = triMesh.GetElementWithKey(elementID_sibling);
 
                                         visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
 
@@ -140,14 +140,14 @@ namespace Iguana.IguanaMesh.IModifiers
                     }
                 }
             }
-            triMesh.Elements.CleanVisits();
+            triMesh.CleanElementsVisits();
 
             //Faces
             int prev;
-            int elementKey = sMesh.Elements.FindNextKey();
-            foreach (int elementID in triMesh.Elements.ElementsKeys)
+            int elementKey = sMesh.FindNextElementKey();
+            foreach (int elementID in triMesh.ElementsKeys)
             {
-                IElement e = triMesh.Elements.GetElementWithKey(elementID);
+                IElement e = triMesh.GetElementWithKey(elementID);
 
                 if (e.TopologicDimension == 2)
                 {
@@ -157,10 +157,10 @@ namespace Iguana.IguanaMesh.IModifiers
                         prev = i - 1;
                         if (prev < 0) prev = e.Vertices.Length - 1;
 
-                        sMesh.Elements.AddElement(elementKey, new ISurfaceElement(new[] { eV[prev], e.Vertices[i], eV[i] }));
+                        sMesh.AddElement(elementKey, new ISurfaceElement(new[] { eV[prev], e.Vertices[i], eV[i] }));
                         elementKey++;
                     }
-                    sMesh.Elements.AddElement(elementKey, new ISurfaceElement(new[] { eV[0], eV[1], eV[2] }));
+                    sMesh.AddElement(elementKey, new ISurfaceElement(new[] { eV[0], eV[1], eV[2] }));
                     elementKey++;
                 }
             }
@@ -168,12 +168,12 @@ namespace Iguana.IguanaMesh.IModifiers
             // Edge Vertex
             foreach (int eK in eVertex.Keys)
             {
-                IElement e = triMesh.Elements.GetElementWithKey(eK);
+                IElement e = triMesh.GetElementWithKey(eK);
                 for (int i = 1; i <= e.HalfFacetsCount; i++)
                 {
                     e.GetHalfFacet(i, out hf);
                     int vK = eVertex[eK][i - 1];
-                    sMesh.Vertices.SetVertexPosition(vK, ComputeLoopEdgeVertexPosition(hf, triMesh));
+                    sMesh.SetVertexPosition(vK, ComputeLoopEdgeVertexPosition(hf, triMesh));
                 }
             }
 

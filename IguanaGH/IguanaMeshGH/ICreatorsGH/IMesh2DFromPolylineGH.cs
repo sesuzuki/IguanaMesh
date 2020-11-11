@@ -5,7 +5,6 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;

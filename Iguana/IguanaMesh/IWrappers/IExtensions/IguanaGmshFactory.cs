@@ -1,7 +1,6 @@
 ﻿using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.ICollections;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Rhino.Geometry;
@@ -76,16 +75,12 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             if (dim > 3) dim = 3;
             else if (dim < 2) dim = 2;
 
-            // Iguana mesh construction
-            IVertexCollection vertices;
-            IElementCollection elements;
+            IMesh mesh = new IMesh();
             HashSet<int> parsedNodes;
-            IguanaGmsh.Model.Mesh.TryGetIVertexCollection(out vertices);
-            IguanaGmsh.Model.Mesh.TryGetIElementCollection(out elements, out parsedNodes, dim);
-            if (parsedNodes.Count < vertices.Count) vertices.CullUnparsedNodes(parsedNodes);
-
-            // Iguana mesh construction
-            IMesh mesh = new IMesh(vertices, elements);
+            IguanaGmsh.Model.Mesh.TryParseITopologicVertices(ref mesh);
+            IguanaGmsh.Model.Mesh.TryParseIElement(ref mesh, out parsedNodes, dim);
+            if (parsedNodes.Count < mesh.VerticesCount) mesh.CullUnparsedNodes(parsedNodes);
+            mesh.BuildTopology(true);
 
             return mesh;
         }
@@ -174,7 +169,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
                     Dictionary<long,long> temp = new Dictionary<long, long>();
 
-                    foreach(ITopologicVertex v in m.Vertices.VerticesValues)
+                    foreach(ITopologicVertex v in m.Vertices)
                     {
                         p = v.RhinoPoint;
                         key = v.Key + 1;
@@ -195,7 +190,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                         temp.Add(v.Key,nodes[idx]);
                     }
 
-                    foreach(IElement e in m.Elements.ElementsValues)
+                    foreach(IElement e in m.Elements)
                     {
                         triangles.AddRange(new long[] { temp[e.Vertices[0]], temp[e.Vertices[1]], temp[e.Vertices[2]] });
                     }
@@ -222,7 +217,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             Dictionary<int, List<long>> eTags = new Dictionary<int, List<long>>();
             Dictionary<int, List<long>> eNodes = new Dictionary<int, List<long>>();
-            foreach (IElement e in mesh.Elements.ElementsValues)
+            foreach (IElement e in mesh.Elements)
             {
 
                 if (!eTags.ContainsKey(e.ElementType))
@@ -254,7 +249,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             nodeTags = new long[count];
             position = new double[count * 3];
             int i = 0;
-            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in mesh.Vertices)
             {
                 nodeTags[i] = v.Key;
                 position[i * 3] = v.X;
@@ -268,7 +263,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         {
             List<long> vertexKeys = new List<long>();
             List<double> vertexPos = new List<double>();
-            foreach (ITopologicVertex v in mesh.Vertices.VerticesValues)
+            foreach (ITopologicVertex v in mesh.Vertices)
             {
                 vertexKeys.Add(v.Key);
                 vertexPos.AddRange(new double[] {v.X,v.Y,v.Z });
@@ -277,9 +272,9 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             // Elements (only triangular surface elements)
             List<long> eTags = new List<long>();
             List<long> eNodes = new List<long>();
-            int vkey = mesh.Vertices.FindNextKey();
+            int vkey = mesh.FindNextVertexKey();
             int eKey = 1;
-            foreach (IElement e in mesh.Elements.ElementsValues)
+            foreach (IElement e in mesh.Elements)
             {
                 if (e.TopologicDimension == 2)
                 {
@@ -300,7 +295,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                     }
                     else
                     {
-                        IVector3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, mesh);
+                        IPoint3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, mesh);
                         vertexPos.AddRange(new double[] { pos.X, pos.Y, pos.Z });
                         vertexKeys.Add(vkey);
                         for (int i = 1; i <= e.HalfFacetsCount; i++)

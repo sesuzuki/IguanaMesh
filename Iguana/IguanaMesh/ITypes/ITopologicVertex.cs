@@ -16,15 +16,15 @@ namespace Iguana.IguanaMesh.ITypes
         public double V { get; set; }
         public double W { get; set; }
         public int Key { get; set; }
-        public IVector3D Position { get => _pos; set => _pos = value; }
+        public IPoint3D Position { get => _pos; set => _pos = value; }
 
-        private IVector3D _pos;
+        private IPoint3D _pos;
         private Int64 _v2hf;
         private bool[] _visits;
 
         public ITopologicVertex(double _x, double _y, double _z, int _key=-1)
         {
-            this._pos = new IVector3D(_x, _y, _z);
+            this._pos = new IPoint3D(_x, _y, _z);
             this.U = 0;
             this.V = 0;
             this.W = 0;
@@ -35,7 +35,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public ITopologicVertex(Point3d pt, int _key=-1)
         {
-            this._pos = new IVector3D(pt.X, pt.Y, pt.Z);
+            this._pos = new IPoint3D(pt.X, pt.Y, pt.Z);
             this.U = 0;
             this.V = 0;
             this.W = 0;
@@ -46,7 +46,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public ITopologicVertex(ITopologicVertex v)
         {
-            this._pos = new IVector3D(v.X, v.Y, v.Z);
+            this._pos = new IPoint3D(v.X, v.Y, v.Z);
             this.U = v.U;
             this.V = v.V;
             this.W = v.W;
@@ -55,7 +55,7 @@ namespace Iguana.IguanaMesh.ITypes
             _visits = new bool[2];
         }
 
-        public ITopologicVertex(IVector3D v, int _key = -1)
+        public ITopologicVertex(IPoint3D v, int _key = -1)
         {
             this._pos = v;
             this.U = 0;
@@ -68,7 +68,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w, int _key=-1)
         {
-            this._pos = new IVector3D(_x, _y, _z);
+            this._pos = new IPoint3D(_x, _y, _z);
             this.U = _u;
             this.V = _v;
             this.W = _w;
@@ -131,6 +131,8 @@ namespace Iguana.IguanaMesh.ITypes
         {
             ITopologicVertex v = new ITopologicVertex(X, Y, Z, U, V, W);
             v.Key = Key;
+            v._v2hf = _v2hf;
+            v._visits = _visits;
             return v;
         }
 

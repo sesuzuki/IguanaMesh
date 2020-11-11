@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IModifiers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.ITypes.IElements;
 using Rhino;
@@ -27,7 +28,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Element", "e-Key", "Vertex key.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Element", "e-Key", "Vertex key.", GH_ParamAccess.list);
             pManager.AddNumberParameter("Length", "Length", "Extrusion length.", GH_ParamAccess.item, 1.0);
         }
 
@@ -47,49 +48,20 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         {
             IMesh mesh = new IMesh();
             double length = 1;
-            int eKey = 0;
+            List<int> eKeys = new List<int>();
 
             DA.GetData(0, ref mesh);
-            DA.GetData(1, ref eKey);
+            DA.GetDataList(1, eKeys);
             DA.GetData(2, ref length);
 
-            IMesh dM = mesh.CleanCopy();
-            dM.Elements.DeleteElement(eKey);
-
-            ITopologicVertex v,vv;
-            IElement e = mesh.Elements.GetElementWithKey(eKey);
-            IVector3D n, pos;
-            mesh.Topology.ComputeTwoDimensionalElementNormal(eKey, out n, out pos);
-            n *= length;
-            int key = mesh.Vertices.FindNextKey();
-            List<int> vertices = new List<int>(e.Vertices);
-
-            foreach (int vK in e.Vertices)
-            {
-                v = mesh.Vertices.GetVertexWithKey(vK);
-
-                vv = new ITopologicVertex(v.Position, key);
-                vv.Position += n;
-                dM.Vertices.AddVertex(key, vv);
-                vertices.Add(key);
-                key++;
-            }
-
-            IElement nE;
-            if (vertices.Count == 8)
-            {
-                nE = new IHexahedronElement(vertices.ToArray());
-                dM.Elements.AddElement(nE);
-            }
-            else if (vertices.Count == 6)
-            {
-                nE = new IPrismElement(vertices.ToArray());
-                dM.Elements.AddElement(nE);
-            }
-
-            dM.BuildTopology();
+            IMesh dM = IModifier.ExtrudeTwoDimensionalElements(mesh, eKeys, length);
 
             DA.SetData(0, dM);
+        }
+
+        public override GH_Exposure Exposure
+        {
+            get { return GH_Exposure.quarternary; }
         }
 
         /// <summary>
