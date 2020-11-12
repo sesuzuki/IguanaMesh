@@ -17,7 +17,24 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             /// </summary>
             public class IHexahedron20 : IHexahedronElement
             {
-                public IHexahedron20(int[] vertices) : base(vertices) { this.SetElementType(17); }
+                public IHexahedron20(int[] vertices) : base(vertices) 
+                {
+                    for (int i = 0; i < HalfFacetsCount; i++)
+                    {
+                        _siblingHalfFacets[i] = new long[8];
+                        _visits[i] = new bool[8];
+                    }
+                    this.SetElementType(17); 
+                }
+
+                public override void CleanTopologicalData()
+                {
+                    for (int i = 0; i < HalfFacetsCount; i++)
+                    {
+                        _siblingHalfFacets[i] = new long[8];
+                        _visits[i] = new bool[8];
+                    }
+                }
 
                 public override IElement CleanCopy()
                 {
@@ -32,7 +49,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     return IHelpers.HighOrder3DElementsToString(eType, Vertices, 8);
                 }
 
-                public override bool GetHalfFacet(int index, out int[] halfFacets)
+                public override bool GetFirstLevelHalfFacet(int index, out int[] halfFacets)
                 {
                     Boolean flag = true;
                     halfFacets = null;

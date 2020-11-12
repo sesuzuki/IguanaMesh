@@ -35,10 +35,9 @@ namespace Iguana.IguanaMesh.ITypes
             ObjectAttributes att1 = att.Duplicate();
             att1.AddToGroup(idxGr);
             att1.LayerIndex = idxLy;
-            foreach (Int64 pair in this.Topology.GetUniqueEdges())
+            foreach (long pair in this.Topology.GetUniqueEdges())
             {
-                idxA = (Int32)(pair >> 32);
-                idxB = (Int32)pair;
+                IHelpers.UnpackKeyPair(pair, out idxA, out idxB);
                 start = GetVertexWithKey(idxA).RhinoPoint;
                 end = GetVertexWithKey(idxB).RhinoPoint;
                 ln =  new Line(start, end);
@@ -53,10 +52,9 @@ namespace Iguana.IguanaMesh.ITypes
         {
             Point3d start, end;
             int idxA, idxB;
-            foreach (Int64 pair in this.Topology.GetUniqueEdges())
+            foreach (long pair in Topology.GetUniqueEdges())
             {
-                idxA = (Int32)(pair >> 32);
-                idxB = (Int32) pair;
+                IHelpers.UnpackKeyPair(pair, out idxA, out idxB);
                 start = this.GetVertexWithKey(idxA).RhinoPoint;
                 end = this.GetVertexWithKey(idxB).RhinoPoint;
                 args.Pipeline.DrawLine(start, end, args.Color, args.Thickness);

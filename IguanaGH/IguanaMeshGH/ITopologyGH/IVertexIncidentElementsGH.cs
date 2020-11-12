@@ -44,7 +44,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             IMesh mesh = new IMesh();
-            int vKey = -1;
+            int vKey = 0;
             DA.GetData(0, ref mesh);
             DA.GetData(1, ref vKey);
 

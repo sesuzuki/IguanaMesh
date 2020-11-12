@@ -1,4 +1,5 @@
 ﻿using Grasshopper.Kernel;
+using Rhino;
 using Rhino.Geometry;
 using System;
 using System.Linq;
@@ -15,6 +16,11 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         ///
         public ISurfaceElement(int[] vertices) : base(vertices, vertices.Length, 2, -1) 
         {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[1];
+                _visits[i] = new bool[1];
+            }
             if (vertices.Length == 3) this.SetElementType(2);
             else if (vertices.Length == 4) this.SetElementType(3);
         }
@@ -28,7 +34,14 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="D"/> : Fourth vertex identifier. </para>
         /// </summary>
         ///
-        public ISurfaceElement(int A, int B, int C, int D) : base(new int[] { A, B, C, D}, 4, 2, 3) { }
+        public ISurfaceElement(int A, int B, int C, int D) : base(new int[] { A, B, C, D}, 4, 2, 3) 
+        {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[1];
+                _visits[i] = new bool[1];
+            }
+        }
 
         /// <summary>
         /// Constructor for a triangle face.
@@ -37,7 +50,23 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="B"/> : Second vertex identifier. </para>
         /// <para><paramref name="C"/> : Third vertex identifier. </para>
         /// </summary>
-        public ISurfaceElement(int A, int B, int C) : base(new int[] { A, B, C }, 3, 2, 2) { }
+        public ISurfaceElement(int A, int B, int C) : base(new int[] { A, B, C }, 3, 2, 2) 
+        {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[1];
+                _visits[i] = new bool[1];
+            }
+        }
+
+        public override void CleanTopologicalData()
+        {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[1];
+                _visits[i] = new bool[1];
+            }
+        }
 
         public override IElement CleanCopy()
         {
@@ -70,9 +99,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <paramref name="halfFacet"/> : A sub-list to store all the vertex identifiers representing the Half-Facet.
         /// </summary>
         ///
-        public override bool GetHalfFacet(int index, out int[] halfFacet)
+        public override bool GetFirstLevelHalfFacet(int index, out int[] halfFacet)
         {
-            halfFacet = null;
+            halfFacet = new int[0]; ;
             if (index > 0 && index <= HalfFacetsCount)
             {
                 if (index < HalfFacetsCount)
@@ -88,55 +117,24 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             else return false;
         }
 
-        public override bool AddVertex(int vertexKey)
+        public override bool GetSecondLevelHalfFacet(int parentIndex, int childIndex, out int[] halfFacet)
         {
+            int[] hf_parent;
+            GetFirstLevelHalfFacet(parentIndex, out hf_parent);
+
+            halfFacet = new int[0]; ;
+            if (childIndex > 0 && childIndex <= 2)
             {
-                if (!Vertices.Contains(vertexKey))
-                {
-                    //Add vertex
-                    int[] tempV = new int[VerticesCount + 1];
-                    Array.Copy(Vertices, tempV, VerticesCount);
-                    tempV[VerticesCount] = vertexKey;
-                    
-
-
-                    return true;
-                }
-                else return false;
+                if (childIndex == 1) halfFacet = new int[] { hf_parent[0] };
+                else halfFacet = new int[] { hf_parent[1] };
+                return true;
             }
-        }
-
-        public override bool RemoveVertex(int vertexKey)
-        {
-            {
-                if (!Vertices.Contains(vertexKey))
-                {
-                    int[] tempV = new int[VerticesCount-1];
-                    int idx=0, evalKey;
-                    for(int i=0; i<VerticesCount; i++)
-                    {
-                        evalKey = Vertices[i];
-                        if (evalKey != vertexKey)
-                        {
-                            tempV[idx] = evalKey;
-                            idx++;
-                        }
-                    }
-
-                    int eT = -1;
-                    if (tempV.Length == 3) eT = 2;
-                    else if (tempV.Length == 4) eT = 3;
-                    init(tempV, tempV.Length, 2, eT);
-
-                    return true;
-                }
-                else return false;
-            }
+            else return false;
         }
 
         public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)
         {
-            return GetHalfFacet(index, out halfFacets);
+            return GetFirstLevelHalfFacet(index, out halfFacets);
         }
 
         public override int[] GetGmshFormattedVertices()

@@ -116,10 +116,9 @@ namespace Iguana.IguanaMesh.IUtils
             Point3d start, end;
             List<Line> edges = new List<Line>();
             int idxA, idxB;
-            foreach (Int64 pair in mesh.Topology.GetUniqueEdges())
+            foreach (long pair in mesh.Topology.GetUniqueEdges())
             {
-                idxA = (Int32)(pair >> 32);
-                idxB = (Int32) pair;
+                IHelpers.UnpackKeyPair(pair, out idxA, out idxB);
                 start = mesh.GetVertexWithKey(idxA).RhinoPoint;
                 end = mesh.GetVertexWithKey(idxB).RhinoPoint;
                 edges.Add(new Line(start, end));
@@ -136,7 +135,7 @@ namespace Iguana.IguanaMesh.IUtils
                 {
                     Point3d[] pts = new Point3d[e.VerticesCount + 1];
 
-                    for (int i = 0; i < e.VerticesCount; i++)
+                    for (uint i = 0; i < e.VerticesCount; i++)
                     {
                         pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                     }
@@ -154,7 +153,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                         Point3d[] pts = new Point3d[hf.Length+1];
 
-                        for (int j = 0; j < hf.Length; j++)
+                        for (uint j = 0; j < hf.Length; j++)
                         {
                             pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
@@ -177,7 +176,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (e.TopologicDimension == 2)
                 {
                     Point3d[] pts = new Point3d[e.VerticesCount];
-                    for (int i = 0; i < e.VerticesCount; i++)
+                    for (uint i = 0; i < e.VerticesCount; i++)
                     {
                         pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                     }
@@ -217,7 +216,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                         Point3d[] pts = new Point3d[hf.Length];
 
-                        for (int j = 0; j < hf.Length; j++)
+                        for (uint j = 0; j < hf.Length; j++)
                         {
                             pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
@@ -257,11 +256,11 @@ namespace Iguana.IguanaMesh.IUtils
                     for (int i = 1; i <= e.HalfFacetsCount; i++)
                     {
                         int[] hf;
-                        e.GetHalfFacet(i, out hf);
+                        e.GetFirstLevelHalfFacet(i, out hf);
 
                         //Vertices
                         Point3d[] pts = new Point3d[hf.Length + 1];
-                        for (int j = 0; j < hf.Length; j++)
+                        for (uint j = 0; j < hf.Length; j++)
                         {
                             pts[j] = mesh.GetVertexWithKey(hf[j]).RhinoPoint;
                         }
@@ -283,7 +282,7 @@ namespace Iguana.IguanaMesh.IUtils
             {
                 Point3d[] pts = new Point3d[e.VerticesCount + 1];
 
-                for (int i = 0; i < e.VerticesCount; i++)
+                for (uint i = 0; i < e.VerticesCount; i++)
                 {
                     pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                 }
@@ -322,7 +321,7 @@ namespace Iguana.IguanaMesh.IUtils
             {
                 Surface f;
                 Point3d[] pts = new Point3d[e.VerticesCount];
-                for (int i = 0; i < e.VerticesCount; i++)
+                for (uint i = 0; i < e.VerticesCount; i++)
                 {
                     pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
                 }
@@ -392,7 +391,7 @@ namespace Iguana.IguanaMesh.IUtils
                         idx++;
                         for (int i = 1; i <= e.HalfFacetsCount; i++)
                         {
-                            e.GetHalfFacet(i, out hf);
+                            e.GetFirstLevelHalfFacet(i, out hf);
                             rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], vKey));
                         }
                     }
@@ -403,7 +402,7 @@ namespace Iguana.IguanaMesh.IUtils
                     {
                         if (e.IsNakedSiblingHalfFacet(i))
                         {
-                            e.GetHalfFacet(i, out hf);
+                            e.GetFirstLevelHalfFacet(i, out hf);
                             if(hf.Length==3) rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]]));
                             else rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]], maps[hf[3]]));
                         }

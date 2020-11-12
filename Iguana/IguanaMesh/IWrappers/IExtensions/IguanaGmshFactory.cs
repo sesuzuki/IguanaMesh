@@ -301,7 +301,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                         for (int i = 1; i <= e.HalfFacetsCount; i++)
                         {
                             int[] hf;
-                            e.GetHalfFacet(i, out hf);
+                            e.GetFirstLevelHalfFacet(i, out hf);
                             eNodes.AddRange(new long[] { hf[0], hf[1], vkey });
                             eTags.Add(eKey);
                             eKey++;

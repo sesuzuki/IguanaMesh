@@ -4,6 +4,7 @@ using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IUtils;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -19,10 +20,10 @@ namespace Iguana.IguanaMesh.ITypes
         public IPoint3D Position { get => _pos; set => _pos = value; }
 
         private IPoint3D _pos;
-        private Int64 _v2hf;
+        private long _v2hf;
         private bool[] _visits;
 
-        public ITopologicVertex(double _x, double _y, double _z, int _key=-1)
+        public ITopologicVertex(double _x, double _y, double _z, int _key=0)
         {
             this._pos = new IPoint3D(_x, _y, _z);
             this.U = 0;
@@ -33,7 +34,7 @@ namespace Iguana.IguanaMesh.ITypes
             _visits = new bool[2];
         }
 
-        public ITopologicVertex(Point3d pt, int _key=-1)
+        public ITopologicVertex(Point3d pt, int _key=0)
         {
             this._pos = new IPoint3D(pt.X, pt.Y, pt.Z);
             this.U = 0;
@@ -55,7 +56,7 @@ namespace Iguana.IguanaMesh.ITypes
             _visits = new bool[2];
         }
 
-        public ITopologicVertex(IPoint3D v, int _key = -1)
+        public ITopologicVertex(IPoint3D v, int _key = 0)
         {
             this._pos = v;
             this.U = 0;
@@ -66,7 +67,7 @@ namespace Iguana.IguanaMesh.ITypes
             _visits = new bool[2];
         }
 
-        public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w, int _key=-1)
+        public ITopologicVertex(double _x, double _y, double _z, double _u, double _v, double _w, int _key=0)
         {
             this._pos = new IPoint3D(_x, _y, _z);
             this.U = _u;
@@ -82,26 +83,31 @@ namespace Iguana.IguanaMesh.ITypes
             _v2hf = 0;
         }
 
-        public void SetV2HF(Int32 elementID, Int32 halfFacetID)
+        public void SetV2HF(int elementID, int halfFacet_parent, int halfFacet_child)
         {
-            _v2hf = (Int64) elementID << 32 | (Int64) halfFacetID;
+            _v2hf = IHelpers.PackTripleKey(elementID, halfFacet_parent, halfFacet_child);
         }
 
-        public void SetV2HF(Int64 sibData)
+        public void SetV2HF(long sibData)
         {
             _v2hf = sibData;
         }
 
-        public Int32 GetElementID() {
-            return (Int32)(_v2hf >> 32);
+        public int GetElementID() {
+            return IHelpers.UnpackFirst32BitsOnTripleKey(_v2hf);
         }
 
-        public Int32 GetHalfFacetID()
+        public int GetParentHalfFacetID()
         {
-            return (Int32)_v2hf;
+            return IHelpers.UnpackSecond16BitsOnTripleKey(_v2hf);
         }
 
-        public Int64 V2HF
+        public int GetChildHalfFacetID()
+        {
+            return IHelpers.UnpackThird16BitsOnTripleKey(_v2hf);
+        }
+
+        public long V2HF
         {
             get => _v2hf;
         }
@@ -195,7 +201,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public string SiblingHalfFacetDataToString()
         {
-            return "Vertex ID: " + Key + " :: Element ID: " + GetElementID() + " :: Half-Facet ID: " + GetHalfFacetID() + "\n";
+            return "Vertex ID: " + Key + " :: Element ID: " + GetElementID() + " :: Half-Facet ID: " + GetParentHalfFacetID() + "\n";
         }
 
         #region IGH_Goo methods

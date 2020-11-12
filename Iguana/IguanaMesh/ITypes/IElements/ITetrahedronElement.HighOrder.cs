@@ -18,7 +18,23 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 /// Element Type Reference: 11
                 /// NOTE: Vertices on an AHF-IElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html
                 /// </summary>
-                public ITetrahedron10(int[] vertices) : base(vertices) { }
+                public ITetrahedron10(int[] vertices) : base(vertices) 
+                {
+                    for (int i = 0; i < HalfFacetsCount; i++)
+                    {
+                        _siblingHalfFacets[i] = new long[6];
+                        _visits[i] = new bool[6];
+                    }
+                }
+
+                public override void CleanTopologicalData()
+                {
+                    for (int i = 0; i < HalfFacetsCount; i++)
+                    {
+                        _siblingHalfFacets[i] = new long[6];
+                        _visits[i] = new bool[6];
+                    }
+                }
 
                 public override IElement CleanCopy()
                 {
@@ -36,7 +52,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     return IHelpers.HighOrder3DElementsToString(eType, Vertices, 4);
                 }
 
-                public override bool GetHalfFacet(int index, out int[] halfFacets)
+                public override bool GetFirstLevelHalfFacet(int index, out int[] halfFacets)
                 {
                     Boolean flag = true;
                     halfFacets = null;
@@ -61,16 +77,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     }
 
                     return flag;
-                }
-
-                public override bool AddVertex(int vertexKey)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public override bool RemoveVertex(int vertexKey)
-                {
-                    throw new NotImplementedException();
                 }
 
                 public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)

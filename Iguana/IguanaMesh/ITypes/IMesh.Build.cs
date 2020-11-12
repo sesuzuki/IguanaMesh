@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -64,51 +62,103 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private bool BuildAllElementsSiblingHalfFacets()
         {
-            try
-            {
-                ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
+            //try
+            //{
+                Elements.ForEach(e =>
+                {
+                    //BuildElementSiblingHalFacets(elementID)
+                    if (e.TopologicDimension == 3) Build3DElementSiblingHalFacets(e);
+                    else Build2DElementSiblingHalFacets(e);
+                });
                 _tempVertexToHalfFacets.Clear();
-                _tempVertexDimensionality.Clear();
                 return true;
-            }
-            catch (Exception) { return false; }
+            //}
+            //catch (Exception) { return false; }
         }
 
-        private void BuildElementSiblingHalFacets(int elementID)
+        private void Build2DElementSiblingHalFacets(IElement e)
         {
-            IElement e = _elements[elementID];
+            int elementID = e.Key;
             IElement nE;
 
             //Half-Facets from element e (Faces to edges)
-            for (Int32 halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+            for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
             {
                 if (e.GetSiblingHalfFacet(halfFacetID) == 0)
                 {
                     //Adjacent vertices
                     int[] hf;
-                    e.GetHalfFacet(halfFacetID, out hf);
+                    e.GetFirstLevelHalfFacet(halfFacetID, out hf);
 
                     int v = hf.Max();
 
-                    Int64 current_KeyPair = (Int64)elementID << 32 | (Int64)halfFacetID;
+                    long current_KeyPair = IHelpers.PackTripleKey(elementID, halfFacetID, 1);
 
-                    List<Int64> vertexSiblings = _tempVertexToHalfFacets[v];
+                    List<long> vertexSiblings = _tempVertexToHalfFacets[v];
 
-                    foreach (Int64 sibling_KeyPair in vertexSiblings)
+                    foreach (long sibling_KeyPair in vertexSiblings)
                     {
-                        int sib_elementID, sib_halfFacetID;
-                        IHelpers.UnpackKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID);
+                        int sib_elementID, sib_halfFacetID_parent, sib_halfFacetID_child;
+                        IHelpers.UnpackTripleKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID_parent, out sib_halfFacetID_child);
                         nE = _elements[sib_elementID];
 
                         if (!sibling_KeyPair.Equals(current_KeyPair))
                         {
                             int[] hfs_us;
-                            nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
+                            nE.GetFirstLevelHalfFacet(sib_halfFacetID_parent, out hfs_us);
 
-                            int eval = hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
+                            int eval = hfs_us.Length <= hf.Length ? hfs_us.Length : hf.Length;
                             if (hfs_us.Intersect(hf).Count() == eval)
                             {
-                                e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
+                                e.SetSiblingHalfFacet(sibling_KeyPair, halfFacetID);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Build3DElementSiblingHalFacets(IElement e)
+        {
+            int elementID = e.Key;
+            IElement nE;
+
+            for (int hf_parent = 1; hf_parent <= e.HalfFacetsCount; hf_parent++)
+            {
+                //Adjacent vertices
+                int[] hf_P;
+                e.GetFirstLevelHalfFacet(hf_parent, out hf_P);
+
+                for (int hf_child = 1; hf_child <= hf_P.Length; hf_child++)
+                {
+                    if (e.GetSiblingHalfFacet(hf_parent, hf_child) == 0)
+                    {
+                        int[] hf_C;
+                        e.GetSecondLevelHalfFacet(hf_parent, hf_child, out hf_C);
+
+                        //Find vertex with larger ID
+                        int v = hf_C.Max();
+
+                        long current_KeyPair = IHelpers.PackTripleKey(elementID, hf_parent, hf_child);
+
+                        List<long> vertexSiblings = _tempVertexToHalfFacets[v];
+
+                        foreach (long sibling_KeyTriple in vertexSiblings)
+                        {
+                            int sib_elementID, sib_halfFacetID_parent, sib_halfFacetID_child;
+                            IHelpers.UnpackTripleKey(sibling_KeyTriple, out sib_elementID, out sib_halfFacetID_parent, out sib_halfFacetID_child);
+                            nE = _elements[sib_elementID];
+
+                            if (!sibling_KeyTriple.Equals(current_KeyPair))
+                            {
+                                int[] hfs_us;
+                                nE.GetSecondLevelHalfFacet(sib_halfFacetID_parent, sib_halfFacetID_child, out hfs_us);
+
+                                int eval = hfs_us.Length <= hf_C.Length ? hfs_us.Length : hf_C.Length;
+                                if (hfs_us.Intersect(hf_C).Count() == eval)
+                                {
+                                    e.SetSiblingHalfFacet(sibling_KeyTriple, hf_parent, hf_child);
+                                }
                             }
                         }
                     }
@@ -125,20 +175,38 @@ namespace Iguana.IguanaMesh.ITypes
             Boolean flag = true;
             try
             {
-                foreach (Int32 elementID in ElementsKeys)
+                foreach (int elementID in ElementsKeys)
                 {
                     IElement e = GetElementWithKey(elementID);
 
-                    //Give border V higher priorities
-                    for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                    if (e.TopologicDimension == 3)
                     {
-                        //Vertices of the facet
-                        int[] hf;
-                        e.GetHalfFacet(halfFacetID, out hf);
-
-                        foreach (int vKey in hf)
+                        //Give border V higher priorities
+                        for (int halfFacet_parent = 1; halfFacet_parent <= e.HalfFacetsCount; halfFacet_parent++)
                         {
-                            BuildVertexToHalfFacet(vKey, elementID, halfFacetID);
+                            //Vertices of the facet
+                            int[] hf_P;
+                            e.GetFirstLevelHalfFacet(halfFacet_parent, out hf_P);
+
+                            for (int halfFacet_child = 1; halfFacet_child <= hf_P.Length; halfFacet_child++)
+                            {
+                                int[] hf_C;
+                                e.GetSecondLevelHalfFacet(halfFacet_parent, halfFacet_child, out hf_C);
+
+                                foreach(int vK in hf_C) BuildVertexToHalfFacet(vK, elementID, halfFacet_parent, halfFacet_child);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //Give border V higher priorities
+                        for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                        {
+                            //Vertices of the facet
+                            int[] hf;
+                            e.GetFirstLevelHalfFacet(halfFacetID, out hf);
+
+                            foreach (int vK in hf) BuildVertexToHalfFacet(vK, elementID, halfFacetID, 1);
                         }
                     }
                 }
@@ -148,21 +216,21 @@ namespace Iguana.IguanaMesh.ITypes
             return flag;
         }
 
-        private void BuildVertexToHalfFacet(int vKey, int elementID, int halfFacetID)
+        private void BuildVertexToHalfFacet(int vKey, int elementID, int halfFacet_parent, int halfFacet_child)
         {
             ITopologicVertex v = GetVertexWithKey(vKey);
 
             if (v.V2HF == 0)
             {
-                v.SetV2HF(elementID, halfFacetID);
+                v.SetV2HF(elementID, halfFacet_parent, halfFacet_child);
                 SetVertex(vKey, v);
             }
 
-            if (_elements[elementID].GetSiblingHalfFacet(halfFacetID) == 0)
+            if (_elements[elementID].GetSiblingHalfFacet(halfFacet_parent, halfFacet_child) == 0)
             {
-                if (v.GetElementID() != elementID || v.GetHalfFacetID() != halfFacetID)
+                if (v.GetElementID() != elementID || v.GetParentHalfFacetID() != halfFacet_parent || v.GetChildHalfFacetID() != halfFacet_child)
                 {
-                    v.SetV2HF(elementID, halfFacetID);
+                    v.SetV2HF(elementID, halfFacet_parent, halfFacet_child);
                     SetVertex(vKey, v);
                 }
             }

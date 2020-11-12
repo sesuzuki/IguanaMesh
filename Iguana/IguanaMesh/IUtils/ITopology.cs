@@ -39,7 +39,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (v.V2HF != 0)
                 {
                     IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(), v.GetChildHalfFacetID());
                     if (sibhe != 0)
                     {
                         clothed_temp.Add(vKey);
@@ -66,7 +66,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (v.V2HF != 0)
                 {
                     IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(),v.GetChildHalfFacetID());
                     if (sibhe != 0)
                     {
                         clothed_temp.Add(v);
@@ -93,7 +93,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (v.V2HF != 0)
                 {
                     IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(),v.GetChildHalfFacetID());
                     if (sibhe != 0)
                     {
                         clothed.Add(vKey);
@@ -111,7 +111,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (v.V2HF != 0)
                 {
                     IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(), v.GetChildHalfFacetID());
                     if (sibhe != 0)
                     {
                         clothed.Add(v);
@@ -155,7 +155,7 @@ namespace Iguana.IguanaMesh.IUtils
             List<Int32> neighbor = new List<Int32>();
             iM.CleanElementsVisits();
 
-            Int64[] nK;
+            long[] nK;
             int key;
 
             HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID() };
@@ -167,13 +167,13 @@ namespace Iguana.IguanaMesh.IUtils
                 foreach (int eK in oldK)
                 {
                     neighbor.Add(eK);
-                    nK = iM.GetElementWithKey(eK).GetSiblingHalfFacets();
+                    nK = iM.GetElementWithKey(eK).GetFlattenSiblingHalfFacets();
 
-                    foreach (Int64 eData in nK)
+                    foreach (long eData in nK)
                     {
                         if (eData != 0)
                         {
-                            key = (Int32)(eData >> 32);
+                            key = IHelpers.UnpackFirst32BitsOnTripleKey(eData);
 
                             IElement e = iM.GetElementWithKey(key);
 
@@ -214,7 +214,7 @@ namespace Iguana.IguanaMesh.IUtils
                     for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
                     {
                         int[] hf;
-                        e.GetHalfFacet(halfFacetID, out hf);
+                        e.GetFirstLevelHalfFacet(halfFacetID, out hf);
 
                         if (hf.Contains(vertexKey))
                         {
@@ -235,12 +235,12 @@ namespace Iguana.IguanaMesh.IUtils
                     }
 
                     //Check for siblings
-                    nK = e.GetSiblingHalfFacets();
+                    nK = e.GetFlattenSiblingHalfFacets();
                     foreach (Int64 eData in nK)
                     {
                         if (eData != 0)
                         {
-                            key = (Int32) (eData >> 32);
+                            key = IHelpers.UnpackFirst32BitsOnTripleKey(eData);
 
                             nE = iM.GetElementWithKey(key);
 
@@ -313,7 +313,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                 if (e.TopologicDimension == 2)
                 {
-                    Int64[] sibhf = e.GetSiblingHalfFacets();
+                    Int64[] sibhf = e.GetFlattenSiblingHalfFacets();
                     int vk1, vk2;
                     for (int i = 0; i < sibhf.Length; i++)
                     {
@@ -343,7 +343,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (v.V2HF != 0)
                 {
                     IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(), v.GetChildHalfFacetID());
                     if (sibhe == 0)
                     {
                         naked.Add(vKey);
@@ -359,7 +359,7 @@ namespace Iguana.IguanaMesh.IUtils
             if (v.V2HF != 0)
             {
                 IElement e = iM.GetElementWithKey(v.GetElementID());
-                Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(), v.GetChildHalfFacetID());
                 if (sibhe == 0) return true;
             }
             return false;
@@ -377,7 +377,7 @@ namespace Iguana.IguanaMesh.IUtils
                 if (v.V2HF != 0)
                 {
                     IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetParentHalfFacetID(), v.GetChildHalfFacetID());
                     if (sibhe == 0) naked.Add(v);
                 }
             }
@@ -388,7 +388,7 @@ namespace Iguana.IguanaMesh.IUtils
         {
             List<Int64> edges = new List<Int64>();
             IElement element_sibling;
-            int elementID_sibling, halfFacetID_sibling;
+            int elementID_sibling, halfFacetID_sibling_parent, halfFacetID_sibling_child;
             Boolean visited;
 
             foreach (int elementID in iM.ElementsKeys)
@@ -397,59 +397,51 @@ namespace Iguana.IguanaMesh.IUtils
 
                 if (!e.Visited)
                 {
-                    int[] hf;
-                    if (e.TopologicDimension == 2)
-                    {
-                        for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
-                        {
-                            visited = e.IsHalfFacetVisited(halfFacetID);
+                    int[] hf_P, hf_C;
 
-                            if (!e.IsNakedSiblingHalfFacet(halfFacetID) && !visited)
+                    for (int halfFacet_parent = 1; halfFacet_parent <= e.HalfFacetsCount; halfFacet_parent++)
+                    {
+                        e.GetFirstLevelHalfFacet(halfFacet_parent, out hf_P);
+
+                        int count = 1;
+                        if (e.TopologicDimension == 3) count = hf_P.Length;
+                        for (int halfFacet_child = 1; halfFacet_child <= count; halfFacet_child++)
+                        {
+
+                            visited = e.IsHalfFacetVisited(halfFacet_parent, halfFacet_child);
+
+
+                            if (!e.IsNakedSiblingHalfFacet(halfFacet_parent, halfFacet_child) && !visited)
                             {
+                                if (e.TopologicDimension == 3) e.GetSecondLevelHalfFacet(halfFacet_parent, halfFacet_child, out hf_C);
+                                else e.GetFirstLevelHalfFacet(halfFacet_parent, out hf_C);
+
+                                Int64 data = IHelpers.PackKeyPair(hf_C[0], hf_C[1]);
+                                edges.Add(data);
+
                                 while (visited == false)
                                 {
                                     //Register Visit
-                                    e.RegisterHalfFacetVisit(halfFacetID);
+                                    e.RegisterHalfFacetVisit(halfFacet_parent, halfFacet_child);
 
                                     //Collect information of siblings
-                                    elementID_sibling = e.GetSiblingElementID(halfFacetID);
-                                    halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
+                                    elementID_sibling = e.GetSiblingElementID(halfFacet_parent, halfFacet_child);
+                                    halfFacetID_sibling_parent = e.GetParentSiblingHalfFacetID(halfFacet_parent, halfFacet_child);
+                                    halfFacetID_sibling_child = e.GetChildSiblingHalfFacetID(halfFacet_parent, halfFacet_child);
                                     element_sibling = iM.GetElementWithKey(elementID_sibling);
 
-                                    visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
+                                    visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling_parent, halfFacetID_sibling_child);
 
-                                    halfFacetID = halfFacetID_sibling;
+                                    halfFacet_parent = halfFacetID_sibling_parent;
+                                    halfFacet_child = halfFacetID_sibling_child;
                                     e = element_sibling;
                                 }
-
-                                e.GetHalfFacet(halfFacetID, out hf);
-                                Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
-                                edges.Add(data);
                             }
-                            else if (e.IsNakedSiblingHalfFacet(halfFacetID))
+                            else if (e.IsNakedSiblingHalfFacet(halfFacet_parent))
                             {
-                                e.GetHalfFacet(halfFacetID, out hf);
-                                Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
+                                e.GetFirstLevelHalfFacet(halfFacet_parent, out hf_P);
+                                Int64 data = IHelpers.PackKeyPair(hf_P[0], hf_P[1]);
                                 edges.Add(data);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        int next;
-                        Int64 data1, data2;
-                        for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
-                        {
-                            e.GetHalfFacet(halfFacetID, out hf);
-                            visited = e.IsHalfFacetVisited(halfFacetID);
-
-                            for (int i = 0; i < hf.Length; i++)
-                            {
-                                next = i + 1;
-                                if (i == hf.Length-1) next = 0;
-                                data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
-                                data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
-                                if (!edges.Contains(data1) && !edges.Contains(data2)) edges.Add(data1);
                             }
                         }
                     }
@@ -931,7 +923,7 @@ namespace Iguana.IguanaMesh.IUtils
                 else
                 {
                     int[] hf;
-                    e.GetHalfFacet(e.GetHalFacetContainingVertices(new[] { vKey1, vKey2 }), out hf);
+                    e.GetFirstLevelHalfFacet(e.GetHalFacetContainingVertices(new[] { vKey1, vKey2 }), out hf);
                     area += ComputeTwoDimensionalHalfFacetArea(hf);
                     count++;
                 }
@@ -1042,7 +1034,7 @@ namespace Iguana.IguanaMesh.IUtils
             for(int i=0; i<eKeys.Length; i++)
             {
                 Int64 eK = eKeys[i];
-                IHelpers.UnpackKey(eK, out start, out end);
+                IHelpers.UnpackKeyPair(eK, out start, out end);
                 edges[i] = new ITopologicEdge(iM.GetVertexWithKey(start), iM.GetVertexWithKey(end));
                 iM.Topology.ComputeEdgeNormal(start, end, out normals[i], out centers[i]);
             }
@@ -1059,7 +1051,7 @@ namespace Iguana.IguanaMesh.IUtils
             for (int i = 0; i < eKeys.Length; i++)
             {
                 Int64 eK = eKeys[i];
-                IHelpers.UnpackKey(eK, out start, out end);
+                IHelpers.UnpackKeyPair(eK, out start, out end);
                 edges[i] = new ITopologicEdge(iM.GetVertexWithKey(start), iM.GetVertexWithKey(end));
                 
                 iM.Topology.ComputeEdgeNormal(start, end, out vv, out pp);

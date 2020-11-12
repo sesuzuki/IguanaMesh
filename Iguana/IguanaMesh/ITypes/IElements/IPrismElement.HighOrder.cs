@@ -20,7 +20,30 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 /// NOTE: Vertices on an AHF-IElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html
                 /// </summary>
                 ///
-                public IPrism15(int[] vertices) : base(vertices) { SetElementType(18); }
+                public IPrism15(int[] vertices) : base(vertices) 
+                {
+                    int count;
+                    for (int i = 0; i < HalfFacetsCount; i++)
+                    {
+                        if (i < 3) count = 8;
+                        else count = 8;
+                        _siblingHalfFacets[i] = new long[count];
+                        _visits[i] = new bool[count];
+                    }
+                    SetElementType(18);
+                }
+
+                public override void CleanTopologicalData()
+                {
+                    int count;
+                    for (int i = 0; i < HalfFacetsCount; i++)
+                    {
+                        if (i < 3) count = 8;
+                        else count = 8;
+                        _siblingHalfFacets[i] = new long[count];
+                        _visits[i] = new bool[count];
+                    }
+                }
 
                 public override IElement CleanCopy()
                 {
@@ -38,7 +61,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     return IHelpers.HighOrder3DElementsToString(eType, Vertices, 6);
                 }
 
-                public override bool GetHalfFacet(int index, out int[] halfFacets)
+                public override bool GetFirstLevelHalfFacet(int index, out int[] halfFacets)
                 {
                     Boolean flag = true;
                     halfFacets = null;
@@ -66,16 +89,6 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                     }
 
                     return flag;
-                }
-
-                public override bool AddVertex(int vertexKey)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public override bool RemoveVertex(int vertexKey)
-                {
-                    throw new NotImplementedException();
                 }
 
                 public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)

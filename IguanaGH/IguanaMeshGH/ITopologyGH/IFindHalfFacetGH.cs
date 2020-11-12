@@ -52,7 +52,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
 
             IElement e = mesh.GetElementWithKey(eKey);
             int[] hf;
-            e.GetHalfFacet(hfKey, out hf);
+            e.GetFirstLevelHalfFacet(hfKey, out hf);
             int dim = 1;
             if (e.TopologicDimension == 3) dim = 2;
 

@@ -14,7 +14,14 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// NOTE: Vertices on an AHF-IElement needs to be sorted according to the CFD General Notation System.\nSee: https://cgns.github.io/CGNS_docs_current/sids/conv.html
         /// <para><paramref name="vertices"/> : List of vertices. </para>
         /// </summary>
-        public ITetrahedronElement(int[] vertices) : base(vertices, 4, 3, 4) { }
+        public ITetrahedronElement(int[] vertices) : base(vertices, 4, 3, 4) 
+        {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[3];
+                _visits[i] = new bool[3];
+            }
+        }
 
 
         /// <summary>
@@ -28,7 +35,23 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// <para><paramref name="N5"/> : Fifth vertex identifier. </para>
         /// </summary>
         ///
-        public ITetrahedronElement(int N1, int N2, int N3, int N4, int N5) : base(new int[] { N1, N2, N3, N4, N5 }, 4, 3, 4) { }
+        public ITetrahedronElement(int N1, int N2, int N3, int N4, int N5) : base(new int[] { N1, N2, N3, N4, N5 }, 4, 3, 4) 
+        {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[3];
+                _visits[i] = new bool[3];
+            }
+        }
+
+        public override void CleanTopologicalData()
+        {
+            for (int i = 0; i < HalfFacetsCount; i++)
+            {
+                _siblingHalfFacets[i] = new long[3];
+                _visits[i] = new bool[3];
+            }
+        }
 
         public override IElement CleanCopy()
         {
@@ -52,7 +75,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             return msg;
         }
 
-        public override bool GetHalfFacet(int index, out int[] halfFacets)
+        public override bool GetFirstLevelHalfFacet(int index, out int[] halfFacets)
         {
             Boolean flag = true;
             halfFacets = null;
@@ -79,19 +102,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             return flag;
         }
 
-        public override bool AddVertex(int vertexKey)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool RemoveVertex(int vertexKey)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets)
         {
-            return GetHalfFacet(index, out halfFacets);
+            return GetFirstLevelHalfFacet(index, out halfFacets);
         }
 
         public override int[] GetGmshFormattedVertices()

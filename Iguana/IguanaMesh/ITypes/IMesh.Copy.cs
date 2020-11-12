@@ -19,7 +19,8 @@ namespace Iguana.IguanaMesh.ITypes
             Elements.ForEach(entry => 
             { 
                 IElement e = (IElement) entry.Clone();
-                copy._elements.Add(e.Key, e);
+                copy._elements.Add(copy.elementKey, e);
+                copy.elementKey++;
             });
             Vertices.ForEach(entry =>
             {
@@ -37,7 +38,8 @@ namespace Iguana.IguanaMesh.ITypes
             Elements.ForEach(entry =>
             {
                 IElement e = (IElement)entry.CleanCopy();
-                copy._elements.Add(e.Key, e);
+                copy._elements.Add(copy.elementKey, e);
+                copy.elementKey++;
             });
             Vertices.ForEach(entry =>
             {

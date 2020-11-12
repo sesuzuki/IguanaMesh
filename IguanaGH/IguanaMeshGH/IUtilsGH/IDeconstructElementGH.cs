@@ -67,9 +67,9 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             for (int i=0; i<e.HalfFacetsCount; i++)
             {
                 int[] data;
-                e.GetHalfFacet(i + 1, out data);
+                e.GetFirstLevelHalfFacet(i + 1, out data);
                 hf[i] = new ITopologicHalfFacet(data);
-                shf[i] = new ITopologicSiblingHalfFacet(e.GetSiblingElementID(i + 1), e.GetSiblingHalfFacetID(i + 1));
+                shf[i] = new ITopologicSiblingHalfFacet(e.GetSiblingElementID(i + 1), e.GetParentSiblingHalfFacetID(i + 1));
             }
 
             DA.SetDataList(0, e.Vertices);

@@ -55,7 +55,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
                 {
                     if (e.IsNakedSiblingHalfFacet(i))
                     {
-                        e.GetHalfFacet(i, out hf);
+                        e.GetFirstLevelHalfFacet(i, out hf);
                         naked.AddRange(hf);
                         halfFacetsID.Add(i);
                         elementsID.Add(e.Key);

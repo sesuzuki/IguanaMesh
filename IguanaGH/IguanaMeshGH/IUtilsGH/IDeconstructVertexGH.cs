@@ -56,7 +56,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
             DA.SetData(1, position);
             DA.SetData(2, uvw);
             DA.SetData(3, vertex.GetElementID());
-            DA.SetData(4, vertex.GetHalfFacetID());
+            DA.SetData(4, vertex.GetParentHalfFacetID());
         }
 
         public override GH_Exposure Exposure

@@ -18,7 +18,6 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
         public static HashSet<int> TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref IMesh mesh)
         {
             HashSet<int> parsedNodes = new HashSet<int>();
-            int elementKey = mesh.FindNextElementKey();
             if (IsElementImplemented(elementType))
             {
                 for (int j = 0; j < number_of_elements; j++)
@@ -111,11 +110,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             break;
                     }
 
-                    if (e != null)
-                    {
-                        mesh.AddElement(elementKey, e);
-                        elementKey++;
-                    }
+                    if (e != null) mesh.AddElement(e);
                 }
             }
             return parsedNodes;

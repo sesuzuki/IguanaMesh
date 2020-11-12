@@ -37,7 +37,7 @@ namespace Iguana.IguanaMesh.ITypes
     {
         //Guides
         private string message = "IMesh not initialized";
-        private int dim = -1;
+        private int dim = 0;
         private int elementKey = 1;
         private ITopology _topology;
 
@@ -45,7 +45,7 @@ namespace Iguana.IguanaMesh.ITypes
         private Dictionary<int, ITopologicVertex> _vertices;
 
         //Temporary data structures for construction
-        private Dictionary<Int32, List<Int64>> _tempVertexToHalfFacets;
+        private Dictionary<int, List<long>> _tempVertexToHalfFacets;
 
         //Half-Facet Data Structure
         public ITopology Topology { get => _topology; }
@@ -76,7 +76,7 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] vList = new int[]{ f.A+1, f.B+1, f.C+1 };
                 if (f.IsQuad) vList = new int[]{ f.A+1, f.B+1, f.C+1, f.D+1 };
 
-                this.AddElement(eK, new ISurfaceElement(vList));
+                this.AddElement(new ISurfaceElement(vList));
             }
 
             this.BuildTopology();
@@ -86,7 +86,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             _vertices = new Dictionary<int, ITopologicVertex>();
             _elements = new Dictionary<int, IElement>();
-            _tempVertexToHalfFacets = new Dictionary<Int32, List<Int64>>();
+            _tempVertexToHalfFacets = new Dictionary<int, List<long>>();
             _topology = new ITopology(this);
         }
 
@@ -138,8 +138,6 @@ namespace Iguana.IguanaMesh.ITypes
                 }
             }
 
-            //Add Elements
-            int keyElement = FindNextElementKey();
             foreach (IElement e in mesh.Elements)
             {
                 int[] vList = new int[e.VerticesCount];
@@ -149,8 +147,7 @@ namespace Iguana.IguanaMesh.ITypes
                     vList[i] = maps[oldKey];
                 }
                 e.Vertices = vList;
-
-                this.AddElement(keyElement, e);
+                this.AddElement(e);
             }
 
             this.BuildTopology();
@@ -203,18 +200,16 @@ namespace Iguana.IguanaMesh.ITypes
             }
 
             //Add Elements
-            int keyElement = FindNextElementKey();
             foreach (MeshFace f in mesh.Faces)
             {
                 int[] vList = new int[] { maps[f.A], maps[f.B], maps[f.C] };
                 if (f.IsQuad) vList = new int[]{ maps[f.A], maps[f.B], maps[f.C], maps[f.D] };
 
                 ISurfaceElement e = new ISurfaceElement(vList);
-                this.AddElement(keyElement, e);
-                keyElement++;
+                this.AddElement(e);
             }
 
-            this.BuildTopology();
+            this.BuildTopology(true);
         }
 
         public override string ToString()

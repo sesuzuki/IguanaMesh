@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.IUtils;
+using Rhino;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
 
@@ -18,11 +21,11 @@ namespace Iguana.IguanaMesh.ITypes
         public int TopologicDimension { get; set; }
         public int Key { get; set; } = -1;
 
-        /// <summary>
-        /// Sibling half-facets are packed within a 64-bits integer. The default value is 0 representing naked half-facets when the topology is build or not intiliazed values when the topology wasn´t built. 
-        /// </summary>
-        private Int64[] _siblingHalfFacets;
-        private bool[] _visits;
+        /// Sibling half-facets are packed within a 64-bits integer. 
+        /// The default value is 0 representing naked half-facets when 
+        /// the topology is build or not intiliazed values when the topology wasn´t built. 
+        internal long[][] _siblingHalfFacets;
+        internal bool[][] _visits;
         private Brep brep;
         private int _elementType;
 
@@ -40,37 +43,36 @@ namespace Iguana.IguanaMesh.ITypes
         /// <para><paramref name="verticesKeys"/> : A collection of vertex identifiers. </para>
         /// <paramref name="dimension"/> : The topologic dimension of the element. The dimension should be larger than 0 and smaller or equal to 3.  
         /// </summary>
-        ///
         public IElement(int[] vKeys, int halfFacetCount, int topologicDimension, int elementType)
         {
-            init(vKeys, halfFacetCount, topologicDimension, elementType);
+            Init(vKeys, halfFacetCount, topologicDimension, elementType);
         }
 
         /// <summary>
         /// Initializes element data
         /// </summary>
-        protected void init(int[] vKeys, int halfFacetCount, int topologicDimension, int elementType)
+        protected void Init(int[] vKeys, int halfFacetCount, int topologicDimension, int elementType)
         {
             Vertices = vKeys;
             TopologicDimension = topologicDimension;
-            _siblingHalfFacets = new Int64[halfFacetCount];
-            _visits = new bool[halfFacetCount];
+            _siblingHalfFacets = new long[halfFacetCount][];
+            _visits = new bool[halfFacetCount][];
             _elementType = elementType;
         }
 
         /// <summary>
         /// Return the index of the half-facet containing the given vertices keys. Return -1 if the given combination of vertices keys is not found in a half-facet of the element. 
         /// </summary>
-        public int GetHalfFacetIndexContainingVertices(int[] vertexKeys)
+        public int GetFirstLevelHalfFacetIndexContainingVertices(int[] vertexKeys)
         {
             int[] hf;
             for(int i=1; i<=HalfFacetsCount; i++)
             {
-                GetHalfFacet(i, out hf);
+                GetFirstLevelHalfFacet(i, out hf);
                 hf.ToList();
                 if (vertexKeys.All(vK => hf.Contains(vK))) return i;
             }
-            return -1;
+            return 0;
         }
 
         /// <summary>
@@ -82,10 +84,7 @@ namespace Iguana.IguanaMesh.ITypes
             get => Vertices.Length;
         }
 
-        public void CleanTopologicalData()
-        {
-            _siblingHalfFacets = new Int64[HalfFacetsCount];
-        }
+        public abstract void CleanTopologicalData();
 
         public int HalfFacetsCount
         {
@@ -94,19 +93,24 @@ namespace Iguana.IguanaMesh.ITypes
 
         public abstract int[] GetGmshFormattedVertices();
 
-        public Int32 GetSiblingElementID(int index)
+        public int GetSiblingElementID(int parentIndex, int childIndex=1)
         {
-            return (Int32)(_siblingHalfFacets[index - 1] >> 32);
+            return IHelpers.UnpackFirst32BitsOnTripleKey(_siblingHalfFacets[parentIndex - 1][childIndex-1]);
         }
 
-        public Int32 GetSiblingHalfFacetID(int index)
+        public int GetParentSiblingHalfFacetID(int parentIndex, int childIndex = 1)
         {
-            return (Int32)_siblingHalfFacets[index - 1];
+            return IHelpers.UnpackSecond16BitsOnTripleKey(_siblingHalfFacets[parentIndex - 1][childIndex-1]);
         }
 
-        public void RegisterHalfFacetVisit(int index)
+        public int GetChildSiblingHalfFacetID(int parentIndex, int childIndex = 1)
         {
-            _visits[index - 1] = true;         
+            return IHelpers.UnpackThird16BitsOnTripleKey(_siblingHalfFacets[parentIndex - 1][childIndex - 1]);
+        }
+
+        public void RegisterHalfFacetVisit(int parentIndex, int childIndex = 1)
+        {
+            _visits[parentIndex - 1][childIndex - 1] = true;         
         }
 
         internal void SetElementType(int elementType) 
@@ -117,81 +121,75 @@ namespace Iguana.IguanaMesh.ITypes
         /// <summary>
         /// Local Half-Facet indexing convention starts with 1;
         /// </summary>
-        public void ClearSiblingHalfFacetVisit(int index)
+        public void ClearSiblingHalfFacetVisit(int parentIndex, int childIndex = 1)
         {
-
-            _visits = new bool[HalfFacetsCount];
+            _visits[parentIndex - 1][childIndex - 1] = false;
         }
 
         /// <summary>
         /// Local Half-Facet indexing convention starts with 1;
         /// </summary>
-        public Boolean IsHalfFacetVisited(int index)
+        public Boolean IsHalfFacetVisited(int parentIndex, int childIndex=1)
         {
-            return _visits[index - 1];
+            return _visits[parentIndex - 1][childIndex - 1];
         }
 
         /// <summary>
         /// Local Half-Facet indexing convention starts with 1;
         /// </summary>
-        public Boolean IsNakedSiblingHalfFacet(int index)
+        public Boolean IsNakedSiblingHalfFacet(int parentIndex, int childIndex=1)
         {
-            if (_siblingHalfFacets[index - 1] == 0) return true;
+            if (_siblingHalfFacets[parentIndex- 1][childIndex-1] == 0) return true;
             else return false;
         }
 
         /// <summary>
         /// Local Half-Facet indexing convention starts with 1;
         /// </summary>
-        public void SetSiblingHalfFacet(int index, Int32 elementID, Int32 halfFacetID)
+        public void SetSiblingHalfFacet(int elementID, int halfFacetID, int parentIndex, int childIndex=1)
         {
-            _siblingHalfFacets[index - 1] = (Int64)elementID << 32 | (Int64)halfFacetID;
+            _siblingHalfFacets[parentIndex - 1][childIndex -1] = IHelpers.PackKeyPair(elementID,halfFacetID);
         }
 
         /// <summary>
         /// Local Half-Facet indexing convention starts with 1;
         /// </summary>
-        public void SetSiblingHalfFacet(int index, Int64 sibData)
+        public void SetSiblingHalfFacet(long sibData, int parentIndex, int childIndex = 1)
         {
-            _siblingHalfFacets[index - 1] = sibData;
+            _siblingHalfFacets[parentIndex - 1][childIndex-1] = sibData;
         }
 
         /// <summary>
         /// Local Half-Facet indexing convention starts with 1;
         /// </summary>
-        public Int64 GetSiblingHalfFacet(int index)
+        public long GetSiblingHalfFacet(int parentIndex, int childIndex = 1)
         {
-            return _siblingHalfFacets[index - 1];
+            return _siblingHalfFacets[parentIndex - 1][childIndex - 1];
         }
 
-        public void RegisterVisitForAllSiblingHalfFacets(int halfFacetID, IMesh iM)
+        public long[] GetFlattenSiblingHalfFacets()
         {
-            IElement element_sibling, e = this;
-            int elementID_sibling, halfFacetID_sibling;
-            bool visited = false;
+            return IHelpers.FlattenLongArray(_siblingHalfFacets);
+        }
 
-            if (!e.IsNakedSiblingHalfFacet(halfFacetID)){
-                while (!visited)
+        public int[] GetListOfUniqueSiblingElements()
+        {
+            HashSet<int> set = new HashSet<int>();
+            int key;
+            for(int i=0; i<_siblingHalfFacets.Length; i++)
+            {
+                for(int j=0;j<_siblingHalfFacets[i].Length; j++)
                 {
-                    //Register Visit
-                    e.RegisterHalfFacetVisit(halfFacetID);
-
-                    //Collect information of siblings
-                    elementID_sibling = e.GetSiblingElementID(halfFacetID);
-                    halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
-                    element_sibling = iM.GetElementWithKey(elementID_sibling);
-
-                    visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
-
-                    halfFacetID = halfFacetID_sibling;
-                    e = element_sibling;
+                    key = IHelpers.UnpackFirst32BitsOnTripleKey(_siblingHalfFacets[i][j]);
+                    set.Add(key);
                 }
-            }else e.RegisterHalfFacetVisit(halfFacetID);
+            }
+            return set.ToArray();
         }
 
-        public Int64[] GetSiblingHalfFacets()
+        public long[][] SiblingHalfFacets
         {
-            return _siblingHalfFacets;
+            get => _siblingHalfFacets;
         }
 
         /// <summary>
@@ -200,9 +198,9 @@ namespace Iguana.IguanaMesh.ITypes
         public void Clear()
         {
             Vertices = new int[0];
-            _siblingHalfFacets = new Int64[0];
+            _siblingHalfFacets = new long[0][];
             TopologicDimension = 0;
-            _visits = new bool[0];
+            _visits = new bool[0][];
         }
 
         /// <summary>
@@ -217,9 +215,12 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get
             {
-                foreach(bool v in _visits)
+                for(int i = 0; i < _visits.Length; i++)
                 {
-                    if (v==false) return false;
+                    for(int j=0; j< _visits[i].Length; j++)
+                    {
+                        if (_visits[i][j] == false) return false;
+                    }
                 }
                 return true;
             }
@@ -227,7 +228,10 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 for (int i=0; i<_visits.Length; i++)
                 {
-                    _visits[i] = value;
+                    for (int j = 0; j < _visits[i].Length; j++)
+                    {
+                        _visits[i][j] = value;
+                    }
                 };
             }
         }
@@ -243,33 +247,40 @@ namespace Iguana.IguanaMesh.ITypes
         public abstract bool GetHalfFacetWithPrincipalNodesOnly(int index, out int[] halfFacets);
 
         /// <summary>
-        /// Abstract method to add a vertex identifier to the element.
-        /// <paramref name="vertex"/> : The vertex identifier to add.
-        /// </summary>
-        public abstract Boolean AddVertex(int vertexKey);
-
-        /// <summary>
-        /// <para> Remove a vertex identifier from the element. </para> 
-        /// <paramref name="vertex"/> : The vertex to remove.
-        /// </summary>
-        ///
-        public abstract Boolean RemoveVertex(int vertexKey);
-
-        /// <summary>
         /// <para> Abstract method to return a Half-Facet. A Half-Facet is a (d-1)-dimensional sub-entity of a d-dimensional entity. </para>
         /// <paramref name="index"/> : The local index of the Half-Facet to search within the element.
         /// <paramref name="halfFacets"/> : A sub-list to store all the vertex identifiers representing the Half-Facet.
         /// </summary>
         ///
-        public abstract Boolean GetHalfFacet(int index, out int[] halfFacets);
+        public abstract bool GetFirstLevelHalfFacet(int index, out int[] halfFacets);
+        
+        public virtual bool GetSecondLevelHalfFacet(int parentIndex, int childIndex, out int[] halfFacet)
+        {
+            int[] hf_parent;
+            GetFirstLevelHalfFacet(parentIndex, out hf_parent);
 
+            halfFacet = new int[0]; ;
+            if (childIndex > 0 && childIndex <= hf_parent.Length)
+            {
+                if (childIndex < hf_parent.Length)
+                {
+                    halfFacet = new int[] { hf_parent[childIndex - 1], hf_parent[childIndex] };
+                }
+                else
+                {
+                    halfFacet = new int[] { hf_parent[childIndex - 1], hf_parent[0] };
+                }
+                return true;
+            }
+            else return false;
+        }
 
         public int GetHalFacetContainingVertices(int[] vKey)
         {
             for(int i=1; i<=HalfFacetsCount; i++)
             {
                 int[] hf;
-                GetHalfFacet(i, out hf);
+                GetFirstLevelHalfFacet(i, out hf);
                 var eval = vKey.Intersect(hf);
                 if (eval.Count() == vKey.Length) return i;
             }
@@ -300,8 +311,8 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 if (GetSiblingHalfFacet(i) != 0)
                 {
-                    if (TopologicDimension == 2) msg += "Face Element ID: " + GetSiblingElementID(i) + " :: Half-Edge ID: " + GetSiblingHalfFacetID(i) + "\n";
-                    if (TopologicDimension == 3) msg += "Solid Element ID: " + GetSiblingElementID(i) + " :: Half-Face ID: " + GetSiblingHalfFacetID(i) + "\n";
+                    if (TopologicDimension == 2) msg += "Face Element ID: " + GetSiblingElementID(i) + " :: Half-Edge ID: " + GetParentSiblingHalfFacetID(i) + "\n";
+                    if (TopologicDimension == 3) msg += "Solid Element ID: " + GetSiblingElementID(i) + " :: Half-Face ID: " + GetParentSiblingHalfFacetID(i) + "\n";
                 }
                 else
                 {

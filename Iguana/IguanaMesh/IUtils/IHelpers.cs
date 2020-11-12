@@ -21,15 +21,77 @@ namespace Iguana.IguanaMesh.IUtils
             return arr;
         }
 
-        public static void UnpackKey(Int64 keyPair, out Int32 firstPart, out Int32 secondPart)
+        public static void UnpackKeyPair(long keyPair, out int firstPart, out int secondPart)
         {
-            firstPart = (Int32)(keyPair >> 32);
-            secondPart = (Int32)keyPair;
+            firstPart = (int)(keyPair >> 32);
+            secondPart = (int)keyPair;
         }
 
-        public static Int64 PackKeyPair(Int32 firstPart, Int32 secondPart)
+
+        public static long PackKeyPair(int firstPart, int secondPart)
         {
-            return (Int64)firstPart << 32 | (Int64)secondPart;
+            return (long)(firstPart) << 32 | (long)(secondPart);
+        }
+
+        public static int UnpackFirst32BitsOnSignedKeyPair(long keyPair)
+        {
+            return (int)(keyPair >> 32);
+        }
+
+        public static int UnpackSecond32BitsOnSignedKeyPair(long keyPair)
+        {
+            return (int)(keyPair);
+        }
+
+        /// <summary>
+        /// Pack parent element, child element (for 3D elements) and half facet.
+        /// The parent element is stored within 32 bites (max count : 4.294.967.295),
+        /// the child element within 16 bites (max count : 65,535)
+        /// and the half-facet within 16 bites (max count : 65,535).  
+        /// </summary>
+        /// <param name="part1"></param>
+        /// <param name="part2"></param>
+        /// <param name="part3"></param>
+        /// <returns></returns>
+        public static long PackTripleKey(int part1, int part2, int part3)
+        {
+            long sibData = (long)part1;
+            sibData = (sibData << 16) | (long)part2;
+            sibData = (sibData << 16) | (long)part3;
+            return sibData;
+        }
+
+        /// <summary>
+        /// Unpack Pack triple key.
+        /// </summary>
+        /// <param name="keyTriple"></param>
+        /// <param name="part1"> Key of the parent element stored within 32 bites (max count : 4.294.967.295)</param>
+        /// <param name="part2"> Key of the child element stored within 16 bites (max count : 65,535)</param>
+        /// <param name="part3"> Key of the half-facet stored within 16 bites (max count : 65,535)</param>
+        public static void UnpackTripleKey(long keyTriple, out int part1, out int part2, out int part3)
+        {
+            part3 = Convert.ToInt32(keyTriple & 0xFFFF);
+            keyTriple = keyTriple >> 16;
+            part2 = Convert.ToInt32(keyTriple & 0xFFFF);
+            keyTriple = keyTriple >> 16;
+            part1 = Convert.ToInt32(keyTriple & 0xFFFFFFFF);
+        }
+
+        public static int UnpackFirst32BitsOnTripleKey(long tripleKey)
+        {
+            tripleKey = tripleKey >> 32;
+            return Convert.ToInt32(tripleKey & 0xFFFFFFFF);
+        }
+
+        public static int UnpackSecond16BitsOnTripleKey(long tripleKey)
+        {
+            tripleKey = tripleKey >> 16;
+            return Convert.ToInt32(tripleKey & 0xFFFF);
+        }
+
+        public static int UnpackThird16BitsOnTripleKey(long tripleKey)
+        {
+            return Convert.ToInt32(tripleKey & 0xFFFF);
         }
 
 
@@ -100,6 +162,19 @@ namespace Iguana.IguanaMesh.IUtils
                 for (int j = 0; j < data[i].Length; j++)
                 {
                     list.Add(data[i][j]);
+                }
+            }
+            return list.ToArray();
+        }
+
+        public static ulong[] FlattenULongArray(long[][] data)
+        {
+            List<ulong> list = new List<ulong>();
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < data[i].Length; j++)
+                {
+                    list.Add((ulong)data[i][j]);
                 }
             }
             return list.ToArray();

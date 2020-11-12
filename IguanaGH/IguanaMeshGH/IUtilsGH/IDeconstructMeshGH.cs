@@ -73,8 +73,8 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
 
                     if (sibData != 0)
                     {
-                        if (e.TopologicDimension == 2) msg = new GH_String("Face Element ID: " + e.GetSiblingElementID(i) + " :: Half-Edge ID: " + e.GetSiblingHalfFacetID(i));
-                        if (e.TopologicDimension == 3) msg = new GH_String("Solid Element ID: " + e.GetSiblingElementID(i) + " :: Half-Face ID: " + e.GetSiblingHalfFacetID(i));
+                        if (e.TopologicDimension == 2) msg = new GH_String("Face Element ID: " + e.GetSiblingElementID(i) + " :: Half-Edge ID: " + e.GetParentSiblingHalfFacetID(i));
+                        if (e.TopologicDimension == 3) msg = new GH_String("Solid Element ID: " + e.GetSiblingElementID(i) + " :: Half-Face ID: " + e.GetParentSiblingHalfFacetID(i));
                     }
                     else
                     {
