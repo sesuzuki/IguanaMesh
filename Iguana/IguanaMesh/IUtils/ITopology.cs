@@ -152,7 +152,7 @@ namespace Iguana.IguanaMesh.IUtils
 
         public int[] GetVertexIncidentElements(int vertexKey)
         {
-            List<Int32> neighbor = new List<Int32>();
+            List<int> neighbor = new List<int>();
             iM.CleanElementsVisits();
 
             long[] nK;
