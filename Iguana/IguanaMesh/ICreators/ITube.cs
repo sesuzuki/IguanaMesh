@@ -45,11 +45,9 @@ namespace Iguana.IguanaMesh.ICreators
             {
                 mesh = new IMesh();
                 mesh.AddRangeVertices(vertices.ToList());
-                int elementKey = mesh.FindNextElementKey();
                 foreach (int[] f in faces)
                 {
-                    mesh.AddElement(elementKey, new ISurfaceElement(f[0], f[1], f[2], f[3]));
-                    elementKey++;
+                    mesh.AddElement(new ISurfaceElement(f[0], f[1], f[2], f[3]));
                 }
 
                 mesh.BuildTopology();

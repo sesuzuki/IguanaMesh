@@ -68,7 +68,6 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
                 _tempVertexToHalfFacets.Clear();
-                _tempVertexDimensionality.Clear();
                 return true;
             }
             catch (Exception) { return false; }

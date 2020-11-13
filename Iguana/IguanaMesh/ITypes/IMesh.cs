@@ -76,7 +76,7 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] vList = new int[]{ f.A+1, f.B+1, f.C+1 };
                 if (f.IsQuad) vList = new int[]{ f.A+1, f.B+1, f.C+1, f.D+1 };
 
-                this.AddElement(eK, new ISurfaceElement(vList));
+                this.AddElement(new ISurfaceElement(vList));
             }
 
             this.BuildTopology();
@@ -150,7 +150,7 @@ namespace Iguana.IguanaMesh.ITypes
                 }
                 e.Vertices = vList;
 
-                this.AddElement(keyElement, e);
+                this.AddElement(e);
             }
 
             this.BuildTopology();
@@ -203,15 +203,13 @@ namespace Iguana.IguanaMesh.ITypes
             }
 
             //Add Elements
-            int keyElement = FindNextElementKey();
             foreach (MeshFace f in mesh.Faces)
             {
                 int[] vList = new int[] { maps[f.A], maps[f.B], maps[f.C] };
                 if (f.IsQuad) vList = new int[]{ maps[f.A], maps[f.B], maps[f.C], maps[f.D] };
 
                 ISurfaceElement e = new ISurfaceElement(vList);
-                this.AddElement(keyElement, e);
-                keyElement++;
+                this.AddElement(e);
             }
 
             this.BuildTopology();

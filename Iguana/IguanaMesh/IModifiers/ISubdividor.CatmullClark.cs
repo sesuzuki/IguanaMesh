@@ -95,7 +95,6 @@ namespace Iguana.IguanaMesh.IModifiers
             //Faces
             int prev;
             int[] data;
-            int elementKey = sMesh.FindNextElementKey();
             foreach (int elementID in mesh.ElementsKeys)
             {
                 IElement e = mesh.GetElementWithKey(elementID);
@@ -110,8 +109,7 @@ namespace Iguana.IguanaMesh.IModifiers
 
                         data = new int[] { e.Vertices[i], eV[prev], fVertex[elementID], eV[i] };
                         ISurfaceElement face = new ISurfaceElement(data);
-                        sMesh.AddElement(elementKey, face);
-                        elementKey++;
+                        sMesh.AddElement(face);
                     }
                 }
             }

@@ -56,7 +56,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
             {
                 IElement e;
                 obj.CastTo<IElement>(out e);
-                if (e != null) mesh.AddElement(e.Key, e);
+                if (e != null) mesh.AddElement(e);
             }
             mesh.BuildTopology();
 

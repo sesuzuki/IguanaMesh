@@ -22,7 +22,6 @@ namespace Iguana.IguanaMesh.IModifiers
 
             ISurfaceElement face;
             int key = mesh.FindNextVertexKey();
-            int elementKey = triangulated.FindNextElementKey();
             foreach (IElement e in mesh.Elements)
             {
                 if (e.TopologicDimension == 2)
@@ -30,17 +29,14 @@ namespace Iguana.IguanaMesh.IModifiers
                     if (e.VerticesCount == 3)
                     {
                         face = new ISurfaceElement(e.Vertices[0], e.Vertices[1], e.Vertices[2]);
-                        triangulated.AddElement(elementKey, face);
-                        elementKey++;
+                        triangulated.AddElement(face);
                     }
                     else if (e.VerticesCount == 4)
                     {
                         face = new ISurfaceElement(e.Vertices[0], e.Vertices[1], e.Vertices[3]);
-                        triangulated.AddElement(elementKey, face);
-                        elementKey++;
+                        triangulated.AddElement(face);
                         face = new ISurfaceElement(e.Vertices[3], e.Vertices[1], e.Vertices[2]);
-                        triangulated.AddElement(elementKey, face);
-                        elementKey++;
+                        triangulated.AddElement(face);
                     }
                     else
                     {
@@ -52,8 +48,7 @@ namespace Iguana.IguanaMesh.IModifiers
                             int[] hf;
                             e.GetHalfFacet(i, out hf);
                             face = new ISurfaceElement(hf[0], hf[1], key);
-                            triangulated.AddElement(elementKey, face);
-                            elementKey++;
+                            triangulated.AddElement(face);
                         }
                         key++;
                     }
@@ -79,15 +74,13 @@ namespace Iguana.IguanaMesh.IModifiers
             PointCloud cloud = new PointCloud();
             List<int> global = new List<int>();
 
-            int elementKey = nM.FindNextElementKey();
             int vertexKey = nM.FindNextVertexKey();
             foreach (ITopologicVertex v in mesh.Vertices)
             {
                 data1 = mesh.Topology.GetVertexIncidentElementsSorted(v.Key);
                 if (!mesh.Topology.IsNakedVertex(v.Key))
                 {
-                    nM.AddElement(elementKey, new ISurfaceElement(data1));
-                    elementKey++;
+                    nM.AddElement(new ISurfaceElement(data1));
                 }
                 else
                 {
@@ -127,8 +120,7 @@ namespace Iguana.IguanaMesh.IModifiers
                     local.AddRange(data1.Reverse());
                     vertexKey++;
 
-                    nM.AddElement(elementKey, new ISurfaceElement(local.ToArray()));
-                    elementKey++;
+                    nM.AddElement(new ISurfaceElement(local.ToArray()));
                 }
             }
 
@@ -144,7 +136,6 @@ namespace Iguana.IguanaMesh.IModifiers
             IVector3D n, pos;
             IElement e, nE;
             int next_vKey = mesh.FindNextVertexKey();
-            int next_eKey = mesh.FindNextElementKey();
 
             foreach (int eK in eKeys)
             {
@@ -170,8 +161,7 @@ namespace Iguana.IguanaMesh.IModifiers
                     else if (vertices.Count == 6) nE = new IPrismElement(vertices.ToArray());
                     if (nE != null)
                     {
-                        dM.AddElement(next_eKey, nE);
-                        next_eKey++;
+                        dM.AddElement(nE);
                     }
                 }
             }
@@ -219,8 +209,7 @@ namespace Iguana.IguanaMesh.IModifiers
                         temp.Add(vertices[prev_i]);
 
                         nE = new ISurfaceElement(temp.ToArray());
-                        dM.AddElement(next_eKey, nE);
-                        next_eKey++;
+                        dM.AddElement(nE);
                     }
 
                 }

@@ -144,7 +144,6 @@ namespace Iguana.IguanaMesh.IModifiers
 
             //Faces
             int prev;
-            int elementKey = sMesh.FindNextElementKey();
             foreach (int elementID in triMesh.ElementsKeys)
             {
                 IElement e = triMesh.GetElementWithKey(elementID);
@@ -157,11 +156,9 @@ namespace Iguana.IguanaMesh.IModifiers
                         prev = i - 1;
                         if (prev < 0) prev = e.Vertices.Length - 1;
 
-                        sMesh.AddElement(elementKey, new ISurfaceElement(new[] { eV[prev], e.Vertices[i], eV[i] }));
-                        elementKey++;
+                        sMesh.AddElement(new ISurfaceElement(new[] { eV[prev], e.Vertices[i], eV[i] }));
                     }
-                    sMesh.AddElement(elementKey, new ISurfaceElement(new[] { eV[0], eV[1], eV[2] }));
-                    elementKey++;
+                    sMesh.AddElement(new ISurfaceElement(new[] { eV[0], eV[1], eV[2] }));
                 }
             }
 

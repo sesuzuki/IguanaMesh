@@ -113,8 +113,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
                     if (e != null)
                     {
-                        mesh.AddElement(elementKey, e);
-                        elementKey++;
+                        mesh.AddElement(e);
                     }
                 }
             }
