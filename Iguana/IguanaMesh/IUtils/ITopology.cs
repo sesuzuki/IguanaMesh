@@ -1,12 +1,8 @@
-﻿using Iguana.IguanaMesh.IModifiers;
-using Iguana.IguanaMesh.ITypes;
-using Rhino.ApplicationSettings;
+﻿using Iguana.IguanaMesh.ITypes;
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IUtils
 {
@@ -384,78 +380,124 @@ namespace Iguana.IguanaMesh.IUtils
             return naked.ToArray();
         }
 
-        public Int64[] GetUniqueEdges()
+        public Line[] GetUniqueEdgesAsLines()
         {
-            List<Int64> edges = new List<Int64>();
-            IElement element_sibling;
-            int elementID_sibling, halfFacetID_sibling;
-            Boolean visited;
+            List<Line> edges = new List<Line>();
+            List<long> edgesID = new List<long>();
+            long data1, data2;
+            Point3d p1, p2;
+            int next, count;
+            int[] hf;
 
             foreach (int elementID in iM.ElementsKeys)
             {
                 IElement e = iM.GetElementWithKey(elementID);
 
-                if (!e.Visited)
+                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
                 {
-                    int[] hf;
-                    if (e.TopologicDimension == 2)
+                    e.GetHalfFacet(halfFacetID, out hf);
+
+                    count = 1;
+                    if (e.TopologicDimension == 3) count = hf.Length;
+                    for (int i = 0; i < count; i++)
                     {
-                        for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                        next = i + 1;
+                        if (i == count - 1)
                         {
-                            visited = e.IsHalfFacetVisited(halfFacetID);
-
-                            if (!e.IsNakedSiblingHalfFacet(halfFacetID) && !visited)
-                            {
-                                while (visited == false)
-                                {
-                                    //Register Visit
-                                    e.RegisterHalfFacetVisit(halfFacetID);
-
-                                    //Collect information of siblings
-                                    elementID_sibling = e.GetSiblingElementID(halfFacetID);
-                                    halfFacetID_sibling = e.GetSiblingHalfFacetID(halfFacetID);
-                                    element_sibling = iM.GetElementWithKey(elementID_sibling);
-
-                                    visited = element_sibling.IsHalfFacetVisited(halfFacetID_sibling);
-
-                                    halfFacetID = halfFacetID_sibling;
-                                    e = element_sibling;
-                                }
-
-                                e.GetHalfFacet(halfFacetID, out hf);
-                                Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
-                                edges.Add(data);
-                            }
-                            else if (e.IsNakedSiblingHalfFacet(halfFacetID))
-                            {
-                                e.GetHalfFacet(halfFacetID, out hf);
-                                Int64 data = (Int64)hf[0] << 32 | (Int64)hf[1];
-                                edges.Add(data);
-                            }
+                            if (count > 1) next = 0;
+                            else next = 1;
                         }
-                    }
-                    else
-                    {
-                        int next;
-                        Int64 data1, data2;
-                        for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                        data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
+                        data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
+                        if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
                         {
-                            e.GetHalfFacet(halfFacetID, out hf);
-                            visited = e.IsHalfFacetVisited(halfFacetID);
-
-                            for (int i = 0; i < hf.Length; i++)
-                            {
-                                next = i + 1;
-                                if (i == hf.Length-1) next = 0;
-                                data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
-                                data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
-                                if (!edges.Contains(data1) && !edges.Contains(data2)) edges.Add(data1);
-                            }
+                            p1 = iM.GetVertexWithKey(hf[i]).RhinoPoint;
+                            p2 = iM.GetVertexWithKey(hf[next]).RhinoPoint;
+                            edges.Add(new Line(p1, p2));
+                            edgesID.Add(data1);
                         }
                     }
                 }
             }
-            iM.CleanElementsVisits();
+            return edges.ToArray();
+        }
+
+        public long[] GetUniqueEdges()
+        {
+            List<long> edgesID = new List<long>();
+            long data1, data2;
+            int next, count;
+            int[] hf;
+
+            foreach (int elementID in iM.ElementsKeys)
+            {
+                IElement e = iM.GetElementWithKey(elementID);
+
+                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                {
+                    e.GetHalfFacet(halfFacetID, out hf);
+
+                    count = 1;
+                    if (e.TopologicDimension == 3) count = hf.Length;
+                    for (int i = 0; i < count; i++)
+                    {
+                        next = i + 1;
+                        if (i == count - 1)
+                        {
+                            if (count > 1) next = 0;
+                            else next = 1;
+                        }
+                        data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
+                        data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
+                        if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
+                        {
+                            edgesID.Add(data1);
+                        }
+                    }
+                }
+            }
+            return edgesID.ToArray();
+        }
+
+        public ITopologicEdge[] GetTopologicEdges()
+        {
+            List<ITopologicEdge> edges = new List<ITopologicEdge>();
+            List<long> edgesID = new List<long>();
+            long data1, data2;
+            ITopologicVertex v1, v2;
+            int next, count;
+            int[] hf;
+
+            foreach (int elementID in iM.ElementsKeys)
+            {
+                IElement e = iM.GetElementWithKey(elementID);
+
+                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                {
+                    e.GetHalfFacet(halfFacetID, out hf);
+
+                    count = 1;
+                    if (e.TopologicDimension == 3) count = hf.Length;
+                    for (int i = 0; i < count; i++)
+                    {
+                        next = i + 1;
+                        if (i == count - 1)
+                        {
+                            if (count > 1) next = 0;
+                            else next = 1;
+                        }
+                        data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
+                        data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
+                        if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
+                        {
+                            v1 = iM.GetVertexWithKey(hf[i]);
+                            v2 = iM.GetVertexWithKey(hf[next]);
+                            edges.Add(new ITopologicEdge(v1, v2));
+                            edgesID.Add(data1);
+                        }
+                    }
+                }
+            }
             return edges.ToArray();
         }
 
@@ -478,23 +520,6 @@ namespace Iguana.IguanaMesh.IUtils
                 neighbor = e1.Intersect(e2).ToArray();
             }
             return neighbor;
-        }
-
-        /// <summary>
-        /// Retreive all topologic edges
-        /// </summary>
-        /// <returns></returns>
-        public ITopologicEdge[] GetTopologicEdges()
-        {
-            Int64[] pairs = GetUniqueEdges();
-            ITopologicEdge[] edge = new ITopologicEdge[pairs.Length];
-            ITopologicVertex v1, v2;
-            for(int i=0; i<pairs.Length; i++) {
-                v1 = iM.GetVertexWithKey((Int32)(pairs[i] >> 32));
-                v2 = iM.GetVertexWithKey((Int32)pairs[i]);
-                edge[i] = new ITopologicEdge(v1,v2);
-            }
-            return edge;
         }
 
         public bool IsNakedEdge(int start, int end)

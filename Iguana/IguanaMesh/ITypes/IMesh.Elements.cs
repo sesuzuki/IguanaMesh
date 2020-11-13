@@ -1,4 +1,5 @@
-﻿using Iguana.IguanaMesh.IUtils;
+﻿using Iguana.IguanaMesh.ITypes.IElements;
+using Iguana.IguanaMesh.IUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void AddElement(IElement element)
         {
+            element.Key = elementKey;
             InitializeElementTopologicalData(element);
             _elements.Add(elementKey, element);
             elementKey++;
@@ -42,9 +44,12 @@ namespace Iguana.IguanaMesh.ITypes
                 Int64 sibData = (Int64)element.Key << 32 | (Int64)halfFacetID;
 
                 //Find vertex with larger ID
-                Int32 v = hf.Max();
-                if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new List<Int64>());
-                _tempVertexToHalfFacets[v].Add(sibData);
+                //Int32 v = hf.Max();
+                foreach (int v in hf)
+                {
+                    if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new List<Int64>());
+                    _tempVertexToHalfFacets[v].Add(sibData);
+                }
             }
         }
 

@@ -64,13 +64,13 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private bool BuildAllElementsSiblingHalfFacets()
         {
-            try
-            {
+            //try
+            //{
                 ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
                 _tempVertexToHalfFacets.Clear();
                 return true;
-            }
-            catch (Exception) { return false; }
+            //}
+            //catch (Exception) { return false; }
         }
 
         private void BuildElementSiblingHalFacets(int elementID)
@@ -87,11 +87,19 @@ namespace Iguana.IguanaMesh.ITypes
                     int[] hf;
                     e.GetHalfFacet(halfFacetID, out hf);
 
-                    int v = hf.Max();
-
                     Int64 current_KeyPair = (Int64)elementID << 32 | (Int64)halfFacetID;
 
-                    List<Int64> vertexSiblings = _tempVertexToHalfFacets[v];
+                    //int v = hf.Max();
+                    //List<Int64> vertexSiblings = _tempVertexToHalfFacets[v];
+                    HashSet<long> vertexSiblings = new HashSet<long>();
+                    foreach (int vK in hf)
+                    {
+                        foreach(long temp in _tempVertexToHalfFacets[vK])
+                        {
+                            vertexSiblings.Add(temp);
+                        }
+                    }
+
 
                     foreach (Int64 sibling_KeyPair in vertexSiblings)
                     {

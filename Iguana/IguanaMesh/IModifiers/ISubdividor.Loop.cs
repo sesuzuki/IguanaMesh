@@ -42,17 +42,17 @@ namespace Iguana.IguanaMesh.IModifiers
         {
             ITopologicVertex v = m.GetVertexWithKey(vKey);
             int[] vN = m.Topology.GetVertexAdjacentVertices(vKey);
-            IPoint3D pos = new IPoint3D();
+            IPoint3D pos = v.Position;
             IVector3D vec = new IVector3D();
             if (!m.Topology.IsNakedVertex(vKey))
             {
                 int n = vN.Length;
 
-                double coef = (3 / 16) * n;
-                if (n > 3) coef = (3 / (8 * n)) * n;
+                double coef = (3.0 / 16.0) * n;
+                if (n > 3) coef = (3.0 / (8.0 * n)) * n;
 
-                vec = v.Position * coef;
-                vec += (ComputeAveragePosition(vN, m) * (1 - coef));
+                vec = pos * (1 - coef);
+                vec += (ComputeAveragePosition(vN, m) * coef);
             }
             else
             {

@@ -124,7 +124,7 @@ namespace Iguana.IguanaMesh.IModifiers
                 }
             }
 
-            nM.BuildTopology();
+            nM.BuildTopology(true);
 
             return nM;
         }
