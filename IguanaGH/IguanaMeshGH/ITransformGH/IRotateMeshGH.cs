@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IModifiers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
@@ -15,8 +16,8 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         /// Initializes a new instance of the ITwistGH class.
         /// </summary>
         public IRotateMeshGH()
-          : base("iRotateMesh", "iRotate",
-              "Rotate mesh",
+          : base("iRotate", "iRotate",
+              "Rotate a mesh",
               "Iguana", "Transform")
         {
         }
@@ -28,7 +29,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         {
             pManager.AddGenericParameter("iMesh", "iM", "Base Iguana Mesh.", GH_ParamAccess.item);
             pManager.AddLineParameter("Line", "Axis", "Rotation axis.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Angle", "Angle", "Rotation angle (Degrees).", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Angle", "Angle", "Rotation angle (Degrees).", GH_ParamAccess.item, 0);
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
 
             Vector3d vec = ln.From - ln.To;
             IVector3D axis = new IVector3D(vec.X, vec.Y, vec.Z);
-            IMesh dM = Iguana.IguanaMesh.IUtils.ITransform.Rotate(mesh, axis, angle);
+            IMesh dM = IModifier.Rotate(mesh, angle, new IPoint3D(ln.FromX,ln.FromY,ln.FromZ), axis);
 
             DA.SetData(0, dM);
         }
@@ -66,9 +67,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iRotate;
             }
         }
 

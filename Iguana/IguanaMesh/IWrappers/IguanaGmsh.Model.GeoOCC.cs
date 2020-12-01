@@ -391,7 +391,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"></param>
                 /// <param name="angle"> If `tag' is positive, set the tag explicitly; otherwise a new tag is selected automatically. </param>
                 /// <returns></returns>
-                public static int AddCylinder(double x, double y, double z, double dx, double dy, double dz, double r, double angle = -1, int tag =-1)
+                public static int AddCylinder(double x, double y, double z, double dx, double dy, double dz, double r, double angle = 2*Math.PI, int tag =-1)
                 {
                     return IWrappers.GmshModelOccAddCylinder(x, y, z, dx, dy, dz, r, tag, angle, ref _ierr);
                 }
@@ -413,7 +413,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"> If `tag' is positive, set the tag explicitly; otherwise a new tag is selected automatically. </param>
                 /// <param name="angle"> `angle' defines the optional angular opening (from 0 to 2*Pi).  </param>
                 /// <returns></returns>
-                public static int AddCone(double x, double y, double z, double dx, double dy, double dz, double r1, double r2, double angle = -1, int tag =-1)
+                public static int AddCone(double x, double y, double z, double dx, double dy, double dz, double r1, double r2, double angle = Math.PI, int tag =-1)
                 {
                     return IWrappers.GmshModelOccAddCone(x, y, z, dx, dy, dz, r1, r2, tag, angle, ref _ierr);
                 }
@@ -449,7 +449,7 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// <param name="tag"> If `tag' is positive, set the tag explicitly; otherwise a new tag is selected automatically.</param>
                 /// <param name="angle"> The optional argument `angle' defines the angular opening(from 0 to 2*Pi)</param>
                 /// <returns></returns>
-                public static int AddTorus(double x, double y, double z, double r1, double r2, double angle = -1, int tag = -1)
+                public static int AddTorus(double x, double y, double z, double r1, double r2, double angle = Math.PI, int tag = -1)
                 {
                     return IWrappers.GmshModelOccAddTorus(x, y, z, r1, r2, tag, angle, ref _ierr);
                 }

@@ -42,7 +42,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         ///
         public override string ToString()
         {
-            string msg = "IHexahedronElement{";
+            string msg = "IHexahedron{";
             for (int i = 0; i < VerticesCount; i++)
             {
                 int idx = Vertices[i];

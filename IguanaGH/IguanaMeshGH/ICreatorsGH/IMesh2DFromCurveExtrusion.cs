@@ -25,7 +25,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// Initializes a new instance of the IMesh2DFromExtrusion class.
         /// </summary>
         public IMesh2DFromCurveExtrusion()
-          : base("iExtrusionCurve", "iExtrusionCrv",
+          : base("iExtrudeCurve", "iExtrudeCrv",
               "Create a mesh from a curve extrusion.",
               "Iguana", "Creators")
         {
@@ -219,9 +219,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iExtrudeCurve;
             }
         }
 

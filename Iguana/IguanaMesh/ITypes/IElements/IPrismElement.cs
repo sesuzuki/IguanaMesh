@@ -43,7 +43,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         /// </summary>
         public override string ToString()
         {
-            string msg = "IPrismElement{";
+            string msg = "IPrism{";
             for (int i = 0; i < VerticesCount; i++)
             {
                 int idx = Vertices[i];

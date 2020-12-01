@@ -15,10 +15,8 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
             return implementedElements.Contains(elementType);
         }
 
-        public static HashSet<int> TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref IMesh mesh)
+        public static HashSet<int> TryParseToIguanaElement(int elementType, long[] nodes, int nodes_per_element, int number_of_elements, ref HashSet<int> parsedNodes, ref IMesh mesh)
         {
-            HashSet<int> parsedNodes = new HashSet<int>();
-            int elementKey = mesh.FindNextElementKey();
             if (IsElementImplemented(elementType))
             {
                 for (int j = 0; j < number_of_elements; j++)
@@ -65,7 +63,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                             e = new ISurfaceElement.HighOrder.ITriangle12(eD);
                             break;
 
-                        //5t-order 15-node incomplete triangle 
+                        //5th-order 15-node incomplete triangle 
                         case 24:
                             e = new ISurfaceElement.HighOrder.ITriangle15(eD);
                             break;

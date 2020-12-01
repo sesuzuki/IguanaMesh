@@ -74,7 +74,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         {
             get
             {
-                return Properties.Resources.AHF_CylinderMesh;
+                return Properties.Resources.iCylinder;
             }
         }
 

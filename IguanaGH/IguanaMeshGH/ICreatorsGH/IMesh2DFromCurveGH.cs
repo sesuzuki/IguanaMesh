@@ -7,8 +7,6 @@ using Rhino.Geometry;
 using Iguana.IguanaMesh.IWrappers.ISolver;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
-using Grasshopper.Kernel.Data;
-using System.Linq;
 using GH_IO.Serialization;
 using static Iguana.IguanaMesh.IUtils.IRhinoGeometry;
 using System.Windows.Forms;
@@ -175,9 +173,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iCurvePatch;
             }
         }
 

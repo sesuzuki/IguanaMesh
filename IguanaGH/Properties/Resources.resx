@@ -118,34 +118,370 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="AHF_ConstructMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_ConstructMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Hyperboloid" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Hyperboloid.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_CubeMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_CubeMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iAlign" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iAlign.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_CylinderMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_CylinderMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iAnisoCrvField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iAnisoCrvField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_DeconstructMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_DeconstructMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iAnisoField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iAnisoField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_FromRhinoMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_FromRhinoMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iBoundaryField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iBoundaryField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_ICell" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_IVoxel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iBoxField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iBoxField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_IFace" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_IFace.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iBrepPatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iBrepPatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_IFaceAsPolyline" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_IFaceAsPolyline.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iBrepPatch3D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iBrepPatch3D.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_NakedVertices" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_NakedVertices.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ICatmullClark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ICatmullClark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AHF_PlaneMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\AHF_PlaneMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iCone" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCone.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCone3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCone3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iConstructor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iConstructor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCube2D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCube2D.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCube3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCube3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCurvatureField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCurvatureField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCurveConstraints" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCurveConstraints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCurvePatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCurvePatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCylinder" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCylinder.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCylinder3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCylinder3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCylinderField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCylinderField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDeconstructElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDeconstructElement.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDeconstructHalfFacet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDeconstructHalfFacet.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDeconstructHalfFacetSibling" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDeconstructHalfFacetSibling.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDeconstructMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDeconstructMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDeconstructVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDeconstructVertex.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDistanceField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDistanceField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="IDual" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\IDual.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iDumpin" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iDumpin.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iEdgeIncidentElements" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iEdgeIncidentElements.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iEdgeNormals" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iEdgeNormals.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="IEdges" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\IEdges.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iEigenHessianField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iEigenHessianField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iElementAdjacentElements" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iElementAdjacentElements.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iElementDelete" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iElementDelete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iElementFind" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iElementFind.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iElementNormals" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iElementNormals.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iExport" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iExport.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iExtrudeCurve" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iExtrudeCurve.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iExtrudeEdge" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iExtrudeEdge.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iExtrudeElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iExtrudeElement.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iFromRhinoMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iFromRhinoMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iFrustumField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iFrustumField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iGauss" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iGauss.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iGradientField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iGradientField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iHalfFacetFind" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iHalfFacetFind.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iHexahedron" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iHexahedron.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iHexahedronSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iHexahedronSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iImport" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iImport.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iLaplacianField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iLaplacianField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iLoft" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iLoft.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iLoft3D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iLoft3D.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iLongLatField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iLongLatField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ILoop" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ILoop.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMathAnisoField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMathAnisoField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMathField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMathField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMaxField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMaxField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMeanField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMeanField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMeshEditor" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMeshEditor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMinAnisoField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMinAnisoField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMinField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMinField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMirror" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMirror.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMobeius" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMobeius.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMoveElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMoveElement.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMoveMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMoveMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iMoveVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iMoveVertex.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iNakedEdges" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iNakedEdges.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iNakedHalfFacets" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iNakedHalfFacets.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iOctreeField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iOctreeField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iParabolic" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iParabolic.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iParamField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iParamField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPipe" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPipe.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPipe3D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPipe3D.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPlanar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPlanar.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPlane" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPlane.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPointConstraints" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPointConstraints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPoly" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPoly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPolylineEdges" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPolylineEdges.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPrism" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPrism.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iPyramid" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iPyramid.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iQuad" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iQuad.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iQuadHighOrderSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iQuadHighOrderSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iQuadSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iQuadSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iRemesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iRemesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iRestrictField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iRestrictField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iRhinoMesh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iRhinoMesh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iRotate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iRotate.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iScale" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iScale.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSkew" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSkew.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSmooth" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSmooth.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSphere" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSphere.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSphere3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSphere3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSphereField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSphereField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iStretch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iStretch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSurfaceConstraints" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSurfaceConstraints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSurfaceElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSurfaceElement.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSurfaceExtrude" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSurfaceExtrude.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iSurfacePatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iSurfacePatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTetrahedron" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTetrahedron.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTetrahedronSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTetrahedronSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iThesholdField" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iThesholdField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iThick2D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iThick2D.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iThick3D" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iThick3D.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTorus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTorus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTorus3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTorus3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTransfiniteCurve" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTransfiniteCurve.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTransfiniteSurface" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTransfiniteSurface.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTransfiniteVolume" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTransfiniteVolume.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTriangulate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTriangulate.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTrias" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTrias.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTriasHighOrderSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTriasHighOrderSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTriasSettings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTriasSettings.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iTwist" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iTwist.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertex.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertexAdjacentVertices" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertexAdjacentVertices.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertexDelete" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertexDelete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertexFind" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertexFind.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertexIncidentElements" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertexIncidentElements.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertexNormals" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertexNormals.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVertices" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVertices.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVerticesCorners" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVerticesCorners.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVerticesNaked" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVerticesNaked.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iVolumesElement" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iVolumesElement.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

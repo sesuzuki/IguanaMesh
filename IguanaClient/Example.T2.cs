@@ -155,8 +155,12 @@ namespace IguanaClient
             IguanaGmsh.Model.SetPhysicalName(3, 1, "The volume");
 
             // We finally generate and save the mesh:
+            //IguanaGmsh.Option.SetNumber("Mesh.RandomFactor3D", 1);
+            //IguanaGmsh.Option.SetNumber("Mesh.MeshSizeMin", 1);
+            //IguanaGmsh.Option.SetNumber("Mesh.MeshSizeMax", 1);
+            //IguanaGmsh.Option.SetString("Mesh.AngleToleranceFacetOverlap", "p/#");
+            //IguanaGmsh.Option.SetNumber("Mesh.ElementOrder", 2);
             IguanaGmsh.Model.Mesh.Generate(3);
-            IguanaGmsh.Write("t2.msh");
 
             // Note that, if the transformation tools are handy to create complex
             // geometries, it is also sometimes useful to generate the `flat' geometry,

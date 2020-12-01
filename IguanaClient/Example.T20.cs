@@ -31,7 +31,7 @@ namespace IguanaClient
             // Load a STEP file (using `importShapes' instead of `merge' allows to
             // directly retrieve the tags of the highest dimensional imported entities):
             Tuple<int, int>[] v;
-            IguanaGmsh.Model.GeoOCC.ImportShapes("t20_data.step", out v);
+            IguanaGmsh.Model.GeoOCC.ImportShapes("bottle.step", out v);
 
 
             // If we had specified

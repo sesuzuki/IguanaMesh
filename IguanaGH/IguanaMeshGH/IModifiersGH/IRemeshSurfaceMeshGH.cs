@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
+using Iguana.IguanaMesh.IModifiers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Iguana.IguanaMesh.IWrappers.ISolver;
+using Rhino;
+using Rhino.Display;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 using static Iguana.IguanaMesh.IUtils.IRhinoGeometry;
 
@@ -89,35 +95,108 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
                 solverOptions.MinimumCurvePoints = 4;
                 solverOptions.MinimumCirclePoints = 3;
                 solverOptions.MinimumElementsPerTwoPi = 6;
+
                 if (old.IsSurfaceMesh)
                 {
                     bool synchronize = true;
                     if (constraints.Count > 0) synchronize = false;
 
-                    IguanaGmsh.Initialize();
+                    List<long> nodes = new List<long>();
+                    List<double> xyz = new List<double>();
+                    List<long> triangles = new List<long>();
+                    ITopologicVertex v;
 
-                    // Mesh construction
-                    int dim = 2;
-                    int tag = 1;
-                    IguanaGmshFactory.Geo.GmshFromIguanaMesh(old, dim, tag, true);
+                    int key = old.FindNextVertexKey();
+                    for (int j = 0; j < old.VerticesCount; j++)
+                    {
+                        v = old.Vertices[j];
+                        nodes.Add(v.Key);
+                        xyz.AddRange(new double[] { v.X, v.Y, v.Z });
+                    }
 
-                    // Embed constraints
-                    if (!synchronize) IguanaGmshFactory.Geo.EmbedConstraintsOnBrep(constraints, true);// OnSurface(constraints, surfaceTag, true);
+                    IElement e;
+                    for (int j = 0; j < old.ElementsCount; j++)
+                    {
+                        e = old.Elements[j];
+                        if (e.VerticesCount == 3)
+                        {
+                            triangles.AddRange(new long[] { e.Vertices[0], e.Vertices[1], e.Vertices[2] });
+                        }
+                        else if (e.VerticesCount == 4)
+                        {
+                            triangles.AddRange(new long[] { e.Vertices[0], e.Vertices[1], e.Vertices[3]});
+                            triangles.AddRange(new long[] { e.Vertices[3], e.Vertices[1], e.Vertices[2]});
+                        }
+                        else
+                        {
+                            IPoint3D p = ISubdividor.ComputeAveragePosition(e.Vertices, old);
+                            nodes.Add(key);
+                            xyz.AddRange(new double[] { p.X, p.Y, p.Z });
+                            for (int i = 1; i <= e.HalfFacetsCount; i++)
+                            {
+                                int[] hf;
+                                e.GetHalfFacet(i, out hf);
+                                triangles.AddRange(new long[] { hf[0], hf[1], key });
+                            }
+                            key++;
+                        }
+                    }
 
-                    //Transfinite
-                    if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
+                    Mesh rM = IRhinoGeometry.TryGetRhinoMesh(old);
+                    rM.UnifyNormals();
 
-                    // Preprocessing settings
-                    solverOptions.ApplySolverSettings(field);
+                    var doc = RhinoDoc.ActiveDoc;
 
-                    // 2d mesh generation
-                    IguanaGmsh.Model.Mesh.Generate(2);
+                    if (rM.IsValid)
+                    {
+                        IguanaGmsh.Initialize();
 
-                    // Iguana mesh construction
-                    mesh = IguanaGmshFactory.TryGetIMesh();
-                    IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
+                        var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                        var filename = Path.Combine(path, "IG-" + Guid.NewGuid().ToString() + ".stl");
 
-                    IguanaGmsh.FinalizeGmsh();
+                        ObjectAttributes att = new ObjectAttributes();
+                        DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
+                        att.SetDisplayModeOverride(display);
+                        att.Space = ActiveSpace.None;
+                        att.ObjectColor = Color.DarkRed;
+                        att.ColorSource = ObjectColorSource.ColorFromObject;
+
+                        Guid id = doc.Objects.AddMesh(rM, att);
+                        ObjRef obj = new ObjRef(id);
+                        var tmpObj = doc.Objects.Select(obj);
+                        Rhino.RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
+                        doc.Objects.Delete(obj, true);
+
+                        IguanaGmsh.Merge(filename);
+
+                        IguanaGmsh.Model.Mesh.ClassifySurfaces(0, true, true, Math.PI);
+                        IguanaGmsh.Model.Mesh.CreateGeometry();
+
+                        Tuple<int, int>[] s;
+                        IguanaGmsh.Model.GetEntities(out s, 2);
+
+                        var sl = s.Select(ss => ss.Item2).ToArray();
+                        var l = IguanaGmsh.Model.Geo.AddSurfaceLoop(sl);
+                        IguanaGmsh.Model.Geo.Synchronize();
+
+                        // Embed constraints
+                        if (!synchronize) IguanaGmshFactory.Geo.EmbedConstraintsOnBrep(constraints, true);// OnSurface(constraints, surfaceTag, true);
+
+                        //Transfinite
+                        if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
+
+                        // Preprocessing settings
+                        solverOptions.ApplySolverSettings(field);
+
+                        IguanaGmsh.Model.Mesh.Generate(2);
+
+                        mesh = IguanaGmshFactory.TryGetIMesh();
+                        IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
+
+                        IguanaGmsh.FinalizeGmsh();
+
+                        if (File.Exists(filename)) File.Delete(filename);
+                    }
                 }
             }
 
@@ -137,9 +216,7 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iRemesh;
             }
         }
 

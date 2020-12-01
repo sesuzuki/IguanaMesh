@@ -148,7 +148,7 @@ namespace Iguana.IguanaMesh.IUtils
 
         public int[] GetVertexIncidentElements(int vertexKey)
         {
-            List<Int32> neighbor = new List<Int32>();
+            HashSet<Int32> neighbor = new HashSet<Int32>();
             iM.CleanElementsVisits();
 
             Int64[] nK;
@@ -188,8 +188,8 @@ namespace Iguana.IguanaMesh.IUtils
 
         public int[] GetVertexAdjacentVertices(int vertexKey)
         {
-            List<Int32> neighbor = new List<Int32>();
-            List<Int32> vNeighbor = new List<Int32>();
+            HashSet<Int32> neighbor = new HashSet<Int32>();
+            HashSet<Int32> vNeighbor = new HashSet<Int32>();
             iM.CleanElementsVisits();
 
             Int64[] nK;

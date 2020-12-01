@@ -43,6 +43,8 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 
                 if (ptsCloud == default)
                 {
+                    ptsCloud = new PointCloud();
+
                     int[] tempTags = new int[poly.Count];
                     int idx;
                     for (int j = 0; j < poly.Count; j++)

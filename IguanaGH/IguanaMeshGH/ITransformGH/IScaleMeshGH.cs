@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types.Transforms;
+using Iguana.IguanaMesh.IModifiers;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
@@ -16,7 +17,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         /// Initializes a new instance of the IScaleMeshGH class.
         /// </summary>
         public IScaleMeshGH()
-          : base("iScaleMesh", "iScaleMesh",
+          : base("iScale", "iScale",
               "Scale mesh",
               "Iguana", "Transform")
         {
@@ -54,7 +55,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
             DA.GetData(2, ref y);
             DA.GetData(3, ref z);
 
-            IMesh dM = Iguana.IguanaMesh.IUtils.ITransform.Scale(mesh, x,y,z);
+            IMesh dM = IModifier.Scale(mesh, x,y,z);
 
             DA.SetData(0, dM);
         }
@@ -66,9 +67,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iScale;
             }
         }
 

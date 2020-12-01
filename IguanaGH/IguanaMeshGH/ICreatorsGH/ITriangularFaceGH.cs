@@ -70,7 +70,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                return Properties.Resources.AHF_IFace;
+                return Properties.Resources.iTrias;
             }
         }
 

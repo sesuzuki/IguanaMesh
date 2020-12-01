@@ -36,7 +36,9 @@ namespace Iguana.IguanaMesh.ITypes
                 message += "Vertex to Half-Facet (v2hf): ";
                 if (flag2) message += " Built;\n";
                 else if (!flag2) message += " Errors Found;\n";
+                _valid = false;
             }
+            else _valid = true;
         }
 
         public bool UpdateAllElementsSiblingHalfFacets()
@@ -64,19 +66,20 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private bool BuildAllElementsSiblingHalfFacets()
         {
-            //try
-            //{
+            try
+            {
                 ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
                 _tempVertexToHalfFacets.Clear();
                 return true;
-            //}
-            //catch (Exception) { return false; }
+            }
+            catch (Exception) { return false; }
         }
 
         private void BuildElementSiblingHalFacets(int elementID)
         {
             IElement e = _elements[elementID];
             IElement nE;
+            HashSet<long> vertexSiblings;
 
             //Half-Facets from element e (Faces to edges)
             for (Int32 halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
@@ -91,31 +94,27 @@ namespace Iguana.IguanaMesh.ITypes
 
                     //int v = hf.Max();
                     //List<Int64> vertexSiblings = _tempVertexToHalfFacets[v];
-                    HashSet<long> vertexSiblings = new HashSet<long>();
-                    foreach (int vK in hf)
+
+                    for (int i = 0; i < hf.Length; i++)
                     {
-                        foreach(long temp in _tempVertexToHalfFacets[vK])
+                        vertexSiblings = _tempVertexToHalfFacets[hf[i]];
+
+                        foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
-                            vertexSiblings.Add(temp);
-                        }
-                    }
+                            int sib_elementID, sib_halfFacetID;
+                            IHelpers.UnpackKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID);
+                            nE = _elements[sib_elementID];
 
-
-                    foreach (Int64 sibling_KeyPair in vertexSiblings)
-                    {
-                        int sib_elementID, sib_halfFacetID;
-                        IHelpers.UnpackKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID);
-                        nE = _elements[sib_elementID];
-
-                        if (!sibling_KeyPair.Equals(current_KeyPair))
-                        {
-                            int[] hfs_us;
-                            nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
-
-                            int eval = hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
-                            if (hfs_us.Intersect(hf).Count() == eval)
+                            if (!sibling_KeyPair.Equals(current_KeyPair))
                             {
-                                e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
+                                int[] hfs_us;
+                                nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
+
+                                int eval = hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
+                                if (hfs_us.Intersect(hf).Count() == eval)
+                                {
+                                    e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
+                                }
                             }
                         }
                     }
@@ -143,9 +142,9 @@ namespace Iguana.IguanaMesh.ITypes
                         int[] hf;
                         e.GetHalfFacet(halfFacetID, out hf);
 
-                        foreach (int vKey in hf)
+                        for(int i=0; i< hf.Length; i++)
                         {
-                            BuildVertexToHalfFacet(vKey, elementID, halfFacetID);
+                            BuildVertexToHalfFacet(hf[i], elementID, halfFacetID);
                         }
                     }
                 }

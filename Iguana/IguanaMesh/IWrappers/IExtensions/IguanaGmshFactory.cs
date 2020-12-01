@@ -1,16 +1,11 @@
 ﻿using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.IWrappers;
-using Iguana.IguanaMesh.IWrappers.ISolver;
 using Rhino.Geometry;
-using Rhino.Geometry.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Rhino;
-using System.Xml.Serialization;
-using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IModifiers;
 
 namespace Iguana.IguanaMesh.IWrappers.IExtensions

@@ -63,7 +63,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             get
             {
-                return Properties.Resources.AHF_IFaceAsPolyline;
+                return Properties.Resources.iPolylineEdges;
             }
         }
 

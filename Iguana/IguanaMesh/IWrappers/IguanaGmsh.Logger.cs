@@ -33,17 +33,17 @@ namespace Iguana.IguanaMesh.IWrappers
             /// Get logged messages.
             /// </summary>
             /// <returns></returns>
-            public static char[] Get()
+            public static string Get()
             {
                 IntPtr log;
                 long log_n;
 
                 IWrappers.GmshLoggerGet(out log, out log_n, ref _ierr);
 
-                char[] msg = new char[log_n]; ;
+                char[] msg = new char[log_n];
                 Marshal.Copy(log, msg, 0, (int) log_n);
 
-                return msg;
+                return new string(msg);
             }
 
             /// <summary>

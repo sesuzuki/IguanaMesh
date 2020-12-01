@@ -52,9 +52,9 @@ namespace Iguana.IguanaMesh.ITypes.IElements
         ///
         public override string ToString()
         {
-            string msg = "ISurfaceElement{";
-            if(VerticesCount==3) msg = "ITriangleElement{";
-            else if(VerticesCount==4) msg = "IQuadrangleElement{";
+            string msg = "ISurface{";
+            if(VerticesCount==3) msg = "ITriangle{";
+            else if(VerticesCount==4) msg = "IQuadrangle{";
             for (int i = 0; i < VerticesCount; i++)
             {
                 int idx = Vertices[i];

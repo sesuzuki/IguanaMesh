@@ -28,7 +28,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override string ToString()
                 {
-                    string eType = "(20-Nodes) IHexahedron 2nd-Order";
+                    string eType = "(20-Nodes)-IHexahedron-2nd-Order";
                     return IHelpers.HighOrder3DElementsToString(eType, Vertices, 8);
                 }
 

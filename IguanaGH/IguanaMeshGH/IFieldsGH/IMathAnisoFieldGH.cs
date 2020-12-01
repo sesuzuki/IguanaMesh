@@ -13,7 +13,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         /// Initializes a new instance of the IMathAnisoFieldGH class.
         /// </summary>
         public IMathAnisoFieldGH()
-          : base("iMathAnisoField", "iMathAnisoF",
+          : base("iAnisoMathField", "iAnisoMathF",
               "Anisotropic math field to specify the size of the mesh elements. The field is evaluated as a metric expression.",
               "Iguana", "Fields")
         {
@@ -87,9 +87,7 @@ namespace IguanaGH.IguanaMeshGH.IFieldsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iMathAnisoField;
             }
         }
 

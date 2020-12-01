@@ -29,6 +29,7 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
             pManager.AddIntegerParameter("Steps", "Steps", "Subdivision steps.", GH_ParamAccess.item, 1);
             pManager.AddBooleanParameter("Naked", "Naked", "Smooth naked vertices.", GH_ParamAccess.item, true);
             pManager.AddIntegerParameter("Vertices", "v-Keys", "Vertices to exclude.", GH_ParamAccess.list);
+            pManager[3].Optional = true;
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
             DA.GetData(0, ref old);
             DA.GetData(1, ref step);
             DA.GetData(2, ref naked);
-            DA.GetData(3, ref exclude);
+            DA.GetDataList(3, exclude);
 
             IMesh mesh = IModifier.LaplacianSmoother(old, step, naked, exclude);
 
@@ -71,9 +72,7 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iSmooth;
             }
         }
 

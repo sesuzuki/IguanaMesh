@@ -63,7 +63,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                return Properties.Resources.AHF_FromRhinoMesh;
+                return Properties.Resources.iFromRhinoMesh;
             }
         }
 

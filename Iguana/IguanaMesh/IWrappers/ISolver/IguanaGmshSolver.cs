@@ -6,12 +6,13 @@ using System.Text;
 
 namespace Iguana.IguanaMesh.IWrappers.ISolver
 {
-    public enum MeshSolvers2D { MeshAdapt = 1, Automatic = 2, InitialMeshOnly = 3, Delaunay = 5, TriFrontalDelaunay = 6, BAMG = 7, QuadsFrontalDelaunay = 8, PackingOfParallelograms = 9 }
+    public enum MeshSolvers2DTriangles { MeshAdapt = 1, Automatic = 2, InitialMeshOnly = 3, Delaunay = 5, TriFrontalDelaunay = 6, BAMG = 7 }
+    public enum MeshSolvers2DQuads { MeshAdapt = 1, Automatic = 2, InitialMeshOnly = 3, Delaunay = 5, TriFrontalDelaunay = 6, BAMG = 7, QuadsFrontalDelaunay = 8, PackingOfParallelograms = 9 }
     public enum MeshSolvers3D { Delaunay = 1, InitialMeshOnly = 3, Frontal = 4, MMG3D = 7, RTree = 9, HXT = 10 }
     public enum OptimizationAlgorithm { Standard=0, Netgen=1, HighOrder=2, HighOrderElastic=3, HighOrderFastCurving=4, Laplace2D=5, Relocate2D=6, Relocate3D=7 }
     public enum ElementQualityType { SICN=0, SIGE=1, Gamma=2, Disto=3 }
     public enum SubdivisionAlgorithm { AllQuads=0, AllHexa=1, Barycentric=2 }
-    public enum RecombinationAlgorithm { Simple=0, Blossom=1, SimpleFullQuad=2, BlossomFullQuad = 3 }
+    public enum RecombinationAlgorithm { Blossom=1, SimpleFullQuad=2, BlossomFullQuad = 3 }
 
 
     public abstract class IguanaGmshSolver

@@ -1,10 +1,4 @@
 ﻿using Iguana.IguanaMesh.IWrappers.IExtensions;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.IWrappers.ISolver
 {
@@ -18,12 +12,14 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
             RecombinationAlgorithm = 0;
             RecombineAll = false;
             RecombineOptimizeTopology = 5;
+            ElementOrder = 1;
+            HighOrderPassMax = 25;
         }
 
         /// <summary>
         /// 2D mesh algorithm (1: MeshAdapt, 2: Automatic, 3: Initial mesh only, 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads, 9: Packing of Parallelograms). Default value: 6
         /// </summary>
-        public MeshSolvers2D MeshingAlgorithm { get; set; }
+        public int MeshingAlgorithm { get; set; }
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
@@ -83,9 +79,16 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
 
         public void ApplySolverSettings(IguanaGmshField field=null)
         {
-            IguanaGmsh.Option.SetNumber("Mesh.Algorithm", (int) MeshingAlgorithm);
+            IguanaGmsh.Option.SetNumber("Mesh.Algorithm", MeshingAlgorithm);
             IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
             IguanaGmsh.Option.SetNumber("Mesh.MinimumCurvePoints", MinimumCurvePoints);
+            IguanaGmsh.Option.SetNumber("Mesh.ElementOrder", ElementOrder);
+
+            if (ElementOrder != 1)
+            {
+                IguanaGmsh.Option.SetNumber("Mesh.HighOrderOptimize", HighOrderOptimize);
+                IguanaGmsh.Option.SetNumber("Mesh.HighOrderPassMax", HighOrderPassMax);
+            }
 
             if (field!=null)
             {
@@ -117,20 +120,7 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
                 IguanaGmsh.Model.Mesh.Recombine();
             }else IguanaGmsh.Option.SetNumber("Mesh.RecombineAll", 0);
 
-            if (Subdivide)
-            {
-                IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", SubdivisionAlgorithm);
-                IguanaGmsh.Model.Mesh.Refine();
-            }else IguanaGmsh.Option.SetNumber("Mesh.SubdivisionAlgorithm", 0);
-
-            if (Optimize)
-            {
-                IguanaGmsh.Option.SetNumber("Mesh.QualityType", QualityType);
-                IguanaGmsh.Option.SetNumber("Mesh.Optimize", 1);
-                string method = OptimizationAlgorithm;
-                if (method == "Standard") method = "";
-                IguanaGmsh.Model.Mesh.Optimize(method, OptimizationSteps);
-            }else IguanaGmsh.Option.SetNumber("Mesh.Optimize", 0);
+            IguanaGmsh.Option.SetNumber("Mesh.Smoothing", OptimizationSteps);
         }
     }
 }

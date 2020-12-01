@@ -375,26 +375,30 @@ namespace Iguana.IguanaMesh.IUtils
                 idx++;
             }
 
-            int vKey;
+            int vKey = iM.FindNextVertexKey();
             int[] hf;
             foreach (IElement e in iM.Elements)
             {
                 if (e.TopologicDimension == 2)
                 {
                     if (e.VerticesCount == 3) rM.Faces.AddFace(new MeshFace(maps[e.Vertices[0]], maps[e.Vertices[1]], maps[e.Vertices[2]]));
-                    else if (e.VerticesCount == 4) rM.Faces.AddFace(new MeshFace(maps[e.Vertices[0]], maps[e.Vertices[1]], maps[e.Vertices[2]], maps[e.Vertices[3]]));
+                    else if (e.VerticesCount == 4)
+                    {
+                        rM.Faces.AddFace(new MeshFace(maps[e.Vertices[0]], maps[e.Vertices[1]], maps[e.Vertices[3]]));
+                        rM.Faces.AddFace(new MeshFace(maps[e.Vertices[3]], maps[e.Vertices[1]], maps[e.Vertices[2]]));
+                    }
                     else
                     {
                         IPoint3D pos = ISubdividor.ComputeAveragePosition(e.Vertices, iM);
-                        rM.Vertices.Add(new Point3d( pos.X, pos.Y, pos.Z ));
-                        vKey = rM.Vertices.Count-1;
+                        rM.Vertices.Add(new Point3d(pos.X, pos.Y, pos.Z));
                         maps.Add(vKey, idx);
-                        idx++;
                         for (int i = 1; i <= e.HalfFacetsCount; i++)
                         {
                             e.GetHalfFacet(i, out hf);
-                            rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], vKey));
+                            rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[vKey]));
                         }
+                        vKey++;
+                        idx++;
                     }
                 }
                 else
@@ -410,8 +414,20 @@ namespace Iguana.IguanaMesh.IUtils
                     }
                 }
             }
-            //rM.Vertices.CullUnused();
+
+            rM.UnifyNormals();
             return rM;
+        }
+
+        public static Point3d[] GetPointsFromElements(int[] vKeys, IMesh iM)
+        {
+            Point3d[] pts = new Point3d[vKeys.Length+1]; 
+            for(int i=0; i < vKeys.Length; i++)
+            {
+                pts[i] = iM.GetVertexWithKey(vKeys[i]).RhinoPoint;
+            }
+            pts[vKeys.Length] = pts[0];
+            return pts;
         }
     }
 }

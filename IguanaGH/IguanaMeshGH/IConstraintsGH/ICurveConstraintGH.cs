@@ -61,64 +61,6 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
             else c = new IguanaGmshConstraint(2, crv, size, entityDim, entityTag);
 
             DA.SetData(0, c);
-
-            /*List<IguanaGmshConstraint> constraints = new List<IguanaGmshConstraint>();
-
-            List<Curve> crv = new List<Curve>();
-            foreach (var obj in base.Params.Input[0].VolatileData.AllData(true))
-            {
-                Curve c;
-                obj.CastTo<Curve>(out c);
-                crv.Add(c);
-            }
-
-            List<double> sizes = new List<double>();
-            foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
-            {
-                double s;
-                obj.CastTo<double>(out s);
-                sizes.Add(s);
-            }
-
-
-            int auxcount = sizes.Count;
-            int count = crv.Count;
-
-            if (count > 0)
-            {
-                IguanaGmshConstraint c;
-                if (count == auxcount)
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        Polyline pl;
-                        bool flag = crv[i].TryGetPolyline(out pl);
-                        if (flag) c = new IguanaGmshConstraint(1, pl, sizes[i]);
-                        else
-                        {
-                            c = new IguanaGmshConstraint(2, crv[i], sizes[i]);
-                        }
-                        constraints.Add(c);
-                    }
-                }
-                else
-                {
-                    double s = sizes[0];
-                    for (int i = 0; i < count; i++)
-                    {
-                        Polyline pl;
-                        bool flag = crv[i].TryGetPolyline(out pl);
-                        if (flag) c = new IguanaGmshConstraint(1, pl, s);
-                        else
-                        {
-                            c = new IguanaGmshConstraint(2, crv[i], s);
-                        }
-                        constraints.Add(c);
-                    }
-                }
-            }
-
-            DA.SetDataList(0, constraints);*/
         }
 
         /// <summary>
@@ -128,9 +70,7 @@ namespace IguanaGH.IguanaMeshGH.IConstraintsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iCurveConstraints;
             }
         }
 

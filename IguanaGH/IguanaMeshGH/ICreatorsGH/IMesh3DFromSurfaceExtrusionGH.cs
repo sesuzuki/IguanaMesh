@@ -7,7 +7,6 @@ using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
 using Iguana.IguanaMesh.IWrappers.ISolver;
-using Grasshopper.Kernel.Data;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Rhino;
 using GH_IO.Serialization;
@@ -27,7 +26,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// Initializes a new instance of the IVolumeMeshFromExtrusion class.
         /// </summary>
         public IMesh3DFromSurfaceExtrusionGH()
-          : base("iExtrusionSurface", "iExtrusionSrf",
+          : base("iExtrudeSurface", "iExtrudeSrf",
               "Extrude a suface along a vector to generate a three-dimensional mesh.",
               "Iguana", "Creators")
         {
@@ -163,8 +162,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                     IguanaGmsh.Model.GeoOCC.Synchronize();
 
                     // Preprocessing settings
-                    solverOptions.ApplyBasic3DSettings();
-                    solverOptions.ApplyAdvanced3DSettings();
+                    solverOptions.ApplySolverSettings(field);
 
                     // 2d mesh generation
                     IguanaGmsh.Model.Mesh.Generate(3);
@@ -233,9 +231,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iSurfaceExtrude;
             }
         }
 

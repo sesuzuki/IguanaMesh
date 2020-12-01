@@ -40,12 +40,13 @@ namespace Iguana.IguanaMesh.ITypes
         private int dim = -1;
         private int elementKey = 1;
         private ITopology _topology;
+        private bool _valid = false;
 
         private Dictionary<int, IElement> _elements;
         private Dictionary<int, ITopologicVertex> _vertices;
 
         //Temporary data structures for construction
-        private Dictionary<Int32, List<Int64>> _tempVertexToHalfFacets;
+        private Dictionary<Int32, HashSet<Int64>> _tempVertexToHalfFacets;
 
         //Half-Facet Data Structure
         public ITopology Topology { get => _topology; }
@@ -86,7 +87,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             _vertices = new Dictionary<int, ITopologicVertex>();
             _elements = new Dictionary<int, IElement>();
-            _tempVertexToHalfFacets = new Dictionary<Int32, List<Int64>>();
+            _tempVertexToHalfFacets = new Dictionary<Int32, HashSet<Int64>>();
             _topology = new ITopology(this);
         }
 

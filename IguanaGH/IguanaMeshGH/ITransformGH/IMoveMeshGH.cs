@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.IWrappers;
-using Iguana.IguanaMesh.IWrappers.IExtensions;
+using Iguana.IguanaMesh.IModifiers;
 using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.ITransformGH
@@ -49,9 +46,9 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
             DA.GetData(0, ref mesh);
             DA.GetData(1, ref vec);
 
-            IMesh dM = Iguana.IguanaMesh.IUtils.ITransform.Move(mesh, vec.X, vec.Y, vec.Z);
+            IMesh dM = IModifier.Move(mesh, vec.X, vec.Y, vec.Z);
 
-            DA.SetData(0, mesh);
+            DA.SetData(0, dM);
         }
 
         public override GH_Exposure Exposure
@@ -66,9 +63,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iMoveMesh;
             }
         }
 

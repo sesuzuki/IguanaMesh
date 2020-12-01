@@ -34,7 +34,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
                 /// </summary>
                 public override string ToString()
                 {
-                    string eType = "(15-Nodes) IPrism 2nd-Order";
+                    string eType = "(15-Nodes)-IPrism-2nd-Order";
                     return IHelpers.HighOrder3DElementsToString(eType, Vertices, 6);
                 }
 

@@ -9,18 +9,17 @@ namespace IguanaGH.IguanaMeshGH.ISettings
 {
     public class IMeshingTriangleGH : GH_Component
     {
-        MeshSolvers2D solver = MeshSolvers2D.TriFrontalDelaunay;
+        MeshSolvers2DTriangles solver = MeshSolvers2DTriangles.MeshAdapt;
         IguanaGmshSolver2D solverOpt = new IguanaGmshSolver2D();
-        List<double> sizes = new List<double>() { 1.0 };
-        double sizeFactor=1.0, minSize=0, maxSize= 1e+22, qualityThreshold=0.3;
-        int optimize=0, steps=10, subdivide=-1, qualityType=2, minPts = 10, minElemPerTwoPi=6;
+        double sizeFactor=1.0, minSize=0, maxSize= 1e+22;
+        int smoothingSteps=10, minPts = 10, minElemPerTwoPi=6;
         bool adaptive = false;
 
         /// <summary>
         /// Initializes a new instance of the IMeshingOptions2D class.
         /// </summary>
         public IMeshingTriangleGH()
-          : base("iTriangleSettings", "iTri",
+          : base("iTriangleSettings", "iTria",
               "Configuration for 2D triangle-mesh generation.",
               "Iguana", "Settings")
         {
@@ -31,18 +30,13 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Node Sizes", "Sizes", "Target global mesh element size at input nodes. If the number of size values is not equal to the number of nodes, the first item of the list is assigned to all nodes. Default value is " + sizes[0], GH_ParamAccess.list, sizes);
-            pManager.AddNumberParameter("Size Factor", "Factor", "Factor applied to all mesh element sizes. Default value is " + sizeFactor, GH_ParamAccess.item, sizeFactor);
-            pManager.AddNumberParameter("Minimum Size", "MinSize", "Minimum mesh element size. Default value is " + minSize, GH_ParamAccess.item, minSize);
+            pManager.AddNumberParameter("Size Factor", "SizeFactor", "Factor applied to all mesh element sizes. Default value is " + sizeFactor, GH_ParamAccess.item, sizeFactor);
+            pManager.AddNumberParameter("Minimum Size", "MinSize", "Minimum mesh element size. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minSize);
             pManager.AddNumberParameter("Maximun Size", "MaxSize", "Maximum mesh element size. Default value is " + maxSize, GH_ParamAccess.item, maxSize);
-            pManager.AddIntegerParameter("MinPoints", "MinP", "Minimum number of points used to mesh edge-surfaces. Default value is " + minPts, GH_ParamAccess.item, minPts);
+            pManager.AddIntegerParameter("Minimun Points", "MinPoints", "Minimum number of points used to mesh edge-surfaces. Default value is " + minPts, GH_ParamAccess.item, minPts);
             pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is " + adaptive.ToString(), GH_ParamAccess.item, adaptive);
-            pManager.AddIntegerParameter("MinElements", "MinE", "Minimum number of elements per 2PI. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minElemPerTwoPi);
-            pManager.AddIntegerParameter("Optimize", "Optimize", "Optimization method (-1: No optimization, 0: Standard, 1: Netgen, 2: HighOrder, 3: HighOrderElastic, 4: HighOrderFastCurving, 5: Laplace2D, 6: Relocate2D) Default value is " + optimize, GH_ParamAccess.item, optimize);
-            pManager.AddIntegerParameter("Optimization Steps", "Steps", "Number of optimization steps applied to the final mesh. Default value is " + steps, GH_ParamAccess.item, steps);
-            pManager.AddIntegerParameter("Subdivide", "Subdivide", "Mesh subdivision algorithm (-1: No subdivision, 0: all quadrangles, 1: all hexahedra, 2: barycentric). Default value is " + subdivide, GH_ParamAccess.item, subdivide);
-            pManager.AddIntegerParameter("Quality Type", "Quality", "Type of quality measure for element optimization (0: SICN => signed inverse condition number, 1: SIGE => signed inverse gradient error, 2: gamma => vol/sum_face/max_edge, 3: Disto => minJ/maxJ). Default value is " + qualityType, GH_ParamAccess.item, qualityType);
-            pManager.AddNumberParameter("Quality Threshold", "Qt", "Quality threshold for element optimization. Default value is " + qualityThreshold, GH_ParamAccess.item, qualityThreshold);
+            pManager.AddIntegerParameter("Mininimum Elements", "MinElements", "Minimum number of elements per 2PI. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minElemPerTwoPi);
+            pManager.AddIntegerParameter("Smoothing Steps", "Smoothing", "Number of smoothing steps applied to the final mesh. Default value is " + smoothingSteps, GH_ParamAccess.item, smoothingSteps);
         }
 
         /// <summary>
@@ -60,75 +54,41 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             solverOpt = new IguanaGmshSolver2D();
-            sizes = new List<double>();
 
-            DA.GetDataList(0, sizes);
-            DA.GetData(1, ref sizeFactor);
-            DA.GetData(2, ref minSize);
-            DA.GetData(3, ref maxSize);
-            DA.GetData(4, ref minPts);
-            DA.GetData(5, ref adaptive);
-            DA.GetData(6, ref minElemPerTwoPi);
-            DA.GetData(7, ref optimize);
-            DA.GetData(8, ref steps);
-            DA.GetData(9, ref subdivide);
-            DA.GetData(10, ref qualityType);
-            DA.GetData(11, ref qualityThreshold);
+            DA.GetData(0, ref sizeFactor);
+            DA.GetData(1, ref minSize);
+            DA.GetData(2, ref maxSize);
+            DA.GetData(3, ref minPts);
+            DA.GetData(4, ref adaptive);
+            DA.GetData(5, ref minElemPerTwoPi);
+            DA.GetData(6, ref smoothingSteps);
 
-            solverOpt.MeshingAlgorithm = solver;
-            solverOpt.TargetMeshSizeAtNodes = sizes;
+            solverOpt.MeshingAlgorithm = (int)solver;
             solverOpt.CharacteristicLengthFactor = sizeFactor;
             solverOpt.CharacteristicLengthMin = minSize;
             solverOpt.CharacteristicLengthMax = maxSize;
             solverOpt.CharacteristicLengthFromCurvature = adaptive;
             solverOpt.MinimumCurvePoints = minPts;
             solverOpt.MinimumElementsPerTwoPi = minElemPerTwoPi;
-            solverOpt.RecombineAll = false;
-
-            string method;
-            if (optimize == -1) solverOpt.Optimize = false;
-            else
-            {
-                method = Enum.GetName(typeof(OptimizationAlgorithm), optimize);
-                if (method == null || method == "Relocate3D") method = "Standard";
-                solverOpt.Optimize = true;
-                solverOpt.OptimizationAlgorithm = method;
-                solverOpt.OptimizationSteps = steps;
-                solverOpt.OptimizeThreshold = qualityThreshold;
-            }
-
-            if (subdivide == -1) solverOpt.Subdivide = false;
-            else
-            {
-                method = Enum.GetName(typeof(SubdivisionAlgorithm), subdivide);
-                if (method == null) subdivide = 0;
-                solverOpt.Subdivide = true;
-                solverOpt.SubdivisionAlgorithm = subdivide;
-            }
-
-            method = Enum.GetName(typeof(ElementQualityType), qualityType);
-            if (method != null)
-            {
-                solverOpt.QualityType = qualityType;
-            }
+            solverOpt.OptimizationSteps = smoothingSteps;
 
             DA.SetData(0, solverOpt);
 
-            this.Message = "Triangle-Meshing";
+            this.Message = "3Trias";
         }
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("MeshSolvers2D", (int)solver);
+            writer.SetInt32("MeshSolvers2DTriangles", (int)solver);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
             int aIndex = -1;
-            if (reader.TryGetInt32("MeshSolvers2D", ref aIndex))
+            if (reader.TryGetInt32("MeshSolvers2DTriangles", ref aIndex))
             {
-                solver = (MeshSolvers2D)aIndex;
+                solver = (MeshSolvers2DTriangles)aIndex;
             }
 
             return base.Read(reader);
@@ -136,16 +96,16 @@ namespace IguanaGH.IguanaMeshGH.ISettings
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            foreach (MeshSolvers2D s in Enum.GetValues(typeof(MeshSolvers2D)))
+            foreach (MeshSolvers2DTriangles s in Enum.GetValues(typeof(MeshSolvers2DTriangles)))
                 GH_Component.Menu_AppendItem(menu, s.ToString(), SolverType, true, s == this.solver).Tag = s;
             base.AppendAdditionalComponentMenuItems(menu);
         }
 
         private void SolverType(object sender, EventArgs e)
         {
-            if (sender is ToolStripMenuItem item && item.Tag is MeshSolvers2D)
+            if (sender is ToolStripMenuItem item && item.Tag is MeshSolvers2DTriangles)
             {
-                this.solver = (MeshSolvers2D) item.Tag;
+                this.solver = (MeshSolvers2DTriangles) item.Tag;
                 ExpireSolution(true);
             }
         }
@@ -157,9 +117,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iTriasSettings;
             }
         }
 

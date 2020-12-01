@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes.IElements;
-using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 {
@@ -13,7 +10,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// Initializes a new instance of the IHexadronElementGH class.
         /// </summary>
         public IHexahedronElementGH()
-          : base("iHexadronElement", "iHexadronElement",
+          : base("iHexahedronElement", "iHexahedronElement",
               "A three-dimensional hexahedron element.",
               "Iguana", "Creators")
         {
@@ -70,9 +67,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iHexahedron;
             }
         }
 

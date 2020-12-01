@@ -74,7 +74,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         {
             get
             {
-                return Properties.Resources.AHF_CubeMesh;
+                return Properties.Resources.iCube2D;
             }
         }
 

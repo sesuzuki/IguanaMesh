@@ -67,7 +67,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         {
             get
             {
-                return Properties.Resources.AHF_PlaneMesh;
+                return Properties.Resources.iPlane;
             }
         }
 

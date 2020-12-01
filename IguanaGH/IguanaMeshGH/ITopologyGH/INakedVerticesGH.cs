@@ -61,7 +61,7 @@ namespace IguanaGH.IguanaMeshGH.ITopologyGH
         {
             get
             {
-                return Properties.Resources.AHF_NakedVertices;
+                return Properties.Resources.iVerticesNaked;
             }
         }
 

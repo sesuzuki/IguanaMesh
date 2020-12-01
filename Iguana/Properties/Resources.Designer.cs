@@ -69,5 +69,15 @@ namespace Iguana.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] gmsh_4_7 {
+            get {
+                object obj = ResourceManager.GetObject("gmsh_4_7", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

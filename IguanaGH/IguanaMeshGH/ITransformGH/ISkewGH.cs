@@ -14,7 +14,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         /// Initializes a new instance of the ISkewGH class.
         /// </summary>
         public ISkewGH()
-          : base("ISkewGH", "iSkew",
+          : base("ISkew", "iSkew",
               "Skew a mesh",
               "Iguana", "Transform")
         {
@@ -69,9 +69,7 @@ namespace IguanaGH.IguanaMeshGH.ITransformGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iSkew;
             }
         }
 

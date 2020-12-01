@@ -58,6 +58,15 @@ namespace Iguana.IguanaMesh.ITypes
             return new IVector3D(To.X - From.X, To.Y - From.Y, To.Z - From.Z);
         }
 
+        public IMatrix TensorProduct(IVector3D vec)
+        {
+            double[][] data = new double[3][];
+            data[0] = new double[3]{ X * vec.X, X * vec.Y, X * vec.Z };
+            data[1] = new double[3]{ Y * vec.X, Y * vec.Y, Y * vec.Z };
+            data[2] = new double[3] { Z * vec.X, Z * vec.Y, Z * vec.Z };
+            return new IMatrix(data);
+        }
+
         public override String ToString()
         {
             String text = "( " + X + " :: " + Y + " :: " + Z + ")"; //String.Format("{0,4}", X , Y , Z) + " )";
@@ -199,6 +208,11 @@ namespace Iguana.IguanaMesh.ITypes
         public static double Dot(IVector3D vector1, IVector3D vector2)
         {
             return vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z;
+        }
+
+        public static double Dot(IPoint3D point, IVector3D vector)
+        {
+            return point.X * vector.X + point.Y * vector.Y + point.Z * vector.Z;
         }
 
         public void Norm()

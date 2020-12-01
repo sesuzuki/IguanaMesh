@@ -72,7 +72,6 @@
     <Compile Include="IguanaMesh\ITypes\IMesh.Preview.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicEdge.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicSiblingHalfFacet.cs" />
-    <Compile Include="IguanaMesh\IUtils\ITransform.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshConstraint.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.Geo.cs" />
     <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.GeoOCC.cs" />
@@ -141,6 +140,8 @@
   <ItemGroup>
     <None Include="Resources\gmsh-4.6.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\gmsh-4.7.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

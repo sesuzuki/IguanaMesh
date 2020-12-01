@@ -75,7 +75,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                return Properties.Resources.AHF_ConstructMesh;
+                return Properties.Resources.iConstructor;
             }
         }
 

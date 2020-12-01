@@ -30,6 +30,7 @@ namespace Iguana.IguanaMesh.ITypes
             copy.dim = dim;
             copy.message = message;
             copy.elementKey = elementKey;
+            copy._valid = _valid;
             return copy;
         }
         public IMesh CleanCopy()
@@ -46,6 +47,7 @@ namespace Iguana.IguanaMesh.ITypes
                 copy._vertices.Add(v.Key, v);
             });
             copy.elementKey = elementKey;
+            copy._valid = _valid;
             return copy;
         }
 

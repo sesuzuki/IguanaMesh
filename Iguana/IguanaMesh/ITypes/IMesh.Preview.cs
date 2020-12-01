@@ -18,8 +18,8 @@ namespace Iguana.IguanaMesh.ITypes
             obj_guid = Guid.Empty;
 
             if (att == null) att = doc.CreateDefaultAttributes();
-            
-            int idxGr = doc.Groups.Add("IMesh_"+DateTime.Today.ToShortDateString().Replace("/", "_"));
+
+            int idxGr = doc.Groups.Add("IMesh_" + DateTime.Today.ToShortDateString().Replace("/", "_"));
             int idxLy = doc.Layers.Add("IMesh_" + DateTime.Today.ToShortDateString().Replace("/", "_"), Color.Aqua);
 
             ObjectAttributes att1 = att.Duplicate();
@@ -67,43 +67,26 @@ namespace Iguana.IguanaMesh.ITypes
             return true;
         }
 
-        public void DrawViewportMeshes(GH_PreviewMeshArgs args){ }
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {}
 
         public void DrawViewportWires(GH_PreviewWireArgs args)
         {
-            List<long> edgesID = new List<long>();
-            long data1, data2;
-            Point3d p1, p2;
-            int next, count;
             int[] hf;
-
-            foreach (int elementID in ElementsKeys)
+            Point3d[] pts;
+            foreach (IElement e in Elements)
             {
-                IElement e = GetElementWithKey(elementID);
-
-                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                if (e.TopologicDimension == 2)
                 {
-                    e.GetHalfFacet(halfFacetID, out hf);
-
-                    count = 1;
-                    if (e.TopologicDimension == 3) count = hf.Length;
-                    for (int i = 0; i < count; i++)
+                    pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, this);
+                    args.Pipeline.DrawPolyline(pts, args.Color);
+                }
+                else
+                {
+                    for (int i = 1; i <= e.HalfFacetsCount; i++)
                     {
-                        next = i + 1;
-                        if (i == count - 1)
-                        {
-                            if (count > 1) next = 0;
-                            else next = 1;
-                        }
-                        data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
-                        data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
-                        if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
-                        {
-                            p1 = GetVertexWithKey(hf[i]).RhinoPoint;
-                            p2 = GetVertexWithKey(hf[next]).RhinoPoint;
-                            args.Pipeline.DrawLine(new Line(p1, p2), args.Color);
-                            edgesID.Add(data1);
-                        }
+                        e.GetHalfFacet(i, out hf);
+                        pts = IRhinoGeometry.GetPointsFromElements(hf, this);
+                        args.Pipeline.DrawPolyline(pts, args.Color);
                     }
                 }
             }

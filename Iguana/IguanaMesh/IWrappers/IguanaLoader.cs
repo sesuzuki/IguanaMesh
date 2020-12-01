@@ -30,7 +30,7 @@ namespace Iguana.IguanaMesh.IWrappers
         public static void ExtractEmbeddedDlls(string dllName, byte[] resourceBytes)
         {
             Assembly assem = Assembly.GetExecutingAssembly();
-            string[] names = assem.GetManifestResourceNames();
+            //string[] names = assem.GetManifestResourceNames();
             AssemblyName an = assem.GetName();
 
             // The temporary folder holds one or more of the temporary DLLs

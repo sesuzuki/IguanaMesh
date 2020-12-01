@@ -527,6 +527,15 @@ namespace Iguana.IguanaMesh.ITypes
 			}
 		}
 
+		public IMatrix TensorProduct(IVector3D vec1, IVector3D vec2)
+		{
+			double[][] data = new double[3][];
+			data[0] = new double[3] { vec1.X * vec2.X, vec1.X * vec2.Y, vec1.X * vec2.Z };
+			data[1] = new double[3] { vec1.Y * vec2.X, vec1.Y * vec2.Y, vec1.Y * vec2.Z };
+			data[2] = new double[3] { vec1.Z * vec2.X, vec1.Z * vec2.Y, vec1.Z * vec2.Z };
+			return new IMatrix(data);
+		}
+
 		public void Scale(double value)
 		{
 			try

@@ -59,10 +59,14 @@
     <Compile Include="IguanaMeshGH\ICreatorsGH\IHexahedronElementGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromBrepGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromCurveExtrusion.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromThickSolidGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromLoftGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh2DFromPipeGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromBrepGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromLoftGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromPipeGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromSurfaceExtrusionGH.cs" />
+    <Compile Include="IguanaMeshGH\ICreatorsGH\IMesh3DFromThickSolidGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IPolygonalFaceGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IPrismElementGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\IPyramidElementGH.cs" />
@@ -70,8 +74,14 @@
     <Compile Include="IguanaMeshGH\ICreatorsGH\ITetrahedronElementGH.cs" />
     <Compile Include="IguanaMeshGH\ICreatorsGH\ITopolologicVertexGH.cs" />
     <Compile Include="IguanaMeshGH\IModifiersGH\ILaplacianGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ICone3DGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ICube3DGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ICylinder3DGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ISphere3DGH.cs" />
+    <Compile Include="IguanaMeshGH\IPrimitivesGH\ITorus3DGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingHexaPyramGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadTriaHighOrderGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingTriangleHighOrderGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IEdgeNormalsGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IElementAdjacentElementsGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IElementsNormalsGH.cs" />
@@ -85,6 +95,7 @@
     <Compile Include="IguanaMeshGH\ITransformGH\IDeleteVertexGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IExtrudeElementEdgesGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IExtrudeElementGH.cs" />
+    <Compile Include="IguanaMeshGH\ITransformGH\IMirrorMeshGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IMoveElementGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IMoveMeshGH.cs" />
     <Compile Include="IguanaMeshGH\ITransformGH\IMoveVertexGH.cs" />
@@ -128,8 +139,8 @@
     <Compile Include="IguanaMeshGH\IConstraintsGH\ICurveConstraintGH.cs" />
     <Compile Include="IguanaMeshGH\IFieldsGH\IBallFieldGH.cs" />
     <Compile Include="IguanaMeshGH\IFieldsGH\IBoxFieldGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingPrismGH.cs" />
-    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingTetraPrismGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadTriaGH.cs" />
     <Compile Include="IguanaMeshGH\IConstraintsGH\IPointConstraintGH.cs" />
     <Compile Include="IguanaMeshGH\IConstraintsGH\ITransfiniteCurveGH.cs" />
     <Compile Include="IguanaMeshGH\IConstraintsGH\ITransfiniteSurfaceGH.cs" />
@@ -145,7 +156,6 @@
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IParabolicCylinderGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IPlaneGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ITorusGH.cs" />
-    <Compile Include="IguanaMeshGH\IPrimitivesGH\ITubeGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\IMoebiusGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IDeconstructElementGH.cs" />
     <Compile Include="IguanaMeshGH\IUtilsGH\IDeconstructMeshGH.cs" />
@@ -216,6 +226,381 @@
       <Project>{15742704-fe29-4302-b438-65b1eac8124b}</Project>
       <Name>Iguana</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPoly.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iQuad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTrias.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfacePatch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCurvePatch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iExtrudeCurve.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertex.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iBrepPatch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPipe.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iLoft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPlanar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iThick2D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iBrepPatch3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iLoft3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPipe3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfaceExtrude.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iThick3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iHexahedron.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPrism.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPyramid.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTetrahedron.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ItorusIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTorus.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTorus1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IEdges.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iElementFind.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iHalfFacetFind.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertexFind.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertices.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iElementAdjacentElements.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iGauss.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iEdgeIncidentElements.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertexAdjacentVertices.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertexIncidentElements.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iEdgeNormals.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iElementNormals.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertexNormals.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iAlign.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMirror.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMoveElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMoveMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMoveVertex.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iScale.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSkew.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iStretch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTwist.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iRotate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iFromRhinoMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iConstructor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iElementDelete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMeshEditor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertexDelete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iExtrudeEdge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iExtrudeElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDeconstructElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDeconstructHalfFacet.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDeconstructHalfFacetSibling.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDeconstructMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDeconstructVertex.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iExport.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iImport.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iRhinoMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfaceElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVolumesElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iHexahedronSettings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iQuadHighOrderSettings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iQuadSettings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTetrahedronSettings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTriasHighOrderSettings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTriasSettings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ICatmullClark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\IDual.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ILoop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iRemesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSmooth.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTriangulate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPointConstraints.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfaceConstraints.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTransfiniteSurface.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTransfiniteVolume.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCurveConstraints.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTransfiniteCurve.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPolylineEdges.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iNakedEdges.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iNakedHalfFacets.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVerticesCorners.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVerticesNaked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iAnisoCrvField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iAnisoField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iBoundaryField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iBoxField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCurvatureField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCylinderField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDistanceField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iEigenHessianField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iFrustumField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iGradientField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iLaplacianField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iLongLatField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMathAnisoField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMathField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMaxField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMeanField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMinAnisoField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMinField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iOctreeField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iParamField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iRestrictField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSphereField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iThesholdField.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Hyperboloid.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCube2D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCylinder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDumpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMobeius.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iParabolic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPlane.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSphere.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTorus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCone3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCube3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCylinder3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSphere3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTorus3d.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

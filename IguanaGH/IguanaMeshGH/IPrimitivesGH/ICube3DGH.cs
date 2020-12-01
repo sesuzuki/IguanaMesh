@@ -77,7 +77,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             int l2 = IguanaGmsh.Model.GeoOCC.AddLine(2, 3, 2);
             int l3 = IguanaGmsh.Model.GeoOCC.AddLine(3, 4, 3);
             int l4 = IguanaGmsh.Model.GeoOCC.AddLine(4, 1, 4);
-            int wireTag = IguanaGmsh.Model.GeoOCC.AddCurveLoop(new[] { 1, 2, 3, 4 });
+            int wireTag = IguanaGmsh.Model.GeoOCC.AddCurveLoop(new[] { l1, l2, l3, l4 });
             int surfaceTag = IguanaGmsh.Model.GeoOCC.AddPlaneSurface(new[] { wireTag });
             IguanaGmsh.Model.GeoOCC.Synchronize();
 
@@ -89,7 +89,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
             Point3d p5 = box.PointAt(0, 0, 1);
             Tuple<int, int>[] ov;
             Tuple<int, int>[] temp = new Tuple<int, int>[] { Tuple.Create(2, surfaceTag) };
-            IguanaGmsh.Model.GeoOCC.Extrude(temp, 0,0,1, out ov, new[] { w }, new[] { p5.Z*2 });     
+            IguanaGmsh.Model.GeoOCC.Extrude(temp, 0,0, p5.Z*2, out ov, new[] { w }, new[] { p5.Z }, true);     
 
             IguanaGmsh.Model.GeoOCC.Synchronize();
 
@@ -113,9 +113,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iCube3d;
             }
         }
 

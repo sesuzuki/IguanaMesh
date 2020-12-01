@@ -34,6 +34,7 @@ namespace IguanaClient
                 return;
             }
 
+            // Angle between two triangles above which an edge is considered as sharp:
             double angle = 40;
 
             // For complex geometries, patches can be too complex, too elongated or too

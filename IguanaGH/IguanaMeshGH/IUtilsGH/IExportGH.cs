@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Parameters;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
-using Rhino.Geometry;
 
 namespace IguanaGH.IguanaMeshGH.IUtilsGH
 {
@@ -125,9 +122,7 @@ namespace IguanaGH.IguanaMeshGH.IUtilsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iExport;
             }
         }
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
@@ -8,6 +10,9 @@ using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using Iguana.IguanaMesh.IWrappers.ISolver;
+using Rhino;
+using Rhino.Display;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 using static Iguana.IguanaMesh.IUtils.IRhinoGeometry;
 
@@ -88,32 +93,54 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 
                 if (b.IsSolid)
                 {
-                    // Extract required data from base surface
-                    IguanaGmsh.Initialize();
-
                     bool synchronize = true;
                     if (constraints.Count > 0) synchronize = false;
 
-                    // Brep construction
-                    IguanaGmshFactory.Geo.GmshVolumeFromBrep(b, synchronize);
+                    var doc = RhinoDoc.ActiveDoc;
 
-                    // Embed constraints
-                    if (!synchronize) IguanaGmshFactory.Geo.EmbedConstraintsOnBrep(constraints, true);
+                    if (b != null)
+                    {
+                        //var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                        //var filename = Path.Combine(path, "IG-" + Guid.NewGuid().ToString() + ".step");
+                        var filename = Path.ChangeExtension(Path.GetTempFileName(), ".stp");
 
-                    //Transfinite
-                    if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
+                        ObjectAttributes att = new ObjectAttributes();
+                        DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
+                        att.SetDisplayModeOverride(display);
+                        att.Space = ActiveSpace.None;
+                        att.ObjectColor = Color.DarkRed;
+                        att.ColorSource = ObjectColorSource.ColorFromObject;
 
-                    // Preprocessing settings
-                    //solverOptions.ApplySolverSettings(field);
+                        Guid id = doc.Objects.AddBrep(b, att);
+                        ObjRef obj = new ObjRef(id);
+                        var tmpObj = doc.Objects.Select(obj);
+                        RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
+                        doc.Objects.Delete(obj, true);
 
-                    // 3d mesh generation
-                    IguanaGmsh.Model.Mesh.Generate(3);
+                        IguanaGmsh.Initialize();
 
-                    // Iguana mesh construction
-                    mesh = IguanaGmshFactory.TryGetIMesh(3);
-                    IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
+                        Tuple<int, int>[] v;
+                        IguanaGmsh.Model.GeoOCC.ImportShapes(filename, out v);
+                        IguanaGmsh.Model.GeoOCC.Synchronize();
 
-                    IguanaGmsh.FinalizeGmsh();
+                        // Embed constraints
+                        if (!synchronize) IguanaGmshFactory.Geo.EmbedConstraintsOnBrep(constraints, true);
+
+                        //Transfinite
+                        if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
+
+                        // Preprocessing settings
+                        solverOptions.ApplySolverSettings(field);
+
+                        IguanaGmsh.Model.Mesh.Generate(3);
+
+                        mesh = IguanaGmshFactory.TryGetIMesh(3);
+                        IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
+
+                        IguanaGmsh.FinalizeGmsh();
+
+                        if (File.Exists(filename)) File.Delete(filename);
+                    }
                 }
             }
 
@@ -173,9 +200,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iBrepPatch3D;
             }
         }
 

@@ -11,6 +11,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
 {
     public class ISphere3DGH : GH_Component
     {
+        Point3d p = new Point3d();
+        double r = 1;
         /// <summary>
         /// Initializes a new instance of the ISphere3DGH class.
         /// </summary>
@@ -26,8 +28,8 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("Point", "Pt", "Base center point of the sphere", GH_ParamAccess.item, new Point3d());
-            pManager.AddNumberParameter("Radius","Radius","Radius of the sphere",GH_ParamAccess.item, 5);
+            pManager.AddPointParameter("Point", "Pt", "Base center point of the sphere", GH_ParamAccess.item, p);
+            pManager.AddNumberParameter("Radius","Radius","Radius of the sphere",GH_ParamAccess.item, r);
         }
 
         /// <summary>
@@ -45,8 +47,6 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             IMesh mesh = new IMesh();
-            Point3d p = new Point3d();
-            double r = 5;
 
             DA.GetData(0, ref p);
             DA.GetData(1, ref r);
@@ -78,9 +78,7 @@ namespace IguanaGH.IguanaMeshGH.IPrimitivesGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iSphere3d;
             }
         }
 

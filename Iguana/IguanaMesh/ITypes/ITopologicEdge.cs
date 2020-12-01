@@ -35,26 +35,23 @@ namespace Iguana.IguanaMesh.ITypes
 
         public override bool Equals(object obj)
         {
-            Boolean flag = false;
-            try
-            {
-                ITopologicEdge edge = (ITopologicEdge)obj;
-                if (edge.Start == _start && edge.End == _end) flag = true;
-            }
-            catch (Exception) { }
-
-            return flag;
+            ITopologicEdge edge = (ITopologicEdge)obj;
+            if (edge.Start == _start && edge.End == _end) return true;
+            else if (edge.End == _start && edge.Start == _end) return true;
+            else return false;
         }
 
         public static bool operator ==(ITopologicEdge e1, ITopologicEdge e2)
         {
-            if (e1.Start == e2.Start && e1.End == e2.End) return true;
+            if (e1.Start == e2._start && e1.End == e2._end) return true;
+            else if (e1.End == e2._start && e1.Start == e2._end) return true;
             else return false;
         }
 
         public static bool operator !=(ITopologicEdge e1, ITopologicEdge e2)
         {
-            if (e1.Start != e2.Start || e1.End != e2.End) return true;
+            if (e1.Start != e2._start || e1.End != e2._end) return true;
+            else if (e1.End != e2._start || e1.Start != e2._end) return true;
             else return false;
         }
 

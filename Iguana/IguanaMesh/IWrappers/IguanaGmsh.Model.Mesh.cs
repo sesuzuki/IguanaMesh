@@ -1,13 +1,10 @@
 ﻿using Iguana.IguanaMesh.ITypes;
-using Iguana.IguanaMesh.ITypes.IElements;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.IWrappers.IExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
 
@@ -115,6 +112,7 @@ namespace Iguana.IguanaMesh.IWrappers
                     long nodeTags_Number, coord_Number, parametricCoord_Number;
                     IWrappers.GmshModelMeshGetNodes(out nodeTags, out nodeTags_Number, out coord, out coord_Number, out parametricCoord, out parametricCoord_Number, dim, tag, Convert.ToInt32(true), Convert.ToInt32(true), ref _ierr);
                     mesh.CleanVertices();
+                    
                     if (nodeTags_Number > 0)
                     {
                         // Coordinates
@@ -166,11 +164,11 @@ namespace Iguana.IguanaMesh.IWrappers
 
                     IWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, tag, ref _ierr);
 
-                    var types_temp = new long[elementTypes_Number];
+                    elementTypes_out = new int[elementTypes_Number];
                     var eTags_n = new long[elementTags_NNumber];
                     var nTags_n = new long[nodeTags_NNumber];
 
-                    Marshal.Copy(elementTypes, types_temp, 0, (int)elementTypes_Number);
+                    Marshal.Copy(elementTypes, elementTypes_out, 0, (int)elementTypes_Number);
                     Marshal.Copy(elementTags_n, eTags_n, 0, (int)elementTags_NNumber);
                     Marshal.Copy(nodeTags_n, nTags_n, 0, (int)nodeTags_NNumber);
 
@@ -182,7 +180,6 @@ namespace Iguana.IguanaMesh.IWrappers
 
                     elementTags_out = new long[elementTags_NNumber][];
                     nodeTags_out = new long[nodeTags_NNumber][];
-                    elementTypes_out = IHelpers.ToIntArray(types_temp);
 
                     for (int i = 0; i < elementTags_NNumber; i++)
                     {
@@ -222,7 +219,7 @@ namespace Iguana.IguanaMesh.IWrappers
 
                         IWrappers.GmshModelMeshGetElements(out elementTypes, out elementTypes_Number, out elementTags, out elementTags_n, out elementTags_NNumber, out nodeTags, out nodeTags_n, out nodeTags_NNumber, dim, -1, ref _ierr);
 
-                        var eTypes = new long[elementTypes_Number];
+                        var eTypes = new int[elementTypes_Number];
                         var eTags_n = new long[elementTags_NNumber];
                         var nTags_n = new long[nodeTags_NNumber];
 
@@ -236,25 +233,21 @@ namespace Iguana.IguanaMesh.IWrappers
                         Marshal.Copy(nodeTags, nTags_ptr, 0, (int)nodeTags_NNumber);
                         Marshal.Copy(elementTags, eTags_ptr, 0, (int)elementTags_NNumber);
 
-                        var eTags_val = new long[elementTags_NNumber][];
-                        var nTags_val = new long[nodeTags_NNumber][];
-
                         for (int i = 0; i < elementTags_NNumber; i++)
                         {
                             // Initializing containers
-                            eTags_val[i] = new long[eTags_n[i]];
-                            nTags_val[i] = new long[nTags_n[i]];
+                            var eTags_val = new long[eTags_n[i]];
+                            var nTags_val = new long[nTags_n[i]];
 
                             // Marshalling
-                            Marshal.Copy(eTags_ptr[i], eTags_val[i], 0, (int)eTags_n[i]);
-                            Marshal.Copy(nTags_ptr[i], nTags_val[i], 0, (int)nTags_n[i]);
+                            Marshal.Copy(eTags_ptr[i], eTags_val, 0, (int)eTags_n[i]);
+                            Marshal.Copy(nTags_ptr[i], nTags_val, 0, (int)nTags_n[i]);
 
                             // Building elements
-                            int element_type = (int)eTypes[i];
                             int nodes_per_element = (int)(nTags_n[i] / eTags_n[i]);
-                            int number_of_elements = nTags_val[i].Length / nodes_per_element;
+                            //int number_of_elements = nTags_val.Length / nodes_per_element;
 
-                            parsedNodes = IguanaGmshElementType.TryParseToIguanaElement(element_type, nTags_val[i], nodes_per_element, number_of_elements, ref mesh);
+                            IguanaGmshElementType.TryParseToIguanaElement(eTypes[i], nTags_val, nodes_per_element, (int) eTags_n[i], ref parsedNodes, ref mesh);
                         }
 
                         // Delete unmanaged allocated memory
@@ -944,12 +937,12 @@ namespace Iguana.IguanaMesh.IWrappers
                 /// If `tag' < 0, get the types for all entities of dimension `dim'. If `dim'
                 /// and `tag' are negative, get all the types in the mesh.
                 /// </summary>
-                public static void GetElementTypes(out long[] elementTypes, int dim, int tag) {
+                public static void GetElementTypes(out int[] elementTypes, int dim, int tag) {
                     IntPtr etP;
                     long elementTypes_n;
                     IWrappers.GmshModelMeshGetElementTypes(out etP, out elementTypes_n, dim, tag, ref _ierr);
                     
-                    elementTypes = new long[elementTypes_n];
+                    elementTypes = new int[elementTypes_n];
                     Marshal.Copy(etP, elementTypes, 0, (int)elementTypes_n);
 
                     IguanaGmsh.Free(etP);

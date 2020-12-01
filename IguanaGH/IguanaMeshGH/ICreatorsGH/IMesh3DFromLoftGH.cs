@@ -119,8 +119,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                 if (transfinite.Count > 0) IguanaGmshFactory.ApplyTransfiniteSettings(transfinite);
 
                 // Preprocessing settings
-                solverOptions.ApplyBasic3DSettings();
-                solverOptions.ApplyAdvanced3DSettings();
+                solverOptions.ApplySolverSettings(field);
 
                 // 2d mesh generation
                 IguanaGmsh.Model.Mesh.Generate(3);
@@ -188,9 +187,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         {
             get
             {
-                //You can add image files to your project resources and access them like this:
-                // return Resources.IconForThisComponent;
-                return null;
+                return Properties.Resources.iLoft3D;
             }
         }
 

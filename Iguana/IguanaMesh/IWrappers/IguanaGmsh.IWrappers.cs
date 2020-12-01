@@ -10,14 +10,14 @@ namespace Iguana.IguanaMesh.IWrappers
 {
     public static partial class IguanaGmsh
     {
-        private const string gmsh_dll = "gmsh-4.6.dll";
+        private const string gmsh_dll = "gmsh-4.7.dll";
 
         internal static class IWrappers
         {
 
             static IWrappers()
             {
-                IguanaLoader.ExtractEmbeddedDlls(gmsh_dll, Properties.Resources.gmsh_4_6);
+                IguanaLoader.ExtractEmbeddedDlls(gmsh_dll, Properties.Resources.gmsh_4_7);
             }
 
             /////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,6 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshInitialize")]
             internal static extern void GmshInitialize(int argc, ref IntPtr argv, int readConfigFiles, ref int ierr);
-            //GMSH_API void gmshInitialize(int argc, char** argv, const int readConfigFiles, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshFinalize")]
@@ -97,7 +96,6 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelAdd")]
             internal static extern void GmshModelAdd([In, Out] string name, ref int ierr);
-            // GMSH_API void gmshModelAdd(const char* name, int* ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelRemove")]

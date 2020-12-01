@@ -47,7 +47,7 @@ namespace Iguana.IguanaMesh.ITypes
                 //Int32 v = hf.Max();
                 foreach (int v in hf)
                 {
-                    if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new List<Int64>());
+                    if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new HashSet<long>());
                     _tempVertexToHalfFacets[v].Add(sibData);
                 }
             }

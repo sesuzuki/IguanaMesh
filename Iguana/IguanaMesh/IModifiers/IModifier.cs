@@ -286,6 +286,77 @@ namespace Iguana.IguanaMesh.IModifiers
             return dM;
         }
 
+        public static IMesh Move(IMesh mesh, double sX, double sY, double sZ)
+        {
+            IMesh dup = mesh.DeepCopy();
+            ITransformX T;
+            IPoint3D pt;
+            foreach (int vK in dup.VerticesKeys)
+            {
+                pt = mesh.GetVertexWithKey(vK).Position;
+                T = new ITransformX();
+                T.Translate(sX,sY,sZ);
+                pt.Transform(T);
+                dup.SetVertexPosition(vK, pt);
+            }
+
+            return dup;
+        }
+
+        public static IMesh Scale(IMesh mesh, double sX, double sY, double sZ)
+        {
+            IMesh dup = mesh.DeepCopy();
+            ITransformX T;
+            IPoint3D pt;
+
+            foreach (int vK in dup.VerticesKeys)
+            {
+                pt = mesh.GetVertexWithKey(vK).Position;
+                T = new ITransformX();
+                T.Scale(sX, sY, sZ);
+                pt.Transform(T);
+                dup.SetVertexPosition(vK, pt);
+            }
+
+            return dup;
+        }
+
+        public static IMesh Rotate(IMesh mesh, double angle, IPoint3D origin, IVector3D axis)
+        {
+            IMesh dup = mesh.DeepCopy();
+            ITransformX T;
+            IPoint3D pt;
+
+            foreach (int vK in dup.VerticesKeys)
+            {
+                pt = mesh.GetVertexWithKey(vK).Position;
+                T = new ITransformX();
+                T.RotateAboutAxis(angle, origin, axis);
+                pt.Transform(T);
+                dup.SetVertexPosition(vK, pt);
+            }
+
+            return dup;
+        }
+
+        public static IMesh Mirror(IMesh mesh, IPlane plane)
+        {
+            IMesh dup = mesh.DeepCopy();
+            ITransformX T;
+            IPoint3D pt;
+
+            foreach (int vK in dup.VerticesKeys)
+            {
+                pt = mesh.GetVertexWithKey(vK).Position;
+                T = new ITransformX();
+                T.Mirror(plane);
+                pt.Transform(T);
+                dup.SetVertexPosition(vK, pt);
+            }
+
+            return dup;
+        }
+
         public static IMesh Twist(IMesh mesh, Line axis, double angleFactor)
         {
             IMesh dM = mesh.DeepCopy();

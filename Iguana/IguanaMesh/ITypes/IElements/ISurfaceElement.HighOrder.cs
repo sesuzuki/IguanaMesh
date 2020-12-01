@@ -28,7 +28,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override string ToString()
                 {
-                    string eType = "(6-Nodes) ITriangle 2nd-Order";
+                    string eType = "(6-Nodes)-ITriangle-2nd-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices);
                 }
 
@@ -55,7 +55,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override string ToString()
                 {
-                    string eType = "(8-Nodes) IQuadrangle 2nd-Order";
+                    string eType = "(8-Nodes)-IQuadrangle-2nd-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices);
                 }
 
@@ -83,7 +83,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override string ToString()
                 {
-                    string eType = "(9-Nodes) ITriangle 3rd-Order";
+                    string eType = "(9-Nodes)-ITriangle-3rd-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices, 3);
                 }
 
@@ -113,7 +113,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override string ToString()
                 {
-                    string eType = "(12-Nodes) ITriangle 4th-Order";
+                    string eType = "(12-Nodes)-ITriangle-4th-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices, 4);
                 }
 
@@ -146,7 +146,7 @@ namespace Iguana.IguanaMesh.ITypes.IElements
 
                 public override string ToString()
                 {
-                    string eType = "(15-Nodes) ITriangle 5th-Order";
+                    string eType = "(15-Nodes)-ITriangle-5th-Order";
                     return IHelpers.HighOrder2DElementsToString(eType, Vertices, 5);
                 }
 

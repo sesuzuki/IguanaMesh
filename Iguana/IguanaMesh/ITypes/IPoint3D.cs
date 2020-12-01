@@ -1,13 +1,5 @@
-﻿using Grasshopper.Kernel.Types.Transforms;
-using Iguana.IguanaMesh.IModifiers;
+﻿using Iguana.IguanaMesh.IModifiers;
 using Rhino.Geometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -69,10 +61,13 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void Transform(ITransformX m)
         {
-            double weight = m.T.GetData(3, 0) * X + m.T.GetData(3, 1) * Y + m.T.GetData(3, 2) * Z + m.T.GetData(3, 3);
-            X = ( m.T.GetData(0,0) * X + m.T.GetData(0,1) * Y + m.T.GetData(0,2) * Z + m.T.GetData(0,3) ) / weight;
-            Y = ( m.T.GetData(1,0) * X + m.T.GetData(1,1) * Y + m.T.GetData(1,2) * Z + m.T.GetData(1,3) ) / weight;
-            Z = ( m.T.GetData(2,0) * X + m.T.GetData(2,1) * Y + m.T.GetData(2,2) * Z + m.T.GetData(2,3) ) / weight;
+            double weight = m.TransformationMatrix.GetData(3, 0) * X + m.TransformationMatrix.GetData(3, 1) * Y + m.TransformationMatrix.GetData(3, 2) * Z + m.TransformationMatrix.GetData(3, 3);
+            double x = ( m.TransformationMatrix.GetData(0,0) * X + m.TransformationMatrix.GetData(0,1) * Y + m.TransformationMatrix.GetData(0,2) * Z + m.TransformationMatrix.GetData(0,3) ) / weight;
+            double y = ( m.TransformationMatrix.GetData(1,0) * X + m.TransformationMatrix.GetData(1,1) * Y + m.TransformationMatrix.GetData(1,2) * Z + m.TransformationMatrix.GetData(1,3) ) / weight;
+            double z = ( m.TransformationMatrix.GetData(2,0) * X + m.TransformationMatrix.GetData(2,1) * Y + m.TransformationMatrix.GetData(2,2) * Z + m.TransformationMatrix.GetData(2,3) ) / weight;
+            X = x;
+            Y = y;
+            Z = z;
         }
 
         public Point3d RhinoPoint
