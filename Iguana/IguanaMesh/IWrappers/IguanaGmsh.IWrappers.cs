@@ -10,14 +10,14 @@ namespace Iguana.IguanaMesh.IWrappers
 {
     public static partial class IguanaGmsh
     {
-        private const string gmsh_dll = "gmsh-4.7.dll";
+        private const string gmsh_dll = "gmsh-4.6.dll";
 
         internal static class IWrappers
         {
 
             static IWrappers()
             {
-                IguanaLoader.ExtractEmbeddedDlls(gmsh_dll, Properties.Resources.gmsh_4_7);
+                IguanaLoader.ExtractEmbeddedDlls(gmsh_dll, Properties.Resources.gmsh_4_6);
             }
 
             /////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,10 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshFree")]
             internal static extern void GmshFree(IntPtr ptr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshFree")]
+            internal static extern void GmshFree2(ref IntPtr ptr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshInitialize")]
@@ -669,6 +673,10 @@ namespace Iguana.IguanaMesh.IWrappers
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshSetTransfiniteVolume")]
             internal static extern void GmshModelMeshSetTransfiniteVolume(int tag, [In,Out] int[] cornerTags, long cornerTags_n, ref int ierr);
+
+            [SuppressUnmanagedCodeSecurity]
+            [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshSetTransfiniteAutomatic")]
+            internal static extern void GmshModelMeshSetTransfiniteAutomatic([In] int[] dimTags, long dimTags_n, double cornerAngle, int recombine, ref int ierr);
 
             [SuppressUnmanagedCodeSecurity]
             [DllImport(gmsh_dll, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gmshModelMeshSetRecombine")]

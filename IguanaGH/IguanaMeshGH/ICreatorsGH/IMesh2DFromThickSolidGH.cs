@@ -60,6 +60,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Info", "Info", "Log information about the meshing process.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -68,6 +69,8 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            string logInfo = "Empty mesh";
+
             if (recompute)
             {
                 Brep geom = null;
@@ -115,9 +118,11 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                     doc.Objects.Delete(obj, true);
 
                     IguanaGmsh.Initialize();
+                    IguanaGmsh.Logger.Start();
 
                     Tuple<int, int>[] v;
                     IguanaGmsh.Model.GeoOCC.ImportShapes(filename, out v);
+                    File.Delete(filename);
 
                     int volTag = v.First(keypair => keypair.Item1 == 3).Item2;
 
@@ -139,14 +144,16 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                     mesh = IguanaGmshFactory.TryGetIMesh();
                     IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
 
-                    IguanaGmsh.FinalizeGmsh();
+                    logInfo = IguanaGmsh.Logger.Get();
+                    IguanaGmsh.Logger.Stop();
 
-                    if (File.Exists(filename)) File.Delete(filename);
+                    IguanaGmsh.FinalizeGmsh();
                 }
             }
 
             recompute = true;
             DA.SetData(0, mesh);
+            DA.SetData(1, logInfo);
         }
 
         public override GH_Exposure Exposure

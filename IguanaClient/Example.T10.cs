@@ -41,8 +41,8 @@ namespace IguanaClient
             IguanaGmsh.Model.Geo.AddLine(3, 4, 3);
             IguanaGmsh.Model.Geo.AddLine(4, 1, 4);
 
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 1, 2, 3, 4}, 5);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 5}, 6);
+            int crvTag = IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 1, 2, 3, 4 });
+            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ crvTag }, 6);
 
             IguanaGmsh.Model.Geo.Synchronize();
 
@@ -51,7 +51,7 @@ namespace IguanaClient
             // "Distance", and "Threshold". We first define a Distance field (`Field[1]')
             // on points 5 and on curve 2. This field returns the distance to point 5 and
             // to (100 equidistant points on) curve 2.
-            /*IguanaGmsh.Model.MeshField.Add("Distance", 1);
+            IguanaGmsh.Model.MeshField.Add("Distance", 1);
             IguanaGmsh.Model.MeshField.SetNumbers(1, "NodesList", new double[]{ 5});
             IguanaGmsh.Model.MeshField.SetNumber(1, "NNodesByEdge", 100);
             IguanaGmsh.Model.MeshField.SetNumbers(1, "EdgesList", new double[]{ 2});
@@ -111,7 +111,7 @@ namespace IguanaClient
             IguanaGmsh.Model.MeshField.Add("Min", 7);
             IguanaGmsh.Model.MeshField.SetNumbers(7, "FieldsList", new double[]{ 2, 3, 5, 6});
 
-            IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(7);*/
+            IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(7);
 
             // To determine the size of mesh elements, Gmsh locally computes the minimum
             // of
@@ -134,15 +134,6 @@ namespace IguanaClient
             //
             // When the element size is fully specified by a background mesh (as it is in
             // this example), it is thus often desirable to set
-
-            IguanaGmshField.Ball field = new IguanaGmshField.Ball();
-            field.ApplyField();
-            IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(field.Tag);
-
-            /*IguanaGmsh.Model.MeshField.Add("AttractorAnisoCurve",1);
-            IguanaGmsh.Model.MeshField.SetNumbers(1, "EdgesList", new double[] { 5 });
-            IguanaGmsh.Model.MeshField.SetNumber(1, "NNodesByEdge", 20);*/
-            //IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(field.Tag);
 
             IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthExtendFromBoundary", 0);
             IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 0);

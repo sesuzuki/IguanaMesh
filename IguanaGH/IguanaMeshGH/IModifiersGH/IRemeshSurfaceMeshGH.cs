@@ -59,6 +59,7 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Iguana mesh.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Info", "Info", "Log information about the meshing process.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -67,6 +68,8 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            string logInfo = "Empty mesh";
+
             if (recompute)
             {
                 IMesh old = null;
@@ -91,10 +94,6 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
                     obj.CastTo<IguanaGmshTransfinite>(out t);
                     transfinite.Add(t);
                 }
-
-                solverOptions.MinimumCurvePoints = 4;
-                solverOptions.MinimumCirclePoints = 3;
-                solverOptions.MinimumElementsPerTwoPi = 6;
 
                 if (old.IsSurfaceMesh)
                 {
@@ -150,9 +149,10 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
                     if (rM.IsValid)
                     {
                         IguanaGmsh.Initialize();
+                        IguanaGmsh.Logger.Start();
 
                         var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                        var filename = Path.Combine(path, "IG-" + Guid.NewGuid().ToString() + ".stl");
+                        var filename = Path.ChangeExtension(Path.GetTempFileName(), ".stl");
 
                         ObjectAttributes att = new ObjectAttributes();
                         DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
@@ -168,6 +168,7 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
                         doc.Objects.Delete(obj, true);
 
                         IguanaGmsh.Merge(filename);
+                        File.Delete(filename);
 
                         IguanaGmsh.Model.Mesh.ClassifySurfaces(0, true, true, Math.PI);
                         IguanaGmsh.Model.Mesh.CreateGeometry();
@@ -193,15 +194,17 @@ namespace IguanaGH.IguanaMeshGH.IModifiersGH
                         mesh = IguanaGmshFactory.TryGetIMesh();
                         IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
 
-                        IguanaGmsh.FinalizeGmsh();
+                        logInfo = IguanaGmsh.Logger.Get();
+                        IguanaGmsh.Logger.Stop();
 
-                        if (File.Exists(filename)) File.Delete(filename);
+                        IguanaGmsh.FinalizeGmsh();
                     }
                 }
             }
 
             recompute = true;
             DA.SetData(0, mesh);
+            DA.SetData(1, logInfo);
         }
 
         public override GH_Exposure Exposure

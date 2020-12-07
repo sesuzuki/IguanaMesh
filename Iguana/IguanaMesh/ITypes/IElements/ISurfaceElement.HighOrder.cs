@@ -66,6 +66,40 @@ namespace Iguana.IguanaMesh.ITypes.IElements
             }
 
             /// <summary>
+            /// 9-node second order quadrangle(4 nodes associated with the vertices (A,B,C,D), 4 with the edges (ab,bc,cd,da) and 1 with face )
+            /// Element Type Reference: 10
+            /// </summary>
+            public class IQuadrangle9 : ISurfaceElement
+            {
+                public int FaceNode { get; set; }
+                public IQuadrangle9(int[] vertices) : base(new int[] { vertices[0], vertices[4], vertices[1], vertices[5], vertices[2], vertices[6], vertices[3], vertices[7] }) 
+                {
+                    FaceNode = vertices[8];
+                    SetElementType(10); 
+                }
+
+                public override IElement CleanCopy()
+                {
+                    IElement e = new IQuadrangle9(Vertices);
+                    e.Key = Key;
+                    return e;
+                }
+
+                public override string ToString()
+                {
+                    string eBase = "(9-Nodes)-IQuadrangle-2nd-Order";
+                    string eType = IHelpers.HighOrder2DElementsToString(eBase, Vertices);
+                    eType += " || Face-Node{ " + FaceNode + " }";
+                    return eType;
+                }
+
+                public override int[] GetGmshFormattedVertices()
+                {
+                    return new int[] { Vertices[0], Vertices[2], Vertices[4], Vertices[6], Vertices[1], Vertices[3], Vertices[5], Vertices[7] };
+                }
+            }
+
+            /// <summary>
             /// 9-node third order incomplete triangle (3 nodes associated with the vertices (A,B,C) and 6 with the edges (ab1,ab2,bc1,bc2,ca1,ca2))
             /// Element Type Reference: 20
             /// </summary>

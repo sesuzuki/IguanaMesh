@@ -108,6 +108,9 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
             {
                 field.ApplyField();
                 IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(field.Tag);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 0);
+                IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthExtendFromBoundary", 0);
             }
             else
             {
@@ -118,11 +121,13 @@ namespace Iguana.IguanaMesh.IWrappers.ISolver
                 {
                     IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 0);
                     IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 1);
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthExtendFromBoundary", 1);
                 }
                 else
                 {
                     IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromCurvature", 0);
                     IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthFromPoints", 1);
+                    IguanaGmsh.Option.SetNumber("Mesh.CharacteristicLengthExtendFromBoundary", 1 );
                 }
             }
 

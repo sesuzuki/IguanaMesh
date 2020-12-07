@@ -35,15 +35,27 @@ namespace Iguana.IguanaMesh.IWrappers
             /// <returns></returns>
             public static string Get()
             {
-                IntPtr log;
+                IntPtr bulk = IntPtr.Zero;
                 long log_n;
 
-                IWrappers.GmshLoggerGet(out log, out log_n, ref _ierr);
+                IWrappers.GmshLoggerGet(out bulk, out log_n, ref _ierr);
 
-                char[] msg = new char[log_n];
-                Marshal.Copy(log, msg, 0, (int) log_n);
+                IntPtr[] tempPtr = new IntPtr[log_n];
+                Marshal.Copy(bulk, tempPtr, 0, (int) log_n);
 
-                return new string(msg);
+                string log = "";
+                foreach (IntPtr ptr in tempPtr)
+                {
+                    log += Marshal.PtrToStringAnsi(ptr) + "\n";
+                }
+
+                for (int i = 0; i < tempPtr.Length; i++)
+                {
+                    Free(tempPtr[i]);
+                }
+                Free(bulk);
+
+                return log;
             }
 
             /// <summary>

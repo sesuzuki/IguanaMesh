@@ -8,7 +8,7 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
 {
     public static class IguanaGmshElementType
     {
-        internal static int[] implementedElements = new int[]{2,3,9,16,20,22,24,11,4,19,7,6,18,5,17};
+        internal static int[] implementedElements = new int[]{2,3,9,10,16,20,22,24,11,4,19,7,6,18,5,17};
 
         internal static bool IsElementImplemented(int elementType)
         {
@@ -46,6 +46,11 @@ namespace Iguana.IguanaMesh.IWrappers.IExtensions
                         //2nd-order 6-node triangle 
                         case 9:
                             e = new ISurfaceElement.HighOrder.ITriangle6(eD);
+                            break;
+
+                        //2nd-order 9-node quadrangle
+                        case 10:
+                            e = new ISurfaceElement.HighOrder.IQuadrangle9(eD);
                             break;
 
                         //2nd-order 8-node quadrangle

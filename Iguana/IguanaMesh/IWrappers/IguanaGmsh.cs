@@ -26,6 +26,11 @@ namespace Iguana.IguanaMesh.IWrappers
             IWrappers.GmshFree(ptr);
         }
 
+        public static void Free2(ref IntPtr ptr)
+        {
+            IWrappers.GmshFree2(ref ptr);
+        }
+
         /// <summary>
         /// Finalize gmsh.
         /// </summary>

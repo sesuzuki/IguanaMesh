@@ -85,9 +85,9 @@ namespace IguanaClient
             // `getEntities()', `getBoundary()' and `getEntitiesInBoundingBox()'
             // functions:
 
-            double lcar1 = 0.1;
-            double lcar2 = 0.0005;
-            double lcar3 = 0.055;
+            double lcar1 = 0.5;
+            double lcar2 = 0.1;
+            double lcar3 = 0.5;
 
             // Assign a mesh size to all the points:
             IguanaGmsh.Model.GetEntities(out ov, 0);
@@ -101,7 +101,8 @@ namespace IguanaClient
 
             IguanaGmsh.Model.Mesh.Generate(3);
 
-            IguanaGmsh.Write("t16.msh");
+            //IguanaGmsh.Write("t16.msh");
+            IguanaGmsh.FLTK.Run();
 
             IguanaGmsh.FinalizeGmsh();
 

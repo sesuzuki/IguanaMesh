@@ -142,7 +142,7 @@ namespace IguanaClient
             }
 
             IguanaGmsh.Model.Mesh.Generate(3);
-            IguanaGmsh.Write("t18.msh");
+            IguanaGmsh.FLTK.Run();
 
 
             IguanaGmsh.FinalizeGmsh();

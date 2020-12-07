@@ -52,6 +52,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Iguana surface mesh.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Info", "Info", "Log information about the meshing process.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -60,6 +61,8 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            string logInfo = "Empty mesh";
+
             if (recompute)
             {
                 List<Curve> crv = new List<Curve>();
@@ -88,6 +91,7 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
 
                 // Extract required data from base surface
                 IguanaGmsh.Initialize();
+                IguanaGmsh.Logger.Start();
 
                 bool synchronize = true;
                 if (constraints.Count > 0) synchronize = false;
@@ -130,11 +134,15 @@ namespace IguanaGH.IguanaMeshGH.ICreatorsGH
                 mesh = IguanaGmshFactory.TryGetIMesh();
                 IguanaGmshFactory.TryGetEntitiesID(out entitiesID);
 
+                logInfo = IguanaGmsh.Logger.Get();
+                IguanaGmsh.Logger.Stop();
+
                 IguanaGmsh.FinalizeGmsh();
             }
 
             recompute = true;
             DA.SetData(0, mesh);
+            DA.SetData(1, logInfo);
         }
 
         public override GH_Exposure Exposure

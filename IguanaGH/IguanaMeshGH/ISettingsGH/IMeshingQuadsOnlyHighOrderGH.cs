@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using GH_IO.Serialization;
+﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers.ISolver;
-using Rhino.Geometry;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace IguanaGH.IguanaMeshGH.ISettingsGH
 {
-    public class IMeshingQuadTriaHighOrderGH : GH_Component
+    public class IMeshingQuadsOnlyHighOrderGH : GH_Component
     {
         MeshSolvers2DQuads solver = MeshSolvers2DQuads.QuadsFrontalDelaunay;
         IguanaGmshSolver2D solverOpt;
@@ -19,9 +21,9 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// <summary>
         /// Initializes a new instance of the IMeshingQuadHighOrderGH class.
         /// </summary>
-        public IMeshingQuadTriaHighOrderGH()
-          : base("iQuadTriaHighOrderSettings", "iQuadTriaHighOrder",
-              "Configuration for 2D quads-trias high-order mesh generation.",
+        public IMeshingQuadsOnlyHighOrderGH()
+          : base("iQuadsOnlyHighOrderSettings", "iQuadsOnlyHighOrder",
+              "Configuration for 2D quads high-order mesh generation.",
               "Iguana", "Settings")
         {
         }
@@ -78,10 +80,12 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
             solverOpt.ElementOrder = 2;
             solverOpt.RecombinationAlgorithm = 1;
             solverOpt.RecombineAll = true;
+            solverOpt.SubdivisionAlgorithm = 1;
+            solverOpt.Subdivide = true;
 
             DA.SetData(0, solverOpt);
 
-            this.Message = "8Quads+6Trias";
+            this.Message = "QuadsOnly";
         }
 
 
@@ -134,7 +138,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("6CC18B79-CBE8-424E-806B-8BDDD5E27234"); }
+            get { return new Guid("CB0470BA-05A9-4B23-962D-69C9BCCD0E47"); }
         }
     }
 }

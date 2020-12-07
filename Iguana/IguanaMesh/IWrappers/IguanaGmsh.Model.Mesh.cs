@@ -199,8 +199,14 @@ namespace Iguana.IguanaMesh.IWrappers
                     IWrappers.GmshFree(elementTags_n);
                     IWrappers.GmshFree(nodeTags_n);
 
-                    foreach (IntPtr ptr in nTags_ptr) IWrappers.GmshFree(ptr);
-                    foreach (IntPtr ptr in eTags_ptr) IWrappers.GmshFree(ptr);
+                    for(int i=0; i<nTags_ptr.Length; i++)
+                    {
+                        IWrappers.GmshFree(nTags_ptr[i]);
+                    }
+                    for (int i = 0; i < eTags_ptr.Length; i++)
+                    {
+                        IWrappers.GmshFree(eTags_ptr[i]);
+                    }
                 }
 
                 /// <summary>
@@ -257,8 +263,14 @@ namespace Iguana.IguanaMesh.IWrappers
                         IWrappers.GmshFree(elementTags_n);
                         IWrappers.GmshFree(nodeTags_n);
 
-                        foreach (IntPtr ptr in nTags_ptr) IWrappers.GmshFree(ptr);
-                        foreach (IntPtr ptr in eTags_ptr) IWrappers.GmshFree(ptr);
+                        for (int i = 0; i < nTags_ptr.Length; i++)
+                        {
+                            IWrappers.GmshFree(nTags_ptr[i]);
+                        }
+                        for (int i = 0; i < eTags_ptr.Length; i++)
+                        {
+                            IWrappers.GmshFree(eTags_ptr[i]);
+                        }
 
                         return true;
                     }
@@ -352,6 +364,22 @@ namespace Iguana.IguanaMesh.IWrappers
                 {
                     if (cornerTags == default) cornerTags = new int[0];
                     IWrappers.GmshModelMeshSetTransfiniteVolume(tag, cornerTags, cornerTags.LongLength, ref _ierr);
+                }
+
+                /// <summary>
+                /// Set transfinite meshing constraints on the model entities in `dimTag'.
+                /// Transfinite meshing constraints are added to the curves of the quadrangular
+                /// surfaces and to the faces of 6-sided volumes.Quadragular faces with a
+                /// corner angle superior to `cornerAngle' (in radians) are ignored. The number
+                /// of points is automatically determined from the sizing constraints. If
+                /// `dimTag' is empty, the constraints are applied to all entities in the
+                /// model.If `recombine' is true, the recombine flag is automatically set on
+                /// the transfinite surfaces.
+                /// </summary>
+                public static void SetAutomaticTransfinite(Tuple<int, int>[] dimTags, double cornerAngle=90, bool recombine=false)
+                {
+                    var data = IHelpers.FlattenIntTupleArray(dimTags);
+                    IWrappers.GmshModelMeshSetTransfiniteAutomatic(data, data.LongLength, cornerAngle * Math.PI/180, Convert.ToInt32(recombine), ref _ierr);
                 }
 
                 /// <summary>

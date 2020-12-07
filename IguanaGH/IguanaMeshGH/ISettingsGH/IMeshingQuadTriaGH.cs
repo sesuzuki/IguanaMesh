@@ -10,17 +10,17 @@ using System.Windows.Forms;
 
 namespace IguanaGH.IguanaMeshGH.ISettings
 {
-    public class IMeshingQuadsGH : GH_Component
+    public class IMeshingQuadsTriasGH : GH_Component
     {
         MeshSolvers2DQuads solver = MeshSolvers2DQuads.QuadsFrontalDelaunay;
         IguanaGmshSolver2D solverOpt;
         double sizeFactor = 1.0, minSize = 0, maxSize = 1e+22;
-        int recombine = 2, smoothingSteps = 10, minPts = 10, minElemPerTwoPi = 6;
+        int smoothingSteps = 10, minPts = 10, minElemPerTwoPi = 6;
         bool adaptive;
         /// <summary>
         /// Initializes a new instance of the IMeshingOptions2D class.
         /// </summary>
-        public IMeshingQuadsGH()
+        public IMeshingQuadsTriasGH()
           : base("iQuadTriaSettings", "iQuadTria",
               "Configuration for 2D quads+trias mesh generation.",
               "Iguana", "Settings")
@@ -38,7 +38,6 @@ namespace IguanaGH.IguanaMeshGH.ISettings
             pManager.AddIntegerParameter("Minimun Points", "MinPoints", "Minimum number of points used to mesh edge-surfaces. Default value is " + minPts, GH_ParamAccess.item, minPts);
             pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is " + adaptive.ToString(), GH_ParamAccess.item, adaptive);
             pManager.AddIntegerParameter("Mininimum Elements", "MinElements", "Minimum number of elements per 2PI. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minElemPerTwoPi);
-            pManager.AddIntegerParameter("Recombination Method", "Method", "Method to combine triangles into quadrangles (1: Blossom, 2: Simple full-quad, 3: Blossom full-quad). Default value is " + recombine, GH_ParamAccess.item, recombine);
             pManager.AddIntegerParameter("Smoothing Steps", "Smoothing", "Number of smoothing steps applied to the final mesh. Default value is " + smoothingSteps, GH_ParamAccess.item, smoothingSteps);
         }
 
@@ -64,8 +63,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
             DA.GetData(3, ref minPts);
             DA.GetData(4, ref adaptive);
             DA.GetData(5, ref minElemPerTwoPi);
-            DA.GetData(6, ref recombine);
-            DA.GetData(7, ref smoothingSteps);
+            DA.GetData(6, ref smoothingSteps);
 
             solverOpt.MeshingAlgorithm = (int)solver;
             solverOpt.CharacteristicLengthFactor = sizeFactor;
@@ -75,12 +73,7 @@ namespace IguanaGH.IguanaMeshGH.ISettings
             solverOpt.MinimumCurvePoints = minPts;
             solverOpt.MinimumElementsPerTwoPi = minElemPerTwoPi;
             solverOpt.OptimizationSteps = smoothingSteps;
-
-            string method;
-
-            method = Enum.GetName(typeof(RecombinationAlgorithm), recombine);
-            if (method == null) recombine = 2;
-            solverOpt.RecombinationAlgorithm = recombine;
+            solverOpt.RecombinationAlgorithm = 1;
             solverOpt.RecombineAll = true;
 
             DA.SetData(0, solverOpt);

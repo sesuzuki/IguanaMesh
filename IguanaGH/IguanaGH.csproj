@@ -80,6 +80,8 @@
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ISphere3DGH.cs" />
     <Compile Include="IguanaMeshGH\IPrimitivesGH\ITorus3DGH.cs" />
     <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingHexaPyramGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadsOnlyGH.cs" />
+    <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadsOnlyHighOrderGH.cs" />
     <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingQuadTriaHighOrderGH.cs" />
     <Compile Include="IguanaMeshGH\ISettingsGH\IMeshingTriangleHighOrderGH.cs" />
     <Compile Include="IguanaMeshGH\ITopologyGH\IEdgeNormalsGH.cs" />

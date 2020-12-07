@@ -1,27 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using GH_IO.Serialization;
+﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IWrappers.ISolver;
-using Rhino.Geometry;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace IguanaGH.IguanaMeshGH.ISettingsGH
 {
-    public class IMeshingQuadTriaHighOrderGH : GH_Component
+    public class IMeshingQuadsOnlyGH : GH_Component
     {
-        MeshSolvers2DQuads solver = MeshSolvers2DQuads.QuadsFrontalDelaunay;
+        MeshSolvers2DQuads solver = MeshSolvers2DQuads.PackingOfParallelograms;
         IguanaGmshSolver2D solverOpt;
         double sizeFactor = 1.0, minSize = 0, maxSize = 1e+22;
-        int ho_optimization = 0, smoothingSteps = 10, minPts = 10, minElemPerTwoPi = 6;
+        int smoothingSteps = 10, minPts = 10, minElemPerTwoPi = 6;
         bool adaptive;
-
         /// <summary>
-        /// Initializes a new instance of the IMeshingQuadHighOrderGH class.
+        /// Initializes a new instance of the IMeshingOptions2D class.
         /// </summary>
-        public IMeshingQuadTriaHighOrderGH()
-          : base("iQuadTriaHighOrderSettings", "iQuadTriaHighOrder",
-              "Configuration for 2D quads-trias high-order mesh generation.",
+        public IMeshingQuadsOnlyGH()
+          : base("iQuadsOnlySettings", "iQuadsOnly",
+              "Configuration for 2D quads mesh generation.",
               "Iguana", "Settings")
         {
         }
@@ -38,7 +39,6 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
             pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is " + adaptive.ToString(), GH_ParamAccess.item, adaptive);
             pManager.AddIntegerParameter("Mininimum Elements", "MinElements", "Minimum number of elements per 2PI. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minElemPerTwoPi);
             pManager.AddIntegerParameter("Smoothing Steps", "Smoothing", "Number of smoothing steps applied to the final mesh. Default value is " + smoothingSteps, GH_ParamAccess.item, smoothingSteps);
-            pManager.AddIntegerParameter("Optimization", "Optimization", "Optimizatio method of high-order elements (0: None, 1: Optimization, 2: Elastic+optimization, 3: Elastic, 4: Fast-curving). Default value is " + ho_optimization, GH_ParamAccess.item, ho_optimization);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMeshingOptions", "iS2D", "Solver configuration for 2D quad-high-order mesh generation.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iMeshingOptions", "iS2D", "Solver configuration for 2D quad-mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -64,7 +64,6 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
             DA.GetData(4, ref adaptive);
             DA.GetData(5, ref minElemPerTwoPi);
             DA.GetData(6, ref smoothingSteps);
-            DA.GetData(7, ref ho_optimization);
 
             solverOpt.MeshingAlgorithm = (int)solver;
             solverOpt.CharacteristicLengthFactor = sizeFactor;
@@ -74,16 +73,15 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
             solverOpt.MinimumCurvePoints = minPts;
             solverOpt.MinimumElementsPerTwoPi = minElemPerTwoPi;
             solverOpt.OptimizationSteps = smoothingSteps;
-            solverOpt.HighOrderOptimize = ho_optimization;
-            solverOpt.ElementOrder = 2;
             solverOpt.RecombinationAlgorithm = 1;
             solverOpt.RecombineAll = true;
+            solverOpt.SubdivisionAlgorithm = 1;
+            solverOpt.Subdivide = true;
 
             DA.SetData(0, solverOpt);
 
-            this.Message = "8Quads+6Trias";
+            this.Message = "QuadsOnly";
         }
-
 
         public override bool Write(GH_IWriter writer)
         {
@@ -125,7 +123,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         {
             get
             {
-                return Properties.Resources.iQuadHighOrderSettings;
+                return Properties.Resources.iQuadSettings;
             }
         }
 
@@ -134,7 +132,7 @@ namespace IguanaGH.IguanaMeshGH.ISettingsGH
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("6CC18B79-CBE8-424E-806B-8BDDD5E27234"); }
+            get { return new Guid("596D240A-299F-4E24-8670-9B5DCB680B66"); }
         }
     }
 }

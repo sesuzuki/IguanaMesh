@@ -2,6 +2,8 @@
 using Iguana.IguanaMesh.IWrappers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,12 +24,15 @@ namespace IguanaClient
         // the full documentation of all the functions in the API):
         public static void T1()
         {
+
             // Before using any functions in the C++ API, Gmsh must be initialized:
             IguanaGmsh.Initialize();
+            IguanaGmsh.Logger.Start();
+            //IguanaGmsh.Logger.Write("Hello World", "Info");
 
             // By default Gmsh will not print out any messages: in order to output
             // messages on the terminal, just set the "General.Terminal" option to 1:
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            //IguanaGmsh.Option.SetNumber("General.Terminal", 1);
 
             // We now add a new model, named "t1". If gmsh::model::add() is not called, a
             // new default (unnamed) model will be created on the fly, if necessary.
@@ -136,7 +141,9 @@ namespace IguanaClient
             IguanaGmsh.Model.Mesh.Generate(2);
 
             // ... and save it to disk
-            IguanaGmsh.Write("t1.msh");
+            //IguanaGmsh.Write("t1.msh");
+            //IguanaGmsh.FLTK.Run();
+
 
             // Remember that by default, if physical groups are defined, Gmsh will export
             // in the output mesh file only those elements that belong to at least one
@@ -181,7 +188,7 @@ namespace IguanaClient
             // based on OpenCASCADE, and `demos/api' for more.
 
             // Print Node Data
-            Tuple<int, int>[] dimTags;
+            /*Tuple<int, int>[] dimTags;
             IguanaGmsh.Model.GetEntities(out dimTags, 2);
     
             double[][] coord, pCoord;
@@ -194,10 +201,17 @@ namespace IguanaClient
             for (int i = 0; i < coord.Length; i++)
             {
                 Console.WriteLine("Coordinate: " + coord[i]);
-            }
+            }*/
+
+            var msg = IguanaGmsh.Logger.Get();
+
+            IguanaGmsh.Logger.Stop();
+
+            Console.WriteLine(msg);
 
             // This should be called when you are done using the Gmsh C++ API:        
             IguanaGmsh.FinalizeGmsh();
+
         }
     }
 }
