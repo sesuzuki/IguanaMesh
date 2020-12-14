@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,90 +27,90 @@ namespace IguanaClient
     {
         public static void T15()
         {
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t15");
+            Kernel.Model.Add("t15");
 
             // Copied from t1.cpp:
             double lc = 1e-2;
-            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
-            IguanaGmsh.Model.Geo.AddPoint(.1, 0, 0, lc, 2);
-            IguanaGmsh.Model.Geo.AddPoint(.1, .3, 0, lc, 3);
-            IguanaGmsh.Model.Geo.AddPoint(0, .3, 0, lc, 4);
-            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
-            IguanaGmsh.Model.Geo.AddLine(3, 2, 2);
-            IguanaGmsh.Model.Geo.AddLine(3, 4, 3);
-            IguanaGmsh.Model.Geo.AddLine(4, 1, 4);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 4, 1, -2, 3}, 1);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 1}, 1);
+            Kernel.GeometryKernel.AddPoint(0, 0, 0, lc, 1);
+            Kernel.GeometryKernel.AddPoint(.1, 0, 0, lc, 2);
+            Kernel.GeometryKernel.AddPoint(.1, .3, 0, lc, 3);
+            Kernel.GeometryKernel.AddPoint(0, .3, 0, lc, 4);
+            Kernel.GeometryKernel.AddLine(1, 2, 1);
+            Kernel.GeometryKernel.AddLine(3, 2, 2);
+            Kernel.GeometryKernel.AddLine(3, 4, 3);
+            Kernel.GeometryKernel.AddLine(4, 1, 4);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 4, 1, -2, 3}, 1);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 1}, 1);
 
             // We change the mesh size to generate a coarser mesh
             lc *= 4;
             Tuple<int, int>[] tt = new Tuple<int, int>[] { Tuple.Create(0, 1), Tuple.Create(0, 2), Tuple.Create(0, 3), Tuple.Create(0, 4) };
-            IguanaGmsh.Model.Mesh.SetSize(tt, lc);
+            Kernel.MeshingKernel.SetSize(tt, lc);
 
             // We define a new point
-            IguanaGmsh.Model.Geo.AddPoint(0.02, 0.02, 0.0, lc, 5);
+            Kernel.GeometryKernel.AddPoint(0.02, 0.02, 0.0, lc, 5);
 
             // We have to synchronize before embedding entites:
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
 
             // One can force this point to be included ("embedded") in the 2D mesh, using
             // the `embed()' function:
-            IguanaGmsh.Model.Mesh.Embed(0, new[]{ 5}, 2, 1);
+            Kernel.MeshingKernel.Embed(0, new[]{ 5}, 2, 1);
 
             // In the same way, one can use `embed()' to force a curve to be embedded in
             // the 2D mesh:
-            IguanaGmsh.Model.Geo.AddPoint(0.02, 0.12, 0.0, lc, 6);
-            IguanaGmsh.Model.Geo.AddPoint(0.04, 0.18, 0.0, lc, 7);
-            IguanaGmsh.Model.Geo.AddLine(6, 7, 5);
-            IguanaGmsh.Model.Geo.Synchronize();
-            IguanaGmsh.Model.Mesh.Embed(1, new[]{ 5}, 2, 1);
+            Kernel.GeometryKernel.AddPoint(0.02, 0.12, 0.0, lc, 6);
+            Kernel.GeometryKernel.AddPoint(0.04, 0.18, 0.0, lc, 7);
+            Kernel.GeometryKernel.AddLine(6, 7, 5);
+            Kernel.GeometryKernel.Synchronize();
+            Kernel.MeshingKernel.Embed(1, new[]{ 5}, 2, 1);
 
             // Points and curves can also be embedded in volumes
             Tuple<int, int>[] ext;
             tt = new Tuple<int, int>[] { Tuple.Create(2,1) };
-            IguanaGmsh.Model.Geo.Extrude(tt, 0, 0, 0.1, out ext);
+            Kernel.GeometryKernel.Extrude(tt, 0, 0, 0.1, out ext);
 
-            int p = IguanaGmsh.Model.Geo.AddPoint(0.07, 0.15, 0.025, lc);
+            int p = Kernel.GeometryKernel.AddPoint(0.07, 0.15, 0.025, lc);
 
-            IguanaGmsh.Model.Geo.Synchronize();
-            IguanaGmsh.Model.Mesh.Embed(0, new[] { p}, 3, 1);
+            Kernel.GeometryKernel.Synchronize();
+            Kernel.MeshingKernel.Embed(0, new[] { p}, 3, 1);
 
-            IguanaGmsh.Model.Geo.AddPoint(0.025, 0.15, 0.025, lc, p + 1);
-            int l = IguanaGmsh.Model.Geo.AddLine(7, p + 1);
+            Kernel.GeometryKernel.AddPoint(0.025, 0.15, 0.025, lc, p + 1);
+            int l = Kernel.GeometryKernel.AddLine(7, p + 1);
 
-            IguanaGmsh.Model.Geo.Synchronize();
-            IguanaGmsh.Model.Mesh.Embed(1, new[]{ l}, 3, 1);
+            Kernel.GeometryKernel.Synchronize();
+            Kernel.MeshingKernel.Embed(1, new[]{ l}, 3, 1);
 
             // Finally, we can also embed a surface in a volume:
-            IguanaGmsh.Model.Geo.AddPoint(0.02, 0.12, 0.05, lc, p + 2);
-            IguanaGmsh.Model.Geo.AddPoint(0.04, 0.12, 0.05, lc, p + 3);
-            IguanaGmsh.Model.Geo.AddPoint(0.04, 0.18, 0.05, lc, p + 4);
-            IguanaGmsh.Model.Geo.AddPoint(0.02, 0.18, 0.05, lc, p + 5);
+            Kernel.GeometryKernel.AddPoint(0.02, 0.12, 0.05, lc, p + 2);
+            Kernel.GeometryKernel.AddPoint(0.04, 0.12, 0.05, lc, p + 3);
+            Kernel.GeometryKernel.AddPoint(0.04, 0.18, 0.05, lc, p + 4);
+            Kernel.GeometryKernel.AddPoint(0.02, 0.18, 0.05, lc, p + 5);
 
-            IguanaGmsh.Model.Geo.AddLine(p + 2, p + 3, l + 1);
-            IguanaGmsh.Model.Geo.AddLine(p + 3, p + 4, l + 2);
-            IguanaGmsh.Model.Geo.AddLine(p + 4, p + 5, l + 3);
-            IguanaGmsh.Model.Geo.AddLine(p + 5, p + 2, l + 4);
+            Kernel.GeometryKernel.AddLine(p + 2, p + 3, l + 1);
+            Kernel.GeometryKernel.AddLine(p + 3, p + 4, l + 2);
+            Kernel.GeometryKernel.AddLine(p + 4, p + 5, l + 3);
+            Kernel.GeometryKernel.AddLine(p + 5, p + 2, l + 4);
 
-            int ll = IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ l + 1, l + 2, l + 3, l + 4});
-            int s = IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ ll});
+            int ll = Kernel.GeometryKernel.AddCurveLoop(new[]{ l + 1, l + 2, l + 3, l + 4});
+            int s = Kernel.GeometryKernel.AddPlaneSurface(new[]{ ll});
 
-            IguanaGmsh.Model.Geo.Synchronize();
-            IguanaGmsh.Model.Mesh.Embed(2, new[]{ s}, 3, 1);
+            Kernel.GeometryKernel.Synchronize();
+            Kernel.MeshingKernel.Embed(2, new[]{ s}, 3, 1);
 
             // Note that with the OpenCASCADE kernel (see `t16.cpp'), when the
             // `fragment()' function is applied to entities of different dimensions, the
             // lower dimensional entities will be autmatically embedded in the higher
             // dimensional entities if necessary.
 
-            IguanaGmsh.Model.Mesh.Generate(3);
+            Kernel.MeshingKernel.Generate(3);
 
-            IguanaGmsh.Write("t15.msh");
+            Kernel.Write("t15.msh");
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
         }
     }
 }

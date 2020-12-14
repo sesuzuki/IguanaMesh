@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,32 +22,32 @@ namespace IguanaClient
 
             // If argc/argv are passed to gmsh::initialize(), Gmsh will parse the command
             // line in the same way as the standalone Gmsh app:
-            IguanaGmsh.Initialize();
+            Kernel.Initialize();
 
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t2");
+            Kernel.Model.Add("t2");
 
             // Copied from t1.cpp...
             double lc = 1e-2;
-            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
-            IguanaGmsh.Model.Geo.AddPoint(.1, 0, 0, lc, 2);
-            IguanaGmsh.Model.Geo.AddPoint(.1, .3, 0, lc, 3);
-            IguanaGmsh.Model.Geo.AddPoint(0, .3, 0, lc, 4);
-            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
-            IguanaGmsh.Model.Geo.AddLine(3, 2, 2);
-            IguanaGmsh.Model.Geo.AddLine(3, 4, 3);
-            IguanaGmsh.Model.Geo.AddLine(4, 1, 4);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 4, 1, -2, 3}, 1);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 1}, 1);
+            Kernel.GeometryKernel.AddPoint(0, 0, 0, lc, 1);
+            Kernel.GeometryKernel.AddPoint(.1, 0, 0, lc, 2);
+            Kernel.GeometryKernel.AddPoint(.1, .3, 0, lc, 3);
+            Kernel.GeometryKernel.AddPoint(0, .3, 0, lc, 4);
+            Kernel.GeometryKernel.AddLine(1, 2, 1);
+            Kernel.GeometryKernel.AddLine(3, 2, 2);
+            Kernel.GeometryKernel.AddLine(3, 4, 3);
+            Kernel.GeometryKernel.AddLine(4, 1, 4);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 4, 1, -2, 3}, 1);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 1}, 1);
 
             //IguanaGmsh.Model.AddPhysicalGroup(1, new[]{ 1, 2, 4}, 5);
 
 
             // We can then add new points and curves in the same way as we did in
             // `t1.cpp':
-            IguanaGmsh.Model.Geo.AddPoint(0, 0.4, 0, lc, 5);
-            IguanaGmsh.Model.Geo.AddLine(4, 5, 5);
+            Kernel.GeometryKernel.AddPoint(0, 0.4, 0, lc, 5);
+            Kernel.GeometryKernel.AddLine(4, 5, 5);
 
             // But Gmsh also provides tools to transform (translate, rotate, etc.)
             // elementary entities or copies of elementary entities.  Geometrical
@@ -56,11 +56,11 @@ namespace IguanaClient
             // example, the point 5 (dimension=0, tag=5) can be moved by 0.02 to the left
             // (dx=-0.02, dy=0, dz=0) with
             Tuple<int, int>[] temp = new Tuple<int, int>[] { Tuple.Create(0, 5) };
-            IguanaGmsh.Model.Geo.Translate(temp, -0.02, 0, 0);
+            Kernel.GeometryKernel.Translate(temp, -0.02, 0, 0);
 
             // And it can be further rotated by -Pi/4 around (0, 0.3, 0) (with the
             // rotation along the z axis) with:
-            IguanaGmsh.Model.Geo.Rotate(temp, 0, 0.3, 0, 0, 0, 1, -Math.PI / 4);
+            Kernel.GeometryKernel.Rotate(temp, 0, 0.3, 0, 0, 0, 1, -Math.PI / 4);
 
             // Note that there are no units in Gmsh: coordinates are just numbers - it's
             // up to the user to associate a meaning to them.
@@ -70,24 +70,24 @@ namespace IguanaClient
             // and returns another vector of (dim, tag) pairs:
             Tuple<int, int>[] ov;
             temp = new Tuple<int, int>[] { Tuple.Create(0,3) };
-            IguanaGmsh.Model.Geo.Copy(temp, out ov);
-            IguanaGmsh.Model.Geo.Translate(ov, 0, 0.05, 0);
+            Kernel.GeometryKernel.Copy(temp, out ov);
+            Kernel.GeometryKernel.Translate(ov, 0, 0.05, 0);
 
             // The new point tag is available in ov[0].second, and can be used to create
             // new lines:
-            IguanaGmsh.Model.Geo.AddLine(3, ov[0].Item2, 7);
-            IguanaGmsh.Model.Geo.AddLine(ov[0].Item2, 5, 8);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 5, -8, -7, 3}, 10);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 10}, 11);
+            Kernel.GeometryKernel.AddLine(3, ov[0].Item2, 7);
+            Kernel.GeometryKernel.AddLine(ov[0].Item2, 5, 8);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 5, -8, -7, 3}, 10);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 10}, 11);
 
-            int ps = IguanaGmsh.Model.AddPhysicalGroup(2, new[] { 1, 11 });
-            IguanaGmsh.Model.SetPhysicalName(2, ps, "My surface");
+            int ps = Kernel.Model.AddPhysicalGroup(2, new[] { 1, 11 });
+            Kernel.Model.SetPhysicalName(2, ps, "My surface");
 
             // In the same way, we can translate copies of the two surfaces 1 and 11 to
             // the right with the following command:
             temp = new Tuple<int, int>[] { Tuple.Create(2,1), Tuple.Create(2, 11) };
-            IguanaGmsh.Model.Geo.Copy(temp, out ov);
-            IguanaGmsh.Model.Geo.Translate(ov, 0.12, 0, 0);
+            Kernel.GeometryKernel.Copy(temp, out ov);
+            Kernel.GeometryKernel.Translate(ov, 0.12, 0, 0);
 
             Console.WriteLine("New surfaces '%d' and '%d'\n" + " " + ov[0].Item2 + " " + ov[1].Item2);
 
@@ -95,39 +95,39 @@ namespace IguanaClient
             // one defines curve loops to build surfaces, one has to define surface loops
             // (i.e. `shells') to build volumes. The following volume does not have holes
             // and thus consists of a single surface loop:
-            IguanaGmsh.Model.Geo.AddPoint(0.0, 0.3, 0.12, lc, 100);
-            IguanaGmsh.Model.Geo.AddPoint(0.1, 0.3, 0.12, lc, 101);
-            IguanaGmsh.Model.Geo.AddPoint(0.1, 0.35, 0.12, lc, 102);
+            Kernel.GeometryKernel.AddPoint(0.0, 0.3, 0.12, lc, 100);
+            Kernel.GeometryKernel.AddPoint(0.1, 0.3, 0.12, lc, 101);
+            Kernel.GeometryKernel.AddPoint(0.1, 0.35, 0.12, lc, 102);
 
             // We would like to retrieve the coordinates of point 5 to create point 103,
             // so we synchronize the model, and use `getValue()'
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
             double[] xyz;
-            IguanaGmsh.Model.GetValue(0, 5, new double[] { }, out xyz);
-            IguanaGmsh.Model.Geo.AddPoint(xyz[0], xyz[1], 0.12, lc, 103);
+            Kernel.Model.GetValue(0, 5, new double[] { }, out xyz);
+            Kernel.GeometryKernel.AddPoint(xyz[0], xyz[1], 0.12, lc, 103);
 
-            IguanaGmsh.Model.Geo.AddLine(4, 100, 110);
-            IguanaGmsh.Model.Geo.AddLine(3, 101, 111);
-            IguanaGmsh.Model.Geo.AddLine(6, 102, 112);
-            IguanaGmsh.Model.Geo.AddLine(5, 103, 113);
-            IguanaGmsh.Model.Geo.AddLine(103, 100, 114);
-            IguanaGmsh.Model.Geo.AddLine(100, 101, 115);
-            IguanaGmsh.Model.Geo.AddLine(101, 102, 116);
-            IguanaGmsh.Model.Geo.AddLine(102, 103, 117);
+            Kernel.GeometryKernel.AddLine(4, 100, 110);
+            Kernel.GeometryKernel.AddLine(3, 101, 111);
+            Kernel.GeometryKernel.AddLine(6, 102, 112);
+            Kernel.GeometryKernel.AddLine(5, 103, 113);
+            Kernel.GeometryKernel.AddLine(103, 100, 114);
+            Kernel.GeometryKernel.AddLine(100, 101, 115);
+            Kernel.GeometryKernel.AddLine(101, 102, 116);
+            Kernel.GeometryKernel.AddLine(102, 103, 117);
 
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 115, -111, 3, 110}, 118);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 118}, 119);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 111, 116, -112, -7}, 120);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 120}, 121);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 112, 117, -113, -8}, 122);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 122}, 123);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 114, -110, 5, 113}, 124);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 124}, 125);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 115, 116, 117, 114}, 126);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 126}, 127);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 115, -111, 3, 110}, 118);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 118}, 119);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 111, 116, -112, -7}, 120);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 120}, 121);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 112, 117, -113, -8}, 122);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 122}, 123);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 114, -110, 5, 113}, 124);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 124}, 125);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 115, 116, 117, 114}, 126);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 126}, 127);
 
-            IguanaGmsh.Model.Geo.AddSurfaceLoop(new[]{ 127, 119, 121, 123, 125, 11}, 128);
-            IguanaGmsh.Model.Geo.AddVolume(new[]{ 128 }, 129);
+            Kernel.GeometryKernel.AddSurfaceLoop(new[]{ 127, 119, 121, 123, 125, 11}, 128);
+            Kernel.GeometryKernel.AddVolume(new[]{ 128 }, 129);
 
             // When a volume can be extruded from a surface, it is usually easier to use
             // the `extrude()' function directly instead of creating all the points,
@@ -137,22 +137,22 @@ namespace IguanaClient
             // function takes a vector of (dim, tag) pairs as input as well as the
             // translation vector, and returns a vector of (dim, tag) pairs as output:
             Tuple<int, int>[] ov2;
-            IguanaGmsh.Model.Geo.Extrude(new Tuple<int,int>[]{ ov[1] }, 0, 0, 0.12, out ov2);
+            Kernel.GeometryKernel.Extrude(new Tuple<int,int>[]{ ov[1] }, 0, 0, 0.12, out ov2);
 
             // Mesh sizes associated to geometrical points can be set by passing a vector
             // of (dim, tag) pairs for the corresponding points:
             temp = new Tuple<int, int>[] { Tuple.Create(0, 103), Tuple.Create(0, 105), Tuple.Create(0, 109), Tuple.Create(0, 102),
                                             Tuple.Create(0, 28), Tuple.Create(0, 24), Tuple.Create(0, 6), Tuple.Create(0, 5) };
-            IguanaGmsh.Model.Mesh.SetSize( temp, lc * 3);
+            Kernel.MeshingKernel.SetSize( temp, lc * 3);
 
             // We finish by synchronizing the data from the built-in CAD kernel with the
             // Gmsh model:*/
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
 
             // We group volumes 129 and 130 in a single physical group with tag `1' and
             // name "The volume":
-            IguanaGmsh.Model.AddPhysicalGroup(3, new[]{ 129, 130 }, 1);
-            IguanaGmsh.Model.SetPhysicalName(3, 1, "The volume");
+            Kernel.Model.AddPhysicalGroup(3, new[]{ 129, 130 }, 1);
+            Kernel.Model.SetPhysicalName(3, 1, "The volume");
 
             // We finally generate and save the mesh:
             //IguanaGmsh.Option.SetNumber("Mesh.RandomFactor3D", 1);
@@ -160,7 +160,7 @@ namespace IguanaClient
             //IguanaGmsh.Option.SetNumber("Mesh.MeshSizeMax", 1);
             //IguanaGmsh.Option.SetString("Mesh.AngleToleranceFacetOverlap", "p/#");
             //IguanaGmsh.Option.SetNumber("Mesh.ElementOrder", 2);
-            IguanaGmsh.Model.Mesh.Generate(3);
+            Kernel.MeshingKernel.Generate(3);
 
             // Note that, if the transformation tools are handy to create complex
             // geometries, it is also sometimes useful to generate the `flat' geometry,
@@ -184,7 +184,7 @@ namespace IguanaClient
             // export a geometry constructed with the built-in kernel as an OpenCASCADE
             // BRep file; or export an OpenCASCADE model as an Unrolled GEO file.
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
 
         }
     }

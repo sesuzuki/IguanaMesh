@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,26 +19,26 @@ namespace IguanaClient
     {
         public static void T3()
         {
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t3");
+            Kernel.Model.Add("t3");
 
             // Copied from t1.cpp...
             double lc = 1e-2;
-            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
-            IguanaGmsh.Model.Geo.AddPoint(.1, 0, 0, lc, 2);
-            IguanaGmsh.Model.Geo.AddPoint(.1, .3, 0, lc, 3);
-            IguanaGmsh.Model.Geo.AddPoint(0, .3, 0, lc, 4);
-            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
-            IguanaGmsh.Model.Geo.AddLine(3, 2, 2);
-            IguanaGmsh.Model.Geo.AddLine(3, 4, 3);
-            IguanaGmsh.Model.Geo.AddLine(4, 1, 4);
-            IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ 4, 1, -2, 3}, 1);
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ 1}, 1);
-            IguanaGmsh.Model.AddPhysicalGroup(1, new[]{ 1, 2, 4}, 5);
-            int ps = IguanaGmsh.Model.AddPhysicalGroup(2,new[]{ 1});
-            IguanaGmsh.Model.SetPhysicalName(2, ps, "My surface");
+            Kernel.GeometryKernel.AddPoint(0, 0, 0, lc, 1);
+            Kernel.GeometryKernel.AddPoint(.1, 0, 0, lc, 2);
+            Kernel.GeometryKernel.AddPoint(.1, .3, 0, lc, 3);
+            Kernel.GeometryKernel.AddPoint(0, .3, 0, lc, 4);
+            Kernel.GeometryKernel.AddLine(1, 2, 1);
+            Kernel.GeometryKernel.AddLine(3, 2, 2);
+            Kernel.GeometryKernel.AddLine(3, 4, 3);
+            Kernel.GeometryKernel.AddLine(4, 1, 4);
+            Kernel.GeometryKernel.AddCurveLoop(new[]{ 4, 1, -2, 3}, 1);
+            Kernel.GeometryKernel.AddPlaneSurface(new[]{ 1}, 1);
+            Kernel.Model.AddPhysicalGroup(1, new[]{ 1, 2, 4}, 5);
+            int ps = Kernel.Model.AddPhysicalGroup(2,new[]{ 1});
+            Kernel.Model.SetPhysicalName(2, ps, "My surface");
 
             // As in `t2.cpp', we plan to perform an extrusion along the z axis.  But
             // here, instead of only extruding the geometry, we also want to extrude the
@@ -51,7 +51,7 @@ namespace IguanaClient
             double h = 0.1, angle = 90;
             Tuple<int, int>[] ov;
             Tuple<int, int>[] temp = new Tuple<int, int>[] { Tuple.Create(2,1) };
-            IguanaGmsh.Model.Geo.Extrude(temp, 0, 0, h, out ov, new[]{ 8, 2}, new[]{ 0.5, 1});
+            Kernel.GeometryKernel.Extrude(temp, 0, 0, h, out ov, new[]{ 8, 2}, new[]{ 0.5, 1});
 
             // The extrusion can also be performed with a rotation instead of a
             // translation, and the resulting mesh can be recombined into prisms (we use
@@ -59,7 +59,7 @@ namespace IguanaClient
             // an an axis point (-0.1, 0, 0.1), an axis direction (0, 1, 0), and a
             // rotation angle (-Pi/2):
             temp = new Tuple<int, int>[] { Tuple.Create(2, 28) };
-            IguanaGmsh.Model.Geo.Revolve(temp, -0.1, 0, 0.1, 0, 1, 0, -Math.PI / 2, out ov, new[]{ 7});
+            Kernel.GeometryKernel.Revolve(temp, -0.1, 0, 0.1, 0, 1, 0, -Math.PI / 2, out ov, new[]{ 7});
 
             // Using the built-in geometry kernel, only rotations with angles < Pi are
             // supported. To do a full turn, you will thus need to apply at least 3
@@ -70,9 +70,9 @@ namespace IguanaClient
             // the extrude() and twist() functions specifies whether the extruded mesh
             // should be recombined or not.
             temp = new Tuple<int, int>[] { Tuple.Create(2, 50) };
-            IguanaGmsh.Model.Geo.Twist(temp, 0, 0.15, 0.25, -2 * h, 0, 0, 1, 0, 0, angle* Math.PI / 180, out ov, new[]{ 10}, new double[]{}, true);
+            Kernel.GeometryKernel.Twist(temp, 0, 0.15, 0.25, -2 * h, 0, 0, 1, 0, 0, angle* Math.PI / 180, out ov, new[]{ 10}, new double[]{}, true);
 
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
 
             // All the extrusion functions return a vector of extruded entities: the "top"
             // of the extruded surface (in `ov[0]'), the newly created volume (in `ov[1]')
@@ -80,12 +80,12 @@ namespace IguanaClient
 
             // We can then define a new physical volume (with tag 101) to group all the
             // elementary volumes:
-            IguanaGmsh.Model.AddPhysicalGroup(3, new int[]{ 1, 2, ov[1].Item2}, 101);
+            Kernel.Model.AddPhysicalGroup(3, new int[]{ 1, 2, ov[1].Item2}, 101);
 
-            IguanaGmsh.Model.Mesh.Generate(3);
+            Kernel.MeshingKernel.Generate(3);
             //IguanaGmsh.Write("t3.msh");
 
-            IguanaGmsh.FLTK.Run();
+            Kernel.Graphics.Run();
 
             // When the GUI is launched, you can use the `Help->Current Options and
             // Workspace' menu to see the current values of all options. To save the
@@ -93,7 +93,7 @@ namespace IguanaClient
 
             // gmsh::write("t3.opt");
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
 
         }
     }

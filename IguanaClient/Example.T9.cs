@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,58 +28,58 @@ namespace IguanaClient
 
         public static void T9()
         {
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t9");
+            Kernel.Model.Add("t9");
 
             // Let us for example include a three-dimensional scalar view:
-            IguanaGmsh.Merge("view3.pos");
+            Kernel.Merge("view3.pos");
 
             // We then set some options for the `Isosurface' plugin (which extracts an
             // isosurface from a 3D scalar view), and run it:
-            IguanaGmsh.Plugin.SetNumber("Isosurface", "Value", 0.67); // Iso-value level
-            IguanaGmsh.Plugin.SetNumber("Isosurface", "View", 0); // Source view is View[0]
-            IguanaGmsh.Plugin.Run("Isosurface"); // Run the plugin!
+            Kernel.Plugin.SetNumber("Isosurface", "Value", 0.67); // Iso-value level
+            Kernel.Plugin.SetNumber("Isosurface", "View", 0); // Source view is View[0]
+            Kernel.Plugin.Run("Isosurface"); // Run the plugin!
 
             // We also set some options for the `CutPlane' plugin (which computes a
             // section of a 3D view using the plane A*x+B*y+C*z+D=0), and then run it:
-            IguanaGmsh.Plugin.SetNumber("CutPlane", "A", 0);
-            IguanaGmsh.Plugin.SetNumber("CutPlane", "B", 0.2);
-            IguanaGmsh.Plugin.SetNumber("CutPlane", "C", 1);
-            IguanaGmsh.Plugin.SetNumber("CutPlane", "D", 0);
-            IguanaGmsh.Plugin.SetNumber("CutPlane", "View", 0);
-            IguanaGmsh.Plugin.Run("CutPlane");
+            Kernel.Plugin.SetNumber("CutPlane", "A", 0);
+            Kernel.Plugin.SetNumber("CutPlane", "B", 0.2);
+            Kernel.Plugin.SetNumber("CutPlane", "C", 1);
+            Kernel.Plugin.SetNumber("CutPlane", "D", 0);
+            Kernel.Plugin.SetNumber("CutPlane", "View", 0);
+            Kernel.Plugin.Run("CutPlane");
 
             // Add a title (By convention, for window coordinates a value greater than
             // 99999 represents the center. We could also use `General.GraphicsWidth / 2',
             // but that would only center the string for the current window size.):
-            IguanaGmsh.Plugin.SetString("Annotate", "Text", "A nice title");
-            IguanaGmsh.Plugin.SetNumber("Annotate", "X", 1e5);
-            IguanaGmsh.Plugin.SetNumber("Annotate", "Y", 50);
-            IguanaGmsh.Plugin.SetString("Annotate", "Font", "Times-BoldItalic");
-            IguanaGmsh.Plugin.SetNumber("Annotate", "FontSize", 28);
-            IguanaGmsh.Plugin.SetString("Annotate", "Align", "Center");
-            IguanaGmsh.Plugin.SetNumber("Annotate", "View", 0);
-            IguanaGmsh.Plugin.Run("Annotate");
+            Kernel.Plugin.SetString("Annotate", "Text", "A nice title");
+            Kernel.Plugin.SetNumber("Annotate", "X", 1e5);
+            Kernel.Plugin.SetNumber("Annotate", "Y", 50);
+            Kernel.Plugin.SetString("Annotate", "Font", "Times-BoldItalic");
+            Kernel.Plugin.SetNumber("Annotate", "FontSize", 28);
+            Kernel.Plugin.SetString("Annotate", "Align", "Center");
+            Kernel.Plugin.SetNumber("Annotate", "View", 0);
+            Kernel.Plugin.Run("Annotate");
 
-            IguanaGmsh.Plugin.SetString("Annotate", "Text", "(and a small subtitle)");
-            IguanaGmsh.Plugin.SetNumber("Annotate", "Y", 70);
-            IguanaGmsh.Plugin.SetString("Annotate", "Font", "Times-Roman");
-            IguanaGmsh.Plugin.SetNumber("Annotate", "FontSize", 12);
-            IguanaGmsh.Plugin.Run("Annotate");
+            Kernel.Plugin.SetString("Annotate", "Text", "(and a small subtitle)");
+            Kernel.Plugin.SetNumber("Annotate", "Y", 70);
+            Kernel.Plugin.SetString("Annotate", "Font", "Times-Roman");
+            Kernel.Plugin.SetNumber("Annotate", "FontSize", 12);
+            Kernel.Plugin.Run("Annotate");
 
             // We finish by setting some options:
-            IguanaGmsh.Option.SetNumber("View[0].Light", 1);
-            IguanaGmsh.Option.SetNumber("View[0].IntervalsType", 1);
-            IguanaGmsh.Option.SetNumber("View[0].NbIso", 6);
-            IguanaGmsh.Option.SetNumber("View[0].SmoothNormals", 1);
-            IguanaGmsh.Option.SetNumber("View[1].IntervalsType", 2);
-            IguanaGmsh.Option.SetNumber("View[2].IntervalsType", 2);
+            Kernel.Option.SetNumber("View[0].Light", 1);
+            Kernel.Option.SetNumber("View[0].IntervalsType", 1);
+            Kernel.Option.SetNumber("View[0].NbIso", 6);
+            Kernel.Option.SetNumber("View[0].SmoothNormals", 1);
+            Kernel.Option.SetNumber("View[1].IntervalsType", 2);
+            Kernel.Option.SetNumber("View[2].IntervalsType", 2);
 
             // show the GUI at the end
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
             }
     }
 }

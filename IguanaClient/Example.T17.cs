@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,32 +27,32 @@ namespace IguanaClient
     {
         public static void T17()
         {
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t17");
+            Kernel.Model.Add("t17");
 
             // Create a square
-            IguanaGmsh.Model.GeoOCC.AddRectangle(-1, -1, 0, 2, 2);
-            IguanaGmsh.Model.GeoOCC.Synchronize();
+            Kernel.GeoOCC.AddRectangle(-1, -1, 0, 2, 2);
+            Kernel.GeoOCC.Synchronize();
 
             // Merge a post-processing view containing the target anisotropic mesh sizes
-            IguanaGmsh.Merge("t17_bgmesh.pos");
+            Kernel.Merge("t17_bgmesh.pos");
 
             // Apply the view as the current background mesh
-            int bg_field = IguanaGmsh.Model.MeshField.Add("PostView");
-            IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(bg_field);
+            int bg_field = Kernel.Field.AddMeshField("PostView");
+            Kernel.Field.SetMeshFieldAsBackgroundMesh(bg_field);
 
             // Use bamg
-            IguanaGmsh.Option.SetNumber("Mesh.SmoothRatio", 3);
-            IguanaGmsh.Option.SetNumber("Mesh.AnisoMax", 1000);
-            IguanaGmsh.Option.SetNumber("Mesh.Algorithm", 7);
+            Kernel.Option.SetNumber("Mesh.SmoothRatio", 3);
+            Kernel.Option.SetNumber("Mesh.AnisoMax", 1000);
+            Kernel.Option.SetNumber("Mesh.Algorithm", 7);
 
-            IguanaGmsh.Model.Mesh.Generate(2);
+            Kernel.MeshingKernel.Generate(2);
 
-            IguanaGmsh.Write("t17.msh");
+            Kernel.Write("t17.msh");
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
             }
     }
 }

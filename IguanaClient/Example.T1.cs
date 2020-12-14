@@ -1,12 +1,5 @@
-﻿using Grasshopper.Kernel.Geometry.SpatialTrees;
-using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IguanaClient
 {
@@ -26,8 +19,8 @@ namespace IguanaClient
         {
 
             // Before using any functions in the C++ API, Gmsh must be initialized:
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Logger.Start();
+            Kernel.Initialize();
+            Kernel.Logger.StartLogger();
             //IguanaGmsh.Logger.Write("Hello World", "Info");
 
             // By default Gmsh will not print out any messages: in order to output
@@ -36,7 +29,7 @@ namespace IguanaClient
 
             // We now add a new model, named "t1". If gmsh::model::add() is not called, a
             // new default (unnamed) model will be created on the fly, if necessary.
-            IguanaGmsh.Model.Add("t1");
+            Kernel.Model.Add("t1");
 
             // The C++ API provides direct access to each supported geometry (CAD)
             // kernel. The built-in kernel is used in this first tutorial: the
@@ -52,7 +45,7 @@ namespace IguanaClient
             //   that uniquely identifies the point)
 
             double lc = 1e-2;
-            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
+            Kernel.GeometryKernel.AddPoint(0, 0, 0, lc, 1);
 
             // The distribution of the mesh element sizes will be obtained by
             // interpolation of these characteristic lengths throughout the
@@ -65,12 +58,12 @@ namespace IguanaClient
             //
             // We can then define some additional points. All points should have different
             // tags:
-            IguanaGmsh.Model.Geo.AddPoint(.1, 0, 0, lc, 2);
-            IguanaGmsh.Model.Geo.AddPoint(.1, .3, 0, lc, 3);
+            Kernel.GeometryKernel.AddPoint(.1, 0, 0, lc, 2);
+            Kernel.GeometryKernel.AddPoint(.1, .3, 0, lc, 3);
 
             // If the tag is not provided explicitly, a new tag is automatically created,
             // and returned by the function:
-            int p4 = IguanaGmsh.Model.Geo.AddPoint(0, .3, 0, lc);
+            int p4 = Kernel.GeometryKernel.AddPoint(0, .3, 0, lc);
 
             // Curves are Gmsh's second type of elementery entities, and, amongst curves,
             // straight lines are the simplest. The API to create straight line segments
@@ -84,10 +77,10 @@ namespace IguanaClient
             // Note that curve tags are separate from point tags - hence we can reuse tag
             // `1' for our first curve. And as a general rule, elementary entity tags in
             // Gmsh have to be unique per geometrical dimension.
-            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
-            IguanaGmsh.Model.Geo.AddLine(3, 2, 2);
-            IguanaGmsh.Model.Geo.AddLine(3, p4, 3);
-            IguanaGmsh.Model.Geo.AddLine(4, 1, p4);
+            Kernel.GeometryKernel.AddLine(1, 2, 1);
+            Kernel.GeometryKernel.AddLine(3, 2, 2);
+            Kernel.GeometryKernel.AddLine(3, p4, 3);
+            Kernel.GeometryKernel.AddLine(4, 1, p4);
 
             // The third elementary entity is the surface. In order to define a simple
             // rectangular surface from the four curves defined above, a curve loop has
@@ -97,12 +90,12 @@ namespace IguanaClient
             // loops takes a vector of integers as first argument, and the curve loop tag
             // (which must be unique amongst curve loops) as the second (optional)
             // argument:
-            IguanaGmsh.Model.Geo.AddCurveLoop(new int[] { 4, 1, -2, 3 }, 1);
+            Kernel.GeometryKernel.AddCurveLoop(new int[] { 4, 1, -2, 3 }, 1);
 
             // We can then define the surface as a list of curve loops (only one here,
             // representing the external contour, since there are no holes--see `t4.cpp'
             // for an example of a surface with a hole):
-            IguanaGmsh.Model.Geo.AddPlaneSurface(new int[] { 1 }, 1);
+            Kernel.GeometryKernel.AddPlaneSurface(new int[] { 1 }, 1);
 
             // Before they can be meshed (and, more generally, before they can be used by
             // API functions outside of the built-in CAD kernel functions), the CAD
@@ -113,7 +106,7 @@ namespace IguanaClient
             // trivial amount of processing; so while you could synchronize the internal
             // CAD data after every CAD command, it is usually better to minimize the
             // number of synchronization points.
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
 
             // At this level, Gmsh knows everything to display the rectangular surface 1
             // and to mesh it. An optional step is needed if we want to group elementary
@@ -133,12 +126,12 @@ namespace IguanaClient
             // curves in a single group (with prescribed tag 5); and a physical surface
             // with name "My surface" (with an automatic tag) containing the geometrical
             // surface 1:
-            IguanaGmsh.Model.AddPhysicalGroup(1, new int[] { 1, 2, 4 }, 5);
-            int ps = IguanaGmsh.Model.AddPhysicalGroup(2, new int[] { 1 });
-            IguanaGmsh.Model.SetPhysicalName(2, ps, "My surface");
+            Kernel.Model.AddPhysicalGroup(1, new int[] { 1, 2, 4 }, 5);
+            int ps = Kernel.Model.AddPhysicalGroup(2, new int[] { 1 });
+            Kernel.Model.SetPhysicalName(2, ps, "My surface");
 
             // We can then generate a 2D mesh...
-            IguanaGmsh.Model.Mesh.Generate(2);
+            Kernel.MeshingKernel.Generate(2);
 
             // ... and save it to disk
             //IguanaGmsh.Write("t1.msh");
@@ -203,14 +196,14 @@ namespace IguanaClient
                 Console.WriteLine("Coordinate: " + coord[i]);
             }*/
 
-            var msg = IguanaGmsh.Logger.Get();
+            var msg = Kernel.Logger.GetLogger();
 
-            IguanaGmsh.Logger.Stop();
+            Kernel.Logger.StopLogger();
 
             Console.WriteLine(msg);
 
             // This should be called when you are done using the Gmsh C++ API:        
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
 
         }
     }

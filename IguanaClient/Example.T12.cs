@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,59 +47,59 @@ namespace IguanaClient
         public static void T12()
         {
 
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t12");
+            Kernel.Model.Add("t12");
 
             double lc = 0.1;
 
-            IguanaGmsh.Model.Geo.AddPoint(0, 0, 0, lc, 1);
-            IguanaGmsh.Model.Geo.AddPoint(1, 0, 0, lc, 2);
-            IguanaGmsh.Model.Geo.AddPoint(1, 1, 0.5, lc, 3);
-            IguanaGmsh.Model.Geo.AddPoint(0, 1, 0.4, lc, 4);
-            IguanaGmsh.Model.Geo.AddPoint(0.3, 0.2, 0, lc, 5);
-            IguanaGmsh.Model.Geo.AddPoint(0, 0.01, 0.01, lc, 6);
-            IguanaGmsh.Model.Geo.AddPoint(0, 0.02, 0.02, lc, 7);
-            IguanaGmsh.Model.Geo.AddPoint(1, 0.05, 0.02, lc, 8);
-            IguanaGmsh.Model.Geo.AddPoint(1, 0.32, 0.02, lc, 9);
+            Kernel.GeometryKernel.AddPoint(0, 0, 0, lc, 1);
+            Kernel.GeometryKernel.AddPoint(1, 0, 0, lc, 2);
+            Kernel.GeometryKernel.AddPoint(1, 1, 0.5, lc, 3);
+            Kernel.GeometryKernel.AddPoint(0, 1, 0.4, lc, 4);
+            Kernel.GeometryKernel.AddPoint(0.3, 0.2, 0, lc, 5);
+            Kernel.GeometryKernel.AddPoint(0, 0.01, 0.01, lc, 6);
+            Kernel.GeometryKernel.AddPoint(0, 0.02, 0.02, lc, 7);
+            Kernel.GeometryKernel.AddPoint(1, 0.05, 0.02, lc, 8);
+            Kernel.GeometryKernel.AddPoint(1, 0.32, 0.02, lc, 9);
 
-            IguanaGmsh.Model.Geo.AddLine(1, 2, 1);
-            IguanaGmsh.Model.Geo.AddLine(2, 8, 2);
-            IguanaGmsh.Model.Geo.AddLine(8, 9, 3);
-            IguanaGmsh.Model.Geo.AddLine(9, 3, 4);
-            IguanaGmsh.Model.Geo.AddLine(3, 4, 5);
-            IguanaGmsh.Model.Geo.AddLine(4, 7, 6);
-            IguanaGmsh.Model.Geo.AddLine(7, 6, 7);
-            IguanaGmsh.Model.Geo.AddLine(6, 1, 8);
-            IguanaGmsh.Model.Geo.AddSpline(new int[] { 7, 5, 9 }, 9);
-            IguanaGmsh.Model.Geo.AddLine(6, 8, 10);
+            Kernel.GeometryKernel.AddLine(1, 2, 1);
+            Kernel.GeometryKernel.AddLine(2, 8, 2);
+            Kernel.GeometryKernel.AddLine(8, 9, 3);
+            Kernel.GeometryKernel.AddLine(9, 3, 4);
+            Kernel.GeometryKernel.AddLine(3, 4, 5);
+            Kernel.GeometryKernel.AddLine(4, 7, 6);
+            Kernel.GeometryKernel.AddLine(7, 6, 7);
+            Kernel.GeometryKernel.AddLine(6, 1, 8);
+            Kernel.GeometryKernel.AddSpline(new int[] { 7, 5, 9 }, 9);
+            Kernel.GeometryKernel.AddLine(6, 8, 10);
 
-            IguanaGmsh.Model.Geo.AddCurveLoop(new int[] { 5, 6, 9, 4 }, 11);
-            IguanaGmsh.Model.Geo.AddSurfaceFilling(11, -1, 1);
+            Kernel.GeometryKernel.AddCurveLoop(new int[] { 5, 6, 9, 4 }, 11);
+            Kernel.GeometryKernel.AddSurfaceFilling(11, -1, 1);
 
-            IguanaGmsh.Model.Geo.AddCurveLoop(new int[] { -9, 3, 10, 7 }, 13);
-            IguanaGmsh.Model.Geo.AddSurfaceFilling(13, -1, 5);
+            Kernel.GeometryKernel.AddCurveLoop(new int[] { -9, 3, 10, 7 }, 13);
+            Kernel.GeometryKernel.AddSurfaceFilling(13, -1, 5);
 
-            IguanaGmsh.Model.Geo.AddCurveLoop(new int[] { -10, 2, 1, 8 }, 15);
-            IguanaGmsh.Model.Geo.AddSurfaceFilling(15, -1, 10);
+            Kernel.GeometryKernel.AddCurveLoop(new int[] { -10, 2, 1, 8 }, 15);
+            Kernel.GeometryKernel.AddSurfaceFilling(15, -1, 10);
 
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
 
             // Treat curves 2, 3 and 4 as a single curve when meshing (i.e. mesh across
             // points 6 and 7)
-            IguanaGmsh.Model.Mesh.SetCompound(1, new int[] { 2, 3, 4 });
+            Kernel.MeshingKernel.SetCompound(1, new int[] { 2, 3, 4 });
 
             // Idem with curves 6, 7 and 8
-            IguanaGmsh.Model.Mesh.SetCompound(1, new int[] { 6, 7, 8 });
+            Kernel.MeshingKernel.SetCompound(1, new int[] { 6, 7, 8 });
 
             // Treat surfaces 1, 5 and 10 as a single surface when meshing (i.e. mesh
             // across curves 9 and 10)
-            IguanaGmsh.Model.Mesh.SetCompound(2, new int[] { 1, 5, 10 });
+            Kernel.MeshingKernel.SetCompound(2, new int[] { 1, 5, 10 });
 
-            IguanaGmsh.Model.Mesh.Generate(2);
+            Kernel.MeshingKernel.Generate(2);
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
 
         }
     }

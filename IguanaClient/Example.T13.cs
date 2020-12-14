@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,18 +19,18 @@ namespace IguanaClient
         public static void T13()
         {
             //  Remeshing an STL file without an underlying CAD model
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
-            IguanaGmsh.Model.Add("t13");
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
+            Kernel.Model.Add("t13");
 
             try
             {
-                IguanaGmsh.Merge("t13_data.stl");
+                Kernel.Merge("t13_data.stl");
             }
             catch
             {
-                IguanaGmsh.Logger.Write("Could not load STL mesh: bye!");
-                IguanaGmsh.FinalizeGmsh();
+                Kernel.Logger.WriteLogger("Could not load STL mesh: bye!");
+                Kernel.FinalizeGmsh();
                 return;
             }
 
@@ -48,30 +48,30 @@ namespace IguanaClient
             // Force curves to be split on given angle:
             double curveAngle = 180;
 
-            IguanaGmsh.Model.Mesh.ClassifySurfaces(angle * Math.PI / 180, includeBoundary, forceParametrizablePatches, curveAngle * Math.PI / 180);
-            IguanaGmsh.Model.Mesh.CreateGeometry();
+            Kernel.MeshingKernel.ClassifySurfaces(angle * Math.PI / 180, includeBoundary, forceParametrizablePatches, curveAngle * Math.PI / 180);
+            Kernel.MeshingKernel.CreateGeometry();
 
             Tuple<int,int>[] s;
-            IguanaGmsh.Model.GetEntities(out s, 2);
+            Kernel.Model.GetEntities(out s, 2);
 
             var sl = s.Select(ss => ss.Item2).ToArray();
-            var l = IguanaGmsh.Model.Geo.AddSurfaceLoop(sl);
+            var l = Kernel.GeometryKernel.AddSurfaceLoop(sl);
 
-            var v = IguanaGmsh.Model.Geo.AddVolume(new[] { l });
-            IguanaGmsh.Model.Geo.Synchronize();
+            var v = Kernel.GeometryKernel.AddVolume(new[] { l });
+            Kernel.GeometryKernel.Synchronize();
 
             bool funny = true;
-            int ff = IguanaGmsh.Model.MeshField.Add("MathEval");
+            int ff = Kernel.Field.AddMeshField("MathEval");
             if (funny)
-                IguanaGmsh.Model.MeshField.SetString(ff, "F", "2*Sin((x+y)/5) + 3");
+                Kernel.Field.SetMeshFieldOptionString(ff, "F", "2*Sin((x+y)/5) + 3");
             else
-                IguanaGmsh.Model.MeshField.SetString(ff, "F", "4");
-            IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(ff);
+                Kernel.Field.SetMeshFieldOptionString(ff, "F", "4");
+            Kernel.Field.SetMeshFieldAsBackgroundMesh(ff);
 
-            IguanaGmsh.Model.Mesh.Generate(3);
+            Kernel.MeshingKernel.Generate(3);
 
-            IguanaGmsh.Write("t13.msh");
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.Write("t13.msh");
+            Kernel.FinalizeGmsh();
         }
     }
 }

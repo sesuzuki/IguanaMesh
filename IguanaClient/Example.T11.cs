@@ -1,4 +1,4 @@
-﻿using Iguana.IguanaMesh.IWrappers;
+﻿using Iguana.IguanaMesh.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,37 +19,37 @@ namespace IguanaClient
 
         public static void T11()
         {
-            IguanaGmsh.Initialize();
-            IguanaGmsh.Option.SetNumber("General.Terminal", 1);
+            Kernel.Initialize();
+            Kernel.Option.SetNumber("General.Terminal", 1);
 
-            IguanaGmsh.Model.Add("t11");
+            Kernel.Model.Add("t11");
 
             // We have seen in tutorials `t3.cpp' and `t6.cpp' that extruded and
             // transfinite meshes can be "recombined" into quads, prisms or
             // hexahedra. Unstructured meshes can be recombined in the same way. Let's
             // define a simple geometry with an analytical mesh size field:
 
-            int p1 = IguanaGmsh.Model.Geo.AddPoint(-1.25, -.5, 0);
-            int p2 = IguanaGmsh.Model.Geo.AddPoint(1.25, -.5, 0);
-            int p3 = IguanaGmsh.Model.Geo.AddPoint(1.25, 1.25, 0);
-            int p4 = IguanaGmsh.Model.Geo.AddPoint(-1.25, 1.25, 0);
+            int p1 = Kernel.GeometryKernel.AddPoint(-1.25, -.5, 0);
+            int p2 = Kernel.GeometryKernel.AddPoint(1.25, -.5, 0);
+            int p3 = Kernel.GeometryKernel.AddPoint(1.25, 1.25, 0);
+            int p4 = Kernel.GeometryKernel.AddPoint(-1.25, 1.25, 0);
 
-            int l1 = IguanaGmsh.Model.Geo.AddLine(p1, p2);
-            int l2 = IguanaGmsh.Model.Geo.AddLine(p2, p3);
-            int l3 = IguanaGmsh.Model.Geo.AddLine(p3, p4);
-            int l4 = IguanaGmsh.Model.Geo.AddLine(p4, p1);
+            int l1 = Kernel.GeometryKernel.AddLine(p1, p2);
+            int l2 = Kernel.GeometryKernel.AddLine(p2, p3);
+            int l3 = Kernel.GeometryKernel.AddLine(p3, p4);
+            int l4 = Kernel.GeometryKernel.AddLine(p4, p1);
 
-            int cl = IguanaGmsh.Model.Geo.AddCurveLoop(new[]{ l1, l2, l3, l4});
-            int pl = IguanaGmsh.Model.Geo.AddPlaneSurface(new[]{ cl});
+            int cl = Kernel.GeometryKernel.AddCurveLoop(new[]{ l1, l2, l3, l4});
+            int pl = Kernel.GeometryKernel.AddPlaneSurface(new[]{ cl});
 
-            IguanaGmsh.Model.Geo.Synchronize();
+            Kernel.GeometryKernel.Synchronize();
 
-            IguanaGmsh.Model.MeshField.Add("MathEval", 1);
-            IguanaGmsh.Model.MeshField.SetString(1, "F", "0.01*(1.0+30.*(y-x*x)*(y-x*x) + (1-x)*(1-x))");
-            IguanaGmsh.Model.MeshField.SetAsBackgroundMesh(1);
+            Kernel.Field.AddMeshField("MathEval", 1);
+            Kernel.Field.SetMeshFieldOptionString(1, "F", "0.01*(1.0+30.*(y-x*x)*(y-x*x) + (1-x)*(1-x))");
+            Kernel.Field.SetMeshFieldAsBackgroundMesh(1);
 
             // To generate quadrangles instead of triangles, we can simply add
-            IguanaGmsh.Model.Mesh.SetRecombine(2, pl);
+            Kernel.MeshingKernel.SetRecombine(2, pl);
 
             // If we'd had several surfaces, we could have used the global option
             // "Mesh.RecombineAll":
@@ -89,7 +89,7 @@ namespace IguanaClient
             //
             // gmsh::option::setNumber("Mesh.SubdivisionAlgorithm", 1);
 
-            IguanaGmsh.Model.Mesh.Generate(2);
+            Kernel.MeshingKernel.Generate(2);
 
             // Note that you could also apply the recombination algorithm and/or the
             // subdivision step explicitly after meshing, as follows:
@@ -99,10 +99,10 @@ namespace IguanaClient
             // gmsh::option::setNumber("Mesh.SubdivisionAlgorithm", 1);
             // gmsh::model::mesh::refine();
 
-            IguanaGmsh.Write("T11.msh");
+            Kernel.Write("T11.msh");
 
 
-            IguanaGmsh.FinalizeGmsh();
+            Kernel.FinalizeGmsh();
 
         }
     }

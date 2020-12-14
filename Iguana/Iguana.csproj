@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="RhinoCommon">
       <HintPath>C:\Program Files\Rhino 6\System\RhinoCommon.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,11 +56,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IguanaMesh\IModifiers\IReactionDiffusion.cs" />
-    <Compile Include="IguanaMesh\IModifiers\ISubdividor.CatmullClark.cs" />
-    <Compile Include="IguanaMesh\IModifiers\ISubdividor.cs" />
-    <Compile Include="IguanaMesh\IModifiers\ISubdividor.Loop.cs" />
-    <Compile Include="IguanaMesh\IModifiers\ITransformX.cs" />
+    <Compile Include="IguanaMesh\IUtils\IReactionDiffusion.cs" />
+    <Compile Include="IguanaMesh\IUtils\ISubdividor.CatmullClark.cs" />
+    <Compile Include="IguanaMesh\IUtils\ISubdividor.cs" />
+    <Compile Include="IguanaMesh\IUtils\ISubdividor.Loop.cs" />
+    <Compile Include="IguanaMesh\IUtils\ITransformX.cs" />
     <Compile Include="IguanaMesh\ITypes\IMatrix.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.Build.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.Copy.cs" />
@@ -72,38 +73,33 @@
     <Compile Include="IguanaMesh\ITypes\IMesh.Preview.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicEdge.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicSiblingHalfFacet.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshConstraint.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.Geo.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.GeoOCC.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshField.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshTransfinite.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.FLTK.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Logger.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.Geo.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.GeoOCC.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.Mesh.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.IWrappers.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshElementType.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Model.MeshField.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaGmsh.Plugin.cs" />
-    <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver2D.cs" />
-    <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IExtensions\IguanaGmshFactory.cs" />
-    <Compile Include="IguanaMesh\IWrappers\IguanaLoader.cs" />
+    <Compile Include="IguanaMesh\ITypes\IEntityInfo.cs" />
+    <Compile Include="IguanaMesh\ITypes\IConstraint.cs" />
+    <Compile Include="IguanaMesh\ITypes\IField.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITransfinite.cs" />
+    <Compile Include="IguanaMesh\IKernel.IGraphics.cs" />
+    <Compile Include="IguanaMesh\IKernel.IModel.cs" />
+    <Compile Include="IguanaMesh\IKernel.IGeometryKernel.cs" />
+    <Compile Include="IguanaMesh\IKernel.IGeometryOCCKernel.cs" />
+    <Compile Include="IguanaMesh\IKernel.IMeshingKernel.cs" />
+    <Compile Include="IguanaMesh\IKernel.cs" />
+    <Compile Include="IguanaMesh\IKernel.IWrap.cs" />
+    <Compile Include="IguanaMesh\IKernel.IElementParser.cs" />
+    <Compile Include="IguanaMesh\IKernel.IPlugin.cs" />
+    <Compile Include="IguanaMesh\ITypes\ISolver2D.cs" />
+    <Compile Include="IguanaMesh\ITypes\ISolver.cs" />
     <Compile Include="IguanaMesh\IUtils\IHelpers.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.HighOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IHexahedronElement.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IPrismElement.HighOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IPrismElement.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IPyramidElement.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IPyramidElement.HighOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\ITetrahedronElement.HighOrder.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\ITetrahedronElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IHexahedronElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IHexahedronElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPrismElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPrismElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPyramidElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IPyramidElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITetrahedronElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITetrahedronElement.cs" />
     <Compile Include="IguanaMesh\ITypes\IMesh.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.HighOrder.cs" />
-    <Compile Include="IguanaMesh\IUtils\ITopology.cs" />
+    <Compile Include="IguanaMesh\ITypes\ISurfaceElement.HighOrder.cs" />
+    <Compile Include="IguanaMesh\ITypes\ITopology.cs" />
     <Compile Include="IguanaMesh\ITypes\ITopologicVertex.cs" />
     <Compile Include="IguanaMesh\ICreators\IMeshCreator.cs" />
     <Compile Include="IguanaMesh\ICreators\ICreatorInterface.cs" />
@@ -116,13 +112,13 @@
     <Compile Include="IguanaMesh\ICreators\IMoebius.cs" />
     <Compile Include="IguanaMesh\ICreators\IParabolicCylinder.cs" />
     <Compile Include="IguanaMesh\ICreators\IPlaneGrid.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\IElement.cs" />
-    <Compile Include="IguanaMesh\ITypes\IElements\ISurfaceElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\IElement.cs" />
+    <Compile Include="IguanaMesh\ITypes\ISurfaceElement.cs" />
     <Compile Include="IguanaMesh\IUtils\IRhinoGeometry.cs" />
     <Compile Include="IguanaMesh\ICreators\ITorus.cs" />
     <Compile Include="IguanaMesh\ICreators\ITube.cs" />
-    <Compile Include="IguanaMesh\IModifiers\IModifier.cs" />
-    <Compile Include="IguanaMesh\IWrappers\ISolver\IguanaGmshSolver3D.cs" />
+    <Compile Include="IguanaMesh\IUtils\IModifier.cs" />
+    <Compile Include="IguanaMesh\ITypes\ISolver3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IguanaMesh\ITypes\IVector3D.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -143,5 +139,6 @@
   <ItemGroup>
     <None Include="Resources\gmsh-4.7.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

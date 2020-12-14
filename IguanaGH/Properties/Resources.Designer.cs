@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace IguanaGH.Properties {
+namespace IguanaMeshGH.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace IguanaGH.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("IguanaGH.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("IguanaMeshGH.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -266,6 +266,16 @@ namespace IguanaGH.Properties {
         internal static System.Drawing.Bitmap iDeconstructElement {
             get {
                 object obj = ResourceManager.GetObject("iDeconstructElement", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap iDeconstructEntity {
+            get {
+                object obj = ResourceManager.GetObject("iDeconstructEntity", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
