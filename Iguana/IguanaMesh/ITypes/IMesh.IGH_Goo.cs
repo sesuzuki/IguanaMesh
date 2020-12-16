@@ -17,10 +17,15 @@
 
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
+using Iguana.IguanaMesh.IUtils;
+using Rhino;
+using Rhino.Geometry;
+using System;
+using System.Linq;
 
 namespace Iguana.IguanaMesh.ITypes
 {
-    public partial class IMesh : IGH_Goo
+    public partial class IMesh : IGH_GeometricGoo
     {
         public bool IsValid
         {
@@ -32,7 +37,7 @@ namespace Iguana.IguanaMesh.ITypes
             get
             {
                 if (!_valid) return "Topologic errors appeared during the construction of the mesh.";
-                else if(_vertices.Count==0 && _elements.Count==0) return "Mesh was initialized with 0 vertices and 0 elements.";
+                else if (_vertices.Count == 0 && _elements.Count == 0) return "Mesh was initialized with 0 vertices and 0 elements.";
                 else return string.Empty;
             }
         }
@@ -47,6 +52,19 @@ namespace Iguana.IguanaMesh.ITypes
             get { return ("Defines an Iguana Mesh"); }
         }
 
+        public BoundingBox Boundingbox
+        {
+            get{
+                return new BoundingBox(Vertices.Select(v => v.RhinoPoint));
+            }
+        }
+
+        public Guid ReferenceID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public bool IsReferencedGeometry => false;
+
+        public bool IsGeometryLoaded => true;
+
         public IGH_Goo Duplicate()
         {
             return (IGH_Goo) this.DeepCopy();
@@ -59,14 +77,20 @@ namespace Iguana.IguanaMesh.ITypes
 
         public bool CastFrom(object source)
         {
+            if (typeof(GH_Mesh).IsAssignableFrom(source.GetType()))
+            {
+                this.initData();
+                this.AddRhinoMesh(((GH_Mesh)source).Value, false, 0.01);
+                return true;
+            }
             return false;
         }
 
         public bool CastTo<T>(out T target)
         {
-            if (typeof(T).IsAssignableFrom(typeof(IMesh)))
+            if (typeof(T).Equals(typeof(GH_Mesh)))
             {
-                target = (T)(object)this;
+                target = (T) (object) new GH_Mesh(IRhinoGeometry.TryGetRhinoMesh(this));
                 return true;
             }
 
@@ -88,5 +112,37 @@ namespace Iguana.IguanaMesh.ITypes
         {
             return true;
         }
+
+        public IGH_GeometricGoo DuplicateGeometry()
+        {
+            return this.DeepCopy();
+        }
+
+        public BoundingBox GetBoundingBox(Transform xform)
+        {
+            return BoundingBox.Empty;
+        }
+
+        public IGH_GeometricGoo Transform(Transform xform)
+        {
+            return null;
+        }
+
+        public IGH_GeometricGoo Morph(SpaceMorph xmorph)
+        {
+            return null;
+        }
+
+        public bool LoadGeometry()
+        {
+            return false;
+        }
+
+        public bool LoadGeometry(RhinoDoc doc)
+        {
+            return false;
+        }
+
+        public void ClearCaches(){ }
     }
 }

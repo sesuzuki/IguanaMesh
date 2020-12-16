@@ -316,15 +316,18 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void DrawViewportMeshes(GH_PreviewMeshArgs args)
         {
-            args.Pipeline.DrawBrepShaded(brep, args.Material);
+            if(brep!=null) args.Pipeline.DrawBrepShaded(brep, args.Material);
         }
 
         public void DrawViewportWires(GH_PreviewWireArgs args)
         {
-            Curve[] temp = brep.DuplicateNakedEdgeCurves(true, true);
-            foreach (Curve c in temp)
+            if (brep != null)
             {
-                args.Pipeline.DrawCurve(c, args.Color);
+                Curve[] temp = brep.DuplicateNakedEdgeCurves(true, true);
+                foreach (Curve c in temp)
+                {
+                    args.Pipeline.DrawCurve(c, args.Color);
+                }
             }
         }
         #endregion

@@ -42,6 +42,7 @@ namespace Iguana.IguanaMesh.ITypes
             element.Key = elementKey;
             InitializeElementTopologicalData(element);
             _elements.Add(elementKey, element);
+            _elementTypes.Add(element.ElementType);
             elementKey++;
         }
 

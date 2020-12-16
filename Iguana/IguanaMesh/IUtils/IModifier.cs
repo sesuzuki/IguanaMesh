@@ -239,30 +239,34 @@ namespace Iguana.IguanaMesh.IUtils
             IVector3D pos;
             int[] nKeys;
             int count = 0;
-            if (exclude == default) exclude = new List<int>();
+
+            List<int> vKeys;
+            if (exclude == default) vKeys = dM.VerticesKeys;
+            else vKeys = dM.VerticesKeys.Where(vK => !exclude.Any(p => p == vK)).ToList();
 
             while (count != smoothingSteps)
             {
-                foreach (int vK in dM.VerticesKeys)
+                foreach (int vK in vKeys)
                 {
-                    if (!dM.Topology.IsNakedVertex(vK) && !exclude.Contains(vK))
+                    if (dM.Topology.IsNakedVertex(vK) && keepNaked == true) continue;
+
+                    v = dM.GetVertexWithKey(vK);
+                    nKeys = dM.Topology.GetVertexAdjacentVertices(vK);
+                    pos = new IVector3D();
+
+                    foreach (int nK in nKeys)
                     {
-                        v = dM.GetVertexWithKey(vK);
-                        nKeys = dM.Topology.GetVertexAdjacentVertices(vK);
-                        pos = new IVector3D();
-
-                        foreach (int nK in nKeys)
-                        {
-                            nV = dM.GetVertexWithKey(nK);
-                            pos += nV.Position;
-                        }
-                        pos /= nKeys.Length;
-
-                        dM.SetVertexPosition(vK, new IPoint3D(pos.X, pos.Y, pos.Z));
+                        nV = dM.GetVertexWithKey(nK);
+                        pos += nV.Position;
                     }
+                    pos /= nKeys.Length;
+
+                    dM.SetVertexPosition(vK, new IPoint3D(pos.X, pos.Y, pos.Z));
                 }
                 count++;
             }
+
+            dM.UpdateGraphics();
 
             return dM;
         }
@@ -296,6 +300,9 @@ namespace Iguana.IguanaMesh.IUtils
                     dM.SetVertexPosition(vK, vec.X,vec.Y,vec.Z);
                 }
             }
+
+            dM.UpdateGraphics();
+
             return dM;
         }
 
@@ -312,6 +319,8 @@ namespace Iguana.IguanaMesh.IUtils
                 pt.Transform(T);
                 dup.SetVertexPosition(vK, pt);
             }
+
+            dup.UpdateGraphics();
 
             return dup;
         }
@@ -331,6 +340,8 @@ namespace Iguana.IguanaMesh.IUtils
                 dup.SetVertexPosition(vK, pt);
             }
 
+            dup.UpdateGraphics();
+
             return dup;
         }
 
@@ -349,6 +360,8 @@ namespace Iguana.IguanaMesh.IUtils
                 dup.SetVertexPosition(vK, pt);
             }
 
+            dup.UpdateGraphics();
+
             return dup;
         }
 
@@ -366,6 +379,8 @@ namespace Iguana.IguanaMesh.IUtils
                 pt.Transform(T);
                 dup.SetVertexPosition(vK, pt);
             }
+
+            dup.UpdateGraphics();
 
             return dup;
         }
@@ -388,6 +403,9 @@ namespace Iguana.IguanaMesh.IUtils
 
                 dM.SetVertexPosition(vK, pt);
             }
+
+            dM.UpdateGraphics();
+
             return dM;
         }
 
@@ -405,6 +423,9 @@ namespace Iguana.IguanaMesh.IUtils
                 if (d > 0) pt += IVector3D.Mult(skewDirection, d * skewFactor);
                 dM.SetVertexPosition(vK, pt);
             }
+
+            dM.UpdateGraphics();
+
             return dM;
         }
 

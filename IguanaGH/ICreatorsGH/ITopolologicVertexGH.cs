@@ -40,7 +40,7 @@ namespace IguanaMeshGH.ICreators
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddPointParameter("Position", "Position", "Vertex position.", GH_ParamAccess.item);
-            pManager.AddNumberParameter("Key", "Key", "Unique key identifier. The key should be unique to avoid topological inconsistencies during meshing.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Key", "Key", "Unique key identifier. The key should be unique and larger than 0 to avoid topological inconsistencies during meshing.", GH_ParamAccess.item);
             pManager.AddNumberParameter("u", "u", "Parametric coordinate in the X axis.", GH_ParamAccess.item,0);
             pManager.AddNumberParameter("v", "v", "Parametric coordinate in the Y axis.", GH_ParamAccess.item,0);
             pManager.AddNumberParameter("w", "w", "Parametric coordinate in the Z axis.", GH_ParamAccess.item,0);

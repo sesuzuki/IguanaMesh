@@ -16,6 +16,7 @@
 */
 
 using Iguana.IguanaMesh.IUtils;
+using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,7 @@ namespace Iguana.IguanaMesh.ITypes
             //BuildSiblingHalfFacets
             Boolean flag1 = BuildAllElementsSiblingHalfFacets();
             Boolean flag2 = BuildAllVertexToHalfFacet();
+            _renderMesh = new Mesh();
 
             string type = this.GetMeshTypeDescription();
             message = "IMesh (Vertices: " + Vertices.Count + "; Elements: " + Elements.Count + " ; Type: " + type + ")";
@@ -53,7 +55,11 @@ namespace Iguana.IguanaMesh.ITypes
                 else if (!flag2) message += " Errors Found;\n";
                 _valid = false;
             }
-            else _valid = true;
+            else
+            {
+                UpdateGraphics();
+                _valid = true;
+            }
         }
 
         public bool UpdateAllElementsSiblingHalfFacets()
@@ -106,9 +112,6 @@ namespace Iguana.IguanaMesh.ITypes
                     e.GetHalfFacet(halfFacetID, out hf);
 
                     Int64 current_KeyPair = (Int64)elementID << 32 | (Int64)halfFacetID;
-
-                    //int v = hf.Max();
-                    //List<Int64> vertexSiblings = _tempVertexToHalfFacets[v];
 
                     for (int i = 0; i < hf.Length; i++)
                     {
@@ -167,6 +170,11 @@ namespace Iguana.IguanaMesh.ITypes
             catch (Exception) { flag = false; }
 
             return flag;
+        }
+
+        public void UpdateGraphics()
+        {
+            _renderMesh = IRhinoGeometry.TryGetRhinoMesh(this);
         }
 
         private void BuildVertexToHalfFacet(int vKey, int elementID, int halfFacetID)

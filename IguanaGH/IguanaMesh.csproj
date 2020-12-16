@@ -68,6 +68,7 @@
     <Compile Include="ICreatorsGH\IMesh3DFromPipeGH.cs" />
     <Compile Include="ICreatorsGH\IMesh3DFromSurfaceExtrusionGH.cs" />
     <Compile Include="ICreatorsGH\IMesh3DFromThickSolidGH.cs" />
+    <Compile Include="ICreatorsGH\IMeshParameterGH.cs" />
     <Compile Include="ICreatorsGH\IPolygonalFaceGH.cs" />
     <Compile Include="ICreatorsGH\IPrismElementGH.cs" />
     <Compile Include="ICreatorsGH\IPyramidElementGH.cs" />
@@ -108,7 +109,6 @@
     <Compile Include="ITransformGH\IStretchGH.cs" />
     <Compile Include="ITransformGH\ITwistGH.cs" />
     <Compile Include="IUtilsGH\IDeconstructEntityGH.cs" />
-    <Compile Include="IUtilsGH\IMeshFromIguanaMeshGH.cs" />
     <Compile Include="IUtilsGH\ISurfaceElementsGH.cs" />
     <Compile Include="IFieldsGH\IAnisoCurveFieldGH.cs" />
     <Compile Include="IFieldsGH\IAnisoIntersectFieldGH.cs" />
@@ -608,6 +608,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\iDeconstructEntity.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMeshParam.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

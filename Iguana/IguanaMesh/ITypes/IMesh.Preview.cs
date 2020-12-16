@@ -36,9 +36,10 @@ namespace Iguana.IguanaMesh.ITypes
 
             if (att == null) att = doc.CreateDefaultAttributes();
 
-            int idxGr = doc.Groups.Add("IMesh_" + DateTime.Today.ToShortDateString().Replace("/", "_"));
-            int idxLy = doc.Layers.Add("IMesh_" + DateTime.Today.ToShortDateString().Replace("/", "_"), Color.Aqua);
-
+            string id = Guid.NewGuid().ToString();
+            int idxGr = doc.Groups.Add("IG-" + id);
+            int idxLy = doc.Layers.Add("IG-" + id, Color.Aqua);
+            
             ObjectAttributes att1 = att.Duplicate();
             att1.AddToGroup(idxGr);
             att1.LayerIndex = idxLy;
@@ -84,26 +85,35 @@ namespace Iguana.IguanaMesh.ITypes
             return true;
         }
 
-        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {}
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
+            args.Pipeline.DrawMeshShaded(RenderMesh, args.Material);
+        }
 
         public void DrawViewportWires(GH_PreviewWireArgs args)
         {
-            int[] hf;
-            Point3d[] pts;
-            foreach (IElement e in Elements)
+            if (!_elementTypes.Contains(-1))
             {
-                if (e.TopologicDimension == 2)
+                args.Pipeline.DrawMeshWires(RenderMesh, args.Color);
+            }
+            else
+            {
+                int[] hf;
+                Point3d[] pts;
+                foreach (IElement e in Elements)
                 {
-                    pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, this);
-                    args.Pipeline.DrawPolyline(pts, args.Color);
-                }
-                else
-                {
-                    for (int i = 1; i <= e.HalfFacetsCount; i++)
+                    if (e.TopologicDimension == 2)
                     {
-                        e.GetHalfFacet(i, out hf);
-                        pts = IRhinoGeometry.GetPointsFromElements(hf, this);
+                        pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, this);
                         args.Pipeline.DrawPolyline(pts, args.Color);
+                    }
+                    else
+                    {
+                        for (int i = 1; i <= e.HalfFacetsCount; i++)
+                        {
+                            e.GetHalfFacet(i, out hf);
+                            pts = IRhinoGeometry.GetPointsFromElements(hf, this);
+                            args.Pipeline.DrawPolyline(pts, args.Color);
+                        }
                     }
                 }
             }

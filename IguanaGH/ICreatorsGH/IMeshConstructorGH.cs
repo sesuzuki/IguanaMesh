@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 
@@ -57,20 +58,13 @@ namespace IguanaMeshGH.ICreators
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             IMesh mesh = new IMesh();
+            List<ITopologicVertex> vertices = new List<ITopologicVertex>();
+            List<IElement> elements = new List<IElement>();
+            DA.GetDataList(0, vertices);
+            DA.GetDataList(1, elements);
 
-            foreach (var obj in base.Params.Input[0].VolatileData.AllData(true))
-            {
-                ITopologicVertex v;
-                obj.CastTo<ITopologicVertex>(out v);
-                if (v != null) mesh.AddVertex(v.Key, v);
-            }
-
-            foreach (var obj in base.Params.Input[1].VolatileData.AllData(true))
-            {
-                IElement e;
-                obj.CastTo<IElement>(out e);
-                if (e != null) mesh.AddElement(e);
-            }
+            mesh.AddRangeVertices(vertices);
+            mesh.AddRangeElements(elements);
             mesh.BuildTopology();
 
             DA.SetData(0, mesh);

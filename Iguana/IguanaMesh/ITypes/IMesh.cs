@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Rhino.Geometry;
-using Iguana.IguanaMesh.IUtils;
 
 namespace Iguana.IguanaMesh.ITypes
 {
@@ -32,6 +31,10 @@ namespace Iguana.IguanaMesh.ITypes
         private ITopology _topology;
         private bool _valid = false;
 
+        private Mesh _renderMesh;
+        private HashSet<int> _elementTypes;
+        public Mesh RenderMesh => _renderMesh;
+        public HashSet<int> ElementTypes => _elementTypes;
         private Dictionary<int, IElement> _elements;
         private Dictionary<int, ITopologicVertex> _vertices;
 
@@ -79,6 +82,7 @@ namespace Iguana.IguanaMesh.ITypes
             _elements = new Dictionary<int, IElement>();
             _tempVertexToHalfFacets = new Dictionary<Int32, HashSet<Int64>>();
             _topology = new ITopology(this);
+            _elementTypes = new HashSet<int>();
         }
 
         /// <summary>
