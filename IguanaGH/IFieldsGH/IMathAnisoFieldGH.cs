@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
 
 namespace IguanaMeshGH.IFields
@@ -39,7 +40,7 @@ namespace IguanaMeshGH.IFields
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iFieldList", "iFieldList", "List of fields to evaluate.", GH_ParamAccess.item);
+            pManager.AddGenericParameter("iFieldList", "iFieldList", "List of fields to evaluate.", GH_ParamAccess.tree);
             pManager.AddTextParameter("M11", "M11", "Mathematical expression to evaluate at element 11 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
             pManager.AddTextParameter("M12", "M12", "Mathematical expression to evaluate at element 12 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
             pManager.AddTextParameter("M13", "M13", "Mathematical expression to evaluate at element 13 of the metric tensor. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and and mathematical functions.", GH_ParamAccess.item);
@@ -76,7 +77,15 @@ namespace IguanaMeshGH.IFields
             string m33 = "";
 
             List<IField> fields = new List<IField>();
-            DA.GetDataList(0, fields);
+            foreach (IGH_Goo data in Params.Input[0].VolatileData.AllData(true))
+            {
+                IField f;
+                if (data.CastTo(out f))
+                {
+                    fields.Add(f);
+                }
+            }
+
             DA.GetData(1, ref m11);
             DA.GetData(2, ref m12);
             DA.GetData(3, ref m13);

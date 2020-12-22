@@ -16,19 +16,18 @@
 */
 
 using System;
+using System.Windows.Forms;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using Iguana.IguanaMesh;
 using Iguana.IguanaMesh.ITypes;
 
 namespace IguanaMeshGH.ISettings
 {
     public class IMeshingHexaPyramGH : GH_Component
     {
-        ISolver3D solverOpt;
-        MeshSolvers3D solver = MeshSolvers3D.Delaunay;
-        double sizeFactor = 1.0, qualityThreshold = 0.3, size = 1.0;
+        double qualityThreshold = 0.3;
         int recombine = 2, optimization = 0, qualityType = 2, minElemPerTwoPi = 6, subD;
-        bool adaptive = false;
+        bool adaptive = false, massiveRefinement = false;
 
         /// <summary>
         /// Initializes a new instance of the IMeshingHexahedronGH class.
@@ -45,8 +44,7 @@ namespace IguanaMeshGH.ISettings
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Size Factor", "SizeFactor", "Factor applied to all mesh element sizes. Default value is " + sizeFactor, GH_ParamAccess.item, sizeFactor);
-            pManager.AddNumberParameter("Size", "Size", "Target size of mesh element. Default value is " + size, GH_ParamAccess.item, size);
+            pManager.AddNumberParameter("Size", "Size", "Target size of mesh element. Default value is the average between the min. and max. size.", GH_ParamAccess.item);
             pManager.AddNumberParameter("Minimum Size", "MinSize", "Minimum mesh element size.", GH_ParamAccess.item);
             pManager.AddNumberParameter("Maximun Size", "MaxSize", "Maximum mesh element size.", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is " + adaptive.ToString(), GH_ParamAccess.item, adaptive);
@@ -55,6 +53,7 @@ namespace IguanaMeshGH.ISettings
             pManager.AddIntegerParameter("Quality Type", "Quality", "Type of quality measure for element optimization (0: SICN => signed inverse condition number, 1: SIGE => signed inverse gradient error, 2: gamma => vol/sum_face/max_edge, 3: Disto => minJ/maxJ). Default value is " + qualityType, GH_ParamAccess.item, qualityType);
             pManager.AddNumberParameter("Quality Threshold", "Threshold", "Quality threshold for element optimization. Default value is " + qualityThreshold, GH_ParamAccess.item, qualityThreshold);
             pManager.AddIntegerParameter("Recombination Method", "Method", "Method to combine triangles into quadrangles (1: Blossom, 2: Simple full-quad, 3: Blossom full-quad). Default value is " + recombine, GH_ParamAccess.item, recombine);
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -71,22 +70,29 @@ namespace IguanaMeshGH.ISettings
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            solverOpt = new ISolver3D();
+            ISolver3D solverOpt = new ISolver3D();
+            MeshSolvers3D solver = MeshSolvers3D.Delaunay;
             double maxSize = 1, minSize = 1;
 
-            DA.GetData(0, ref sizeFactor);
-            DA.GetData(1, ref size);
-            DA.GetData(2, ref minSize);
-            DA.GetData(3, ref maxSize);
-            DA.GetData(4, ref adaptive);
-            DA.GetData(5, ref minElemPerTwoPi);
-            DA.GetData(6, ref optimization);
-            DA.GetData(7, ref qualityType);
-            DA.GetData(8, ref qualityThreshold);
-            DA.GetData(9, ref recombine);
+            DA.GetData(1, ref minSize);
+            DA.GetData(2, ref maxSize);
+            DA.GetData(3, ref adaptive);
+            DA.GetData(4, ref minElemPerTwoPi);
+            DA.GetData(5, ref optimization);
+            DA.GetData(6, ref qualityType);
+            DA.GetData(7, ref qualityThreshold);
+            DA.GetData(8, ref recombine);
+
+            if (minSize < 0.1 && MassiveRefinement == false)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, solverOpt.MinSizeWarning);
+                minSize = 0.1;
+            }
+
+            double size = (maxSize + minSize) / 2;
+            DA.GetData(0, ref size);
 
             solverOpt.MeshingAlgorithm = solver;
-            solverOpt.CharacteristicLengthFactor = sizeFactor;
             solverOpt.CharacteristicLengthMin = minSize;
             solverOpt.CharacteristicLengthMax = maxSize;
             solverOpt.CharacteristicLengthFromCurvature = adaptive;
@@ -112,6 +118,45 @@ namespace IguanaMeshGH.ISettings
             DA.SetData(0, solverOpt);
 
             this.Message = "8Hexa+5Pyra";
+        }
+
+        public bool MassiveRefinement
+        {
+            get { return massiveRefinement; }
+            set
+            {
+                massiveRefinement = value;
+            }
+        }
+
+        public override bool Write(GH_IWriter writer)
+        {
+            writer.SetBoolean("Massive Refinement", MassiveRefinement);
+            return base.Write(writer);
+        }
+
+        public override bool Read(GH_IReader reader)
+        {
+            bool refFlag = false;
+            if (reader.TryGetBoolean("Massive Refinement", ref refFlag))
+            {
+                MassiveRefinement = refFlag;
+            }
+
+            return base.Read(reader);
+        }
+
+        protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+        {
+            ToolStripMenuItem item = Menu_AppendItem(menu, "Massive Refinement", Menu_MassivePreviewClicked, true, MassiveRefinement);
+            item.ToolTipText = "CAUTION: When checked, disable the imposed limit of minimum element-size.\nNote that setting a too small element-size might lead to over-refinements which can radically increase the computational time of the meshing process.";
+        }
+
+        private void Menu_MassivePreviewClicked(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Massive Refinement");
+            MassiveRefinement = !MassiveRefinement;
+            ExpireSolution(true);
         }
 
         public override GH_Exposure Exposure

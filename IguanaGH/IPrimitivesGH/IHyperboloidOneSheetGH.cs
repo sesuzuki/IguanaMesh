@@ -31,7 +31,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public IHyperboloidOneSheetGH()
           : base("iHyperboloidOneSheet", "iHyperOneSheet",
-              "Creates a hyperboloid of one sheet quad-mesh.",
+              "Creates a structured shell quad-mesh hyperboloid of one sheet.",
               "Iguana", "Primitives")
         {
         }

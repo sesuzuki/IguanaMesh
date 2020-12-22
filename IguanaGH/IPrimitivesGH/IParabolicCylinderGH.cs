@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public IParabolicCylinderGH()
           : base("iParabolicCylinder", "iParaCyl",
-              "Creates a parabolic cylinder quad-mesh.",
+              "Creates a structured shell quad-mesh parabolic cylinder.",
               "Iguana", "Primitives")
         {
         }

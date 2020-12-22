@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public ISphere3DGH()
           : base("iSphere3D", "iSphere3D",
-              "Construct a sphere volume mesh",
+              "Construct a volume mesh sphere",
               "Iguana", "Primitives")
         {
         }

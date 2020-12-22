@@ -7,12 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace IguanaMeshGH.ICreatorsGH
+namespace IguanaMeshGH.IParameters
 {
-    public class IMeshParameter : GH_PersistentGeometryParam<IMesh>, IGH_PreviewObject
+    public class IMeshParameterGH : GH_PersistentGeometryParam<IMesh>, IGH_PreviewObject
     {
-        public IMeshParameter()
-          : base(new GH_InstanceDescription("iMesh", "iMesh", "Iguana mesh.", "Params", "Geometry"))
+        public IMeshParameterGH()
+          : base(new GH_InstanceDescription("iMesh", "iMesh", "Contains a collection of iMeshes.", "Params", "Geometry"))
         {
         }
 
@@ -79,11 +79,29 @@ namespace IguanaMeshGH.ICreatorsGH
                         }
                         else
                         {
-                            for (int i = 1; i <= e.HalfFacetsCount; i++)
+                            if (!m.IsMultidimensionalMesh)
                             {
-                                e.GetHalfFacet(i, out hf);
-                                pts = IRhinoGeometry.GetPointsFromElements(hf, m);
-                                args.Display.DrawPolyline(pts, c);
+                                for (int i = 1; i <= e.HalfFacetsCount; i++)
+                                {
+                                    if (e.IsNakedSiblingHalfFacet(i))
+                                    {
+                                        e.GetHalfFacet(i, out hf);
+                                        pts = IRhinoGeometry.GetPointsFromElements(hf, m);
+                                        args.Display.DrawPolyline(pts, c);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (e.IsBoundaryElement())
+                                {
+                                    for (int i = 1; i <= e.HalfFacetsCount; i++)
+                                    {
+                                        e.GetHalfFacet(i, out hf);
+                                        pts = IRhinoGeometry.GetPointsFromElements(hf, m);
+                                        args.Display.DrawPolyline(pts, c);
+                                    }
+                                }
                             }
                         }
                     }

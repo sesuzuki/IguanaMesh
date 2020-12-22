@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public ICube3DGH()
           : base("iCube3D", "iCube3D",
-              "Construct a cube volume mesh",
+              "Construct a volume mesh cube",
               "Iguana", "Primitives")
         {
         }

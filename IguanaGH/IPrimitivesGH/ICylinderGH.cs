@@ -34,7 +34,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public AHF_CylinderGH()
           : base("iCylinder", "iCylinder",
-              "Construct a cylinder quad-mesh.",
+              "Construct a structured shell quad-mesh cylinder.",
               "Iguana", "Primitives")
         {
         }

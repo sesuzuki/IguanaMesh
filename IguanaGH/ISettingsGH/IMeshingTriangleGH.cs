@@ -25,11 +25,8 @@ namespace IguanaMeshGH.ISettings
 {
     public class IMeshingTriangleGH : GH_Component
     {
-        MeshSolvers2D solver = MeshSolvers2D.Automatic;
-        ISolver2D solverOpt;
-        double sizeFactor=1.0, size=1.0;
         int smoothingSteps=10, minElemPerTwoPi=6;
-        bool adaptive = false;
+        bool adaptive = false, massiveRefinement = false;
 
         /// <summary>
         /// Initializes a new instance of the IMeshingOptions2D class.
@@ -46,13 +43,14 @@ namespace IguanaMeshGH.ISettings
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddNumberParameter("Size Factor", "SizeFactor", "Factor applied to all mesh element sizes. Default value is " + sizeFactor, GH_ParamAccess.item, sizeFactor);
-            pManager.AddNumberParameter("Size", "Size", "Target size of mesh element. Default value is " + size, GH_ParamAccess.item, size);
+            pManager.AddNumberParameter("Size", "Size", "Target size of mesh element. Default value is the average between the min. and max. size.", GH_ParamAccess.item);
             pManager.AddNumberParameter("Minimum Size", "MinSize", "Minimum mesh element size.", GH_ParamAccess.item);
             pManager.AddNumberParameter("Maximun Size", "MaxSize", "Maximum mesh element size.", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Curvature Adapt", "Adaptive", "Automatically compute mesh element sizes from curvature. It overrides the target global mesh element size at input nodes. Default value is " + adaptive.ToString(), GH_ParamAccess.item, adaptive);
             pManager.AddIntegerParameter("Mininimum Elements", "MinElements", "Minimum number of elements per 2PI. Default value is " + minElemPerTwoPi, GH_ParamAccess.item, minElemPerTwoPi);
             pManager.AddIntegerParameter("Smoothing Steps", "Smoothing", "Number of smoothing steps applied to the final mesh. Default value is " + smoothingSteps, GH_ParamAccess.item, smoothingSteps);
+            pManager.AddBooleanParameter("RightAngles", "RightAngles", "Try to construct right angle triangles.", GH_ParamAccess.item, false);
+            pManager[0].Optional = true;
         }
 
         /// <summary>
@@ -69,24 +67,36 @@ namespace IguanaMeshGH.ISettings
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            solverOpt = new ISolver2D();
+            MeshSolvers2D solver = MeshSolvers2D.Automatic;
+            ISolver2D solverOpt = new ISolver2D();
             double maxSize = 1, minSize = 1;
+            bool rightAngle = false;
 
-            DA.GetData(0, ref sizeFactor);
-            DA.GetData(1, ref size);
-            DA.GetData(2, ref minSize);
-            DA.GetData(3, ref maxSize);
-            DA.GetData(4, ref adaptive);
-            DA.GetData(5, ref minElemPerTwoPi);
-            DA.GetData(6, ref smoothingSteps);
+            DA.GetData(1, ref minSize);
+            DA.GetData(2, ref maxSize);
+            DA.GetData(3, ref adaptive);
+            DA.GetData(4, ref minElemPerTwoPi);
+            DA.GetData(5, ref smoothingSteps);
+            DA.GetData(6, ref rightAngle);
+
+            if (minSize < 0.1 && MassiveRefinement == false)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, solverOpt.MinSizeWarning);
+                minSize = 0.1;
+            }
+
+            double size = (maxSize + minSize) / 2;
+            DA.GetData(0, ref size);
+
+            if (rightAngle) solver = MeshSolvers2D.PackingOfParallelograms;
 
             solverOpt.MeshingAlgorithm = (int)solver;
-            solverOpt.CharacteristicLengthFactor = sizeFactor;
             solverOpt.CharacteristicLengthMin = minSize;
             solverOpt.CharacteristicLengthMax = maxSize;
             solverOpt.CharacteristicLengthFromCurvature = adaptive;
             solverOpt.MinimumElementsPerTwoPi = minElemPerTwoPi;
             solverOpt.OptimizationSteps = smoothingSteps;
+            solverOpt.Subdivide = false;
             solverOpt.Size = size;
 
             DA.SetData(0, solverOpt);
@@ -94,18 +104,27 @@ namespace IguanaMeshGH.ISettings
             this.Message = "3Tria";
         }
 
+        public bool MassiveRefinement
+        {
+            get { return massiveRefinement; }
+            set
+            {
+                massiveRefinement = value;
+            }
+        }
+
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("MeshSolvers2D", (int)solver);
+            writer.SetBoolean("Massive Refinement", MassiveRefinement);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
-            int aIndex = -1;
-            if (reader.TryGetInt32("MeshSolvers2D", ref aIndex))
+            bool refFlag = false;
+            if (reader.TryGetBoolean("Massive Refinement", ref refFlag))
             {
-                solver = (MeshSolvers2D)aIndex;
+                MassiveRefinement = refFlag;
             }
 
             return base.Read(reader);
@@ -113,18 +132,15 @@ namespace IguanaMeshGH.ISettings
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            foreach (MeshSolvers2D s in Enum.GetValues(typeof(MeshSolvers2D)))
-                GH_Component.Menu_AppendItem(menu, s.ToString(), SolverType, true, s == this.solver).Tag = s;
-            base.AppendAdditionalComponentMenuItems(menu);
+            ToolStripMenuItem item = Menu_AppendItem(menu, "Massive Refinement", Menu_MassivePreviewClicked, true, MassiveRefinement);
+            item.ToolTipText = "CAUTION: When checked, disable the imposed limit of minimum element-size.\nNote that setting a too small element-size might lead to over-refinements which can radically increase the computational time of the meshing process.";
         }
 
-        private void SolverType(object sender, EventArgs e)
+        private void Menu_MassivePreviewClicked(object sender, EventArgs e)
         {
-            if (sender is ToolStripMenuItem item && item.Tag is MeshSolvers2D)
-            {
-                this.solver = (MeshSolvers2D) item.Tag;
-                ExpireSolution(true);
-            }
+            RecordUndoEvent("Massive Refinement");
+            MassiveRefinement = !MassiveRefinement;
+            ExpireSolution(true);
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 using Rhino.Geometry;
 
-namespace IguanaMeshGH.IUtilsGH
+namespace IguanaMeshGH.IUtils
 {
     public class IDeconstructEntityGH : GH_Component
     {

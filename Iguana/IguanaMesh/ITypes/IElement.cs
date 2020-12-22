@@ -21,6 +21,8 @@ using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.IUtils;
+using Rhino;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ITypes
@@ -28,7 +30,7 @@ namespace Iguana.IguanaMesh.ITypes
     /// <summary>
     /// Abstract class for the explicit construction of a d-dimensional entitiy in an Array-based Data Structure. 
     /// </summary>
-    public abstract class IElement : IGH_Goo, ICloneable, IGH_PreviewData
+    public abstract class IElement : IGH_Goo, ICloneable
     {
         public int TopologicDimension { get; set; }
         public int Key { get; set; } = -1;
@@ -38,7 +40,6 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private Int64[] _siblingHalfFacets;
         private bool[] _visits;
-        private Brep brep;
         private int _elementType;
 
         public int ElementType { get => _elementType; }
@@ -79,7 +80,7 @@ namespace Iguana.IguanaMesh.ITypes
         public int GetHalfFacetIndexContainingVertices(int[] vertexKeys)
         {
             int[] hf;
-            for(int i=1; i<=HalfFacetsCount; i++)
+            for (int i = 1; i <= HalfFacetsCount; i++)
             {
                 GetHalfFacet(i, out hf);
                 hf.ToList();
@@ -121,12 +122,12 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void RegisterHalfFacetVisit(int index)
         {
-            _visits[index - 1] = true;         
+            _visits[index - 1] = true;
         }
 
-        internal void SetElementType(int elementType) 
-        { 
-            _elementType = elementType; 
+        internal void SetElementType(int elementType)
+        {
+            _elementType = elementType;
         }
 
         /// <summary>
@@ -153,6 +154,11 @@ namespace Iguana.IguanaMesh.ITypes
         {
             if (_siblingHalfFacets[index - 1] == 0) return true;
             else return false;
+        }
+
+        public Boolean IsBoundaryElement()
+        {
+            return _siblingHalfFacets.Contains(0);
         }
 
         /// <summary>
@@ -207,15 +213,15 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get
             {
-                foreach(bool v in _visits)
+                foreach (bool v in _visits)
                 {
-                    if (v==false) return false;
+                    if (v == false) return false;
                 }
                 return true;
             }
             set
             {
-                for (int i=0; i<_visits.Length; i++)
+                for (int i = 0; i < _visits.Length; i++)
                 {
                     _visits[i] = value;
                 };
@@ -256,7 +262,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public int GetHalFacetContainingVertices(int[] vKey)
         {
-            for(int i=1; i<=HalfFacetsCount; i++)
+            for (int i = 1; i <= HalfFacetsCount; i++)
             {
                 int[] hf;
                 GetHalfFacet(i, out hf);
@@ -273,7 +279,7 @@ namespace Iguana.IguanaMesh.ITypes
         public override string ToString()
         {
             string msg = "IElement{";
-            for(int i=0; i< VerticesCount; i++)
+            for (int i = 0; i < VerticesCount; i++)
             {
                 int idx = Vertices[i];
                 if (i < VerticesCount - 1) msg += idx + ";";
@@ -306,32 +312,6 @@ namespace Iguana.IguanaMesh.ITypes
             return this.MemberwiseClone();
         }
 
-        #region IGH_Preview methods
-        public void BuildRhinoGeometry(IMesh mesh)
-        {
-            brep = IRhinoGeometry.GetBrepFromElement(mesh, Key);
-        }
-
-        public BoundingBox ClippingBox => throw new NotImplementedException();
-
-        public void DrawViewportMeshes(GH_PreviewMeshArgs args)
-        {
-            if(brep!=null) args.Pipeline.DrawBrepShaded(brep, args.Material);
-        }
-
-        public void DrawViewportWires(GH_PreviewWireArgs args)
-        {
-            if (brep != null)
-            {
-                Curve[] temp = brep.DuplicateNakedEdgeCurves(true, true);
-                foreach (Curve c in temp)
-                {
-                    args.Pipeline.DrawCurve(c, args.Color);
-                }
-            }
-        }
-        #endregion
-
         #region IGH_Goo methods
         public bool IsValid
         {
@@ -353,20 +333,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get
             {
-                string msg = "AHF-Element is undefined";
-                switch (TopologicDimension)
-                {
-                    case 1:
-                        msg = "AHF-IEdge";
-                        break;
-                    case 2:
-                        msg = "AHF-IFace";
-                        break;
-                    case 3:
-                        msg = "AHF-ICell";
-                        break;
-                }
-                return msg;
+                return "IElement";
             }
         }
 
@@ -377,7 +344,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo)this.MemberwiseClone();
+            return (IGH_Goo) this.MemberwiseClone();
         }
 
         public IGH_GooProxy EmitProxy()
@@ -392,16 +359,13 @@ namespace Iguana.IguanaMesh.ITypes
 
         public bool CastTo<T>(out T target)
         {
-            if (typeof(T).IsAssignableFrom(typeof(IElement)))
+            if (typeof(T).Equals(typeof(IElement)))
             {
-                if (this == null)
-                    target = default(T);
-                else
-                    target = (T)(object)this;
+                target = (T)(object) this.MemberwiseClone();
                 return true;
             }
 
-            target = default(T);
+            target = default(T); 
             return false;
         }
 
@@ -419,6 +383,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             return true;
         }
+
         #endregion
     }
 }

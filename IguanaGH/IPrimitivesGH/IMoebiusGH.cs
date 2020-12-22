@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public IMoebiusGH()
           : base("iMoebiusStrip", "iMoebius",
-              "Creates a Moebius strip quad-mesh.",
+              "Creates a structured shell quad-mesh Moebius strip.",
               "Iguana", "Primitives")
         {
         }

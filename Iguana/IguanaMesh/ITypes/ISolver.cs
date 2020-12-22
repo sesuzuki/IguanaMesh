@@ -31,6 +31,16 @@ namespace Iguana.IguanaMesh.ITypes
     public abstract class ISolver
     {
         private int _dim;
+        public string MinSizeWarning
+        {
+            get
+            {
+                string txt = "A relatively small 'minimum element-size' was detected. To avoid over-refinements, the value was constrained to 0.1." +
+                             "\nFor setting smaller size limits, enable 'Massive Refinement'." +
+                             "\n\nCAUTION: Note that this can radically increase the computational time for meshing if units are wrongly considered.";
+                return txt;
+            }
+        }
 
         public ISolver(int dimension)
         {
@@ -159,7 +169,7 @@ namespace Iguana.IguanaMesh.ITypes
         #region Subdivision
 
         /// <summary>
-        /// Mesh subdivision algorithm(0: all quadrangles, 1: all hexahedra, 2: barycentric).
+        /// Mesh subdivision algorithm(0: none 1:all quadrangles, 2: all hexahedra, 3: barycentric).
         /// Default value: 0
         /// </summary>
         public int SubdivisionAlgorithm { get; set; }

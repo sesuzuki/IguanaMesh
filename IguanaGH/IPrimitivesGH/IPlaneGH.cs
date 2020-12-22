@@ -31,7 +31,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public IPlaneGH()
           : base("iPlane", "iPlane",
-              "Creates a plane quad-mesh.",
+              "Creates a structured shell quad-mesh plane.",
               "Iguana", "Primitives")
         {
         }

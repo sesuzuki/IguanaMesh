@@ -26,7 +26,7 @@ namespace IguanaMeshGH.IModifiers
 {
     public class ILoopSubGH : GH_Component
     {
-        bool flag = false;
+        bool _massiveSubd = false;
 
         /// <summary>
         /// Initializes a new instance of the ILoopSubGH class.
@@ -66,9 +66,9 @@ namespace IguanaMeshGH.IModifiers
             DA.GetData(0, ref old);
             DA.GetData(1, ref iter);
 
-            if(iter>1 && flag == false)
+            if(iter>1 && MassiveSubdivision == false)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Subdivision level was lower from " + iter + " to 1. Enable 'Massive Subdivision'.");               
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Subdivision level was lower from " + iter + " to 1. For larger subdivision iterations, enable 'Massive Subdivision'.");               
                 iter = 1;
             }
 
@@ -85,18 +85,27 @@ namespace IguanaMeshGH.IModifiers
             DA.SetData(0, mesh);
         }
 
+        public bool MassiveSubdivision
+        {
+            get { return _massiveSubd; }
+            set
+            {
+                _massiveSubd = value;
+            }
+        }
+
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetBoolean("flag", flag);
+            writer.SetBoolean("Massive Subdivision", MassiveSubdivision);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
             bool refFlag = false;
-            if (reader.TryGetBoolean("flag", ref refFlag))
+            if (reader.TryGetBoolean("Massive Subdivision", ref refFlag))
             {
-                flag = refFlag;
+                MassiveSubdivision = refFlag;
             }
 
             return base.Read(reader);
@@ -104,18 +113,15 @@ namespace IguanaMeshGH.IModifiers
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            GH_Component.Menu_AppendItem(menu, "MassiveSubdivision", EnableMassiveSubdivision, true, flag=false);
-            base.AppendAdditionalComponentMenuItems(menu);
+            ToolStripMenuItem item = Menu_AppendItem(menu, "Massive Subdivision", Menu_MassivePreviewClicked, true, MassiveSubdivision);
+            item.ToolTipText = "CAUTION: When checked, disable the imposed limit of maximum subdivision iterations.\nThis might take a long time to compute.";
         }
 
-        private void EnableMassiveSubdivision(object sender, EventArgs e)
+        private void Menu_MassivePreviewClicked(object sender, EventArgs e)
         {
-            if (sender is ToolStripMenuItem item)
-            {
-                if (flag) flag = false;
-                else flag = true;
-                ExpireSolution(true);
-            }
+            RecordUndoEvent("Massive Subdivision");
+            MassiveSubdivision = !MassiveSubdivision;
+            ExpireSolution(true);
         }
 
         /// <summary>

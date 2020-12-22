@@ -422,13 +422,28 @@ namespace Iguana.IguanaMesh.IUtils
                 }
                 else
                 {
-                    for (int i = 1; i <= e.HalfFacetsCount; i++)
+                    if (!iM.IsMultidimensionalMesh)
                     {
-                        if (e.IsNakedSiblingHalfFacet(i))
+                        for (int i = 1; i <= e.HalfFacetsCount; i++)
                         {
-                            e.GetHalfFacet(i, out hf);
-                            if(hf.Length==3) rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]]));
-                            else rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]], maps[hf[3]]));
+                            if (e.IsNakedSiblingHalfFacet(i))
+                            {
+                                e.GetHalfFacet(i, out hf);
+                                if (hf.Length == 3) rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]]));
+                                else rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]], maps[hf[3]]));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (e.IsBoundaryElement())
+                        {
+                            for (int i = 1; i <= e.HalfFacetsCount; i++)
+                            {
+                                e.GetHalfFacet(i, out hf);
+                                if (hf.Length == 3) rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]]));
+                                else rM.Faces.AddFace(new MeshFace(maps[hf[0]], maps[hf[1]], maps[hf[2]], maps[hf[3]]));
+                            }
                         }
                     }
                 }

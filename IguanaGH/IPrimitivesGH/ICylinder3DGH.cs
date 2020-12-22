@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public ICylinder3DGH()
           : base("iCylinder3D", "iCylinder3D",
-              "Construct a cylinder volume mesh",
+              "Construct a volume mesh cylinder.",
               "Iguana", "Primitives")
         {
         }
@@ -45,8 +45,7 @@ namespace IguanaMeshGH.IPrimitives
             pManager.AddPlaneParameter("Base plane", "Pl", "Base plane.", GH_ParamAccess.item, plane);
             pManager.AddNumberParameter("Radius", "R", "Radius.", GH_ParamAccess.item, r);
             pManager.AddNumberParameter("Angle", "Angle", "Defines the angular opening in degrees (from 0 to 360).", GH_ParamAccess.item, ang);
-            pManager.AddGenericParameter("iSettings3D", "iSettings", "Three-dimensional meshing settings.", GH_ParamAccess.item);
-            pManager[3].Optional = true;
+            pManager.AddGenericParameter("iSettings", "iSettings", "Volume mesh settings.", GH_ParamAccess.item);
         }
 
         /// <summary>

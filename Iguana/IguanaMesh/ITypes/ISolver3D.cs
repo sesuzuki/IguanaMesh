@@ -116,7 +116,6 @@ namespace Iguana.IguanaMesh.ITypes
         public void ApplySolverSettings(IField field = null)
         {
             IKernel.SetOptionNumber("Mesh.Algorithm", (int)MeshingAlgorithm);
-            IKernel.SetOptionNumber("Mesh.CharacteristicLengthFactor", CharacteristicLengthFactor);
             IKernel.SetOptionNumber("Mesh.ElementOrder", ElementOrder);
             IKernel.SetOptionNumber("Mesh.MinimumElementsPerTwoPi", MinimumElementsPerTwoPi);
             IKernel.SetOptionNumber("Mesh.CharacteristicLengthMin", CharacteristicLengthMin);

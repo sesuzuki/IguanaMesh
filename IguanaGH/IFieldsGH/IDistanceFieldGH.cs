@@ -91,6 +91,7 @@ namespace IguanaMeshGH.IFields
             field.FieldZ = FieldZ;
             field.NNodesByEdge = NNodesByEdge;
 
+            DA.SetData(0, field);
         }
 
         public override GH_Exposure Exposure

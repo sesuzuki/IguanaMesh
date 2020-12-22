@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public ICone3DGH()
           : base("iCone3D", "iCone3D",
-              "Construct a cone volume mesh",
+              "Construct a volume mesh cone.",
               "Iguana", "Primitives")
         {
         }
@@ -46,8 +46,7 @@ namespace IguanaMeshGH.IPrimitives
             pManager.AddNumberParameter("Radius1", "R1", "Radius of the lower face.", GH_ParamAccess.item, r1);
             pManager.AddNumberParameter("Radius2", "R2", "Radius of the upper face.", GH_ParamAccess.item, r2);
             pManager.AddNumberParameter("Angle", "Angle", "Defines the angular opening in degrees (from 0 to 360).", GH_ParamAccess.item, ang);
-            pManager.AddGenericParameter("iSettings3D", "iSettings", "Three-dimensional meshing settings.", GH_ParamAccess.item);
-            pManager[4].Optional = true;
+            pManager.AddGenericParameter("iSettings", "iSettings", "Volume mesh settings.", GH_ParamAccess.item);
         }
 
         /// <summary>

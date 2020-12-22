@@ -307,7 +307,7 @@ namespace Iguana.IguanaMesh.ITypes
 
             public override string ToString()
             {
-                return "IBall-Field";
+                return "ISphere-Field";
             }
         }
 
@@ -673,32 +673,26 @@ namespace Iguana.IguanaMesh.ITypes
 
             public override void ApplyField()
             {
-                bool flag = false;
                 if (FieldX != null)
                 {
                     FieldX.ApplyField();
                     IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumber(fieldTag, "FieldX", FieldX.Tag);
-                    flag = true;
                 }
                 if (FieldY != null)
                 {
                     FieldY.ApplyField();
                     IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumber(fieldTag, "FieldY", FieldY.Tag);
-                    flag = true;
                 }
                 if (FieldZ != null)
                 {
                     FieldZ.ApplyField();
                     IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumber(fieldTag, "FieldZ", FieldZ.Tag);
-                    flag = true;
                 }
-                if (flag)
-                {
-                    fieldTag = IKernel.IMeshingKernel.IBuilder.AddMeshField("Distance");
-                    IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumbers(fieldTag, "EdgesList", EdgesList);
-                    IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumber(fieldTag, "NNodesByEdge", NNodesByEdge);
-                    IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumbers(fieldTag, "NodesList", NodesList);
-                }
+
+                fieldTag = IKernel.IMeshingKernel.IBuilder.AddMeshField("Distance");
+                IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumbers(fieldTag, "EdgesList", EdgesList);
+                IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumber(fieldTag, "NNodesByEdge", NNodesByEdge);
+                IKernel.IMeshingKernel.IBuilder.SetMeshFieldOptionNumbers(fieldTag, "NodesList", NodesList);
             }
 
             public override string ToString()

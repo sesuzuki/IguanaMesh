@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
 
 namespace IguanaMeshGH.IFields
@@ -39,7 +40,7 @@ namespace IguanaMeshGH.IFields
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iFieldList", "iFieldList", "Fields to evaluate. If empty, the current field will be evaluated.", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iFieldList", "iFieldList", "Fields to evaluate. If empty, the current field will be evaluated.", GH_ParamAccess.tree);
             pManager.AddTextParameter("Expression", "Expression", "Mathematical expression to evaluate. The expression can contain x, y, z for spatial coordinates, F0, F1, ... for field values, and mathematical functions.\nThe expression is used to modulate all mesh element sizes.", GH_ParamAccess.item);
             pManager[0].Optional = true;
         }
@@ -62,7 +63,14 @@ namespace IguanaMeshGH.IFields
             DA.GetData(1, ref evalF);
 
             List<IField> fields = new List<IField>();
-            DA.GetDataList(0, fields);
+            foreach (IGH_Goo data in Params.Input[0].VolatileData.AllData(true))
+            {
+                IField f;
+                if (data.CastTo(out f))
+                {
+                    fields.Add(f);
+                }
+            }
 
             IField.MathEval field = new IField.MathEval();
             field.F = evalF;

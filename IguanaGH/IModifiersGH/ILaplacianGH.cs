@@ -20,11 +20,15 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.IUtils;
 using Iguana.IguanaMesh.ITypes;
+using GH_IO.Serialization;
+using System.Windows.Forms;
 
 namespace IguanaMeshGH.IModifiers
 {
     public class ILaplacianGH : GH_Component
     {
+        bool _massiveSmooth = false;
+
         /// <summary>
         /// Initializes a new instance of the ILaplacianGH class.
         /// </summary>
@@ -70,6 +74,12 @@ namespace IguanaMeshGH.IModifiers
             DA.GetData(2, ref naked);
             DA.GetDataList(3, exclude);
 
+            if (step > 2 && MassiveSmooth == false)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Smoothing step was lower from " + step + " to 2. For larger smoothing iterations, enable 'Massive Smoothing'.");
+                step = 2;
+            }
+
             IMesh mesh = IModifier.LaplacianSmoother(old, step, naked, exclude);
 
             DA.SetData(0, mesh);
@@ -78,6 +88,45 @@ namespace IguanaMeshGH.IModifiers
         public override GH_Exposure Exposure
         {
             get { return GH_Exposure.secondary; }
+        }
+
+        public bool MassiveSmooth
+        {
+            get { return _massiveSmooth; }
+            set
+            {
+                _massiveSmooth = value;
+            }
+        }
+
+        public override bool Write(GH_IWriter writer)
+        {
+            writer.SetBoolean("Massive Smooth", MassiveSmooth);
+            return base.Write(writer);
+        }
+
+        public override bool Read(GH_IReader reader)
+        {
+            bool refFlag = false;
+            if (reader.TryGetBoolean("Massive Smooth", ref refFlag))
+            {
+                MassiveSmooth = refFlag;
+            }
+
+            return base.Read(reader);
+        }
+
+        protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+        {
+            ToolStripMenuItem item = Menu_AppendItem(menu, "Massive Smooth", Menu_MassivePreviewClicked, true, MassiveSmooth);
+            item.ToolTipText = "CAUTION: When checked, disable the imposed limit of maximum smoothing iterations.\nThis might take a long time to compute.";
+        }
+
+        private void Menu_MassivePreviewClicked(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Massive Smooth");
+            MassiveSmooth = !MassiveSmooth;
+            ExpireSolution(true);
         }
 
         /// <summary>

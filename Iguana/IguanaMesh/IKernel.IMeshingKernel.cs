@@ -23,12 +23,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Rhino.Geometry;
 using Rhino.Geometry.Collections;
-using Rhino.Display;
 using Rhino.DocObjects;
-using System.Drawing;
 using System.IO;
 using Rhino;
 using Grasshopper.Kernel.Data;
+using Rhino.FileIO;
+using Rhino.Display;
+using System.Drawing;
 
 namespace Iguana.IguanaMesh
 {
@@ -107,23 +108,27 @@ namespace Iguana.IguanaMesh
             /// <returns></returns>
             public static Tuple<int, int>[] ImportRhinoMesh(Mesh mesh, RhinoDoc doc, bool synchronize = true)
             {
-                var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                var filename = Path.ChangeExtension(Path.GetTempFileName(), ".stl");
+                //var filename = Path.ChangeExtension(Path.GetTempFileName(), ".stl");
 
-                ObjectAttributes att = new ObjectAttributes();
+                // Methods for Rhino 6
+                /*ObjectAttributes att = new ObjectAttributes();
                 DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
                 att.SetDisplayModeOverride(display);
                 att.Space = ActiveSpace.None;
                 att.ObjectColor = Color.DarkRed;
                 att.ColorSource = ObjectColorSource.ColorFromObject;
+                Guid id = doc.Objects.AddMesh(mesh, att);*/
 
-                Guid id = doc.Objects.AddMesh(mesh, att);
+                /*Guid id = doc.Objects.AddMesh(mesh);
                 ObjRef obj = new ObjRef(id);
 
                 doc.Objects.UnselectAll();
-                var tmpObj = doc.Objects.Select(obj);
-                Rhino.RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
-                doc.Objects.Delete(obj, true);
+                var tmpObj = doc.Objects.Select(obj);*/
+
+                // Method for Rhino 6
+                //RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
+
+                /*doc.Objects.Delete(obj, true);
 
                 Merge(filename);
                 File.Delete(filename);
@@ -131,7 +136,9 @@ namespace Iguana.IguanaMesh
                 IBuilder.ClassifySurfaces(0, true, true, Math.PI);
                 IBuilder.CreateGeometry();
 
-                IGeometryKernel.IBuilder.Synchronize();
+                IGeometryKernel.IBuilder.Synchronize();*/
+
+                ImportMesh(mesh, 2, 1);
 
                 Tuple<int, int>[] dimTags;
                 IModel.GetEntities(out dimTags, -1);
@@ -146,30 +153,37 @@ namespace Iguana.IguanaMesh
             /// <param name="doc"> Rhino document. </param>
             /// <param name="synchronize"> Synchronize the model. </param>
             /// <returns></returns>
-            public static Tuple<int, int>[] ImportRhinoGeometry(GeometryBase geom, RhinoDoc doc = default, bool synchronize = true)
+            public static Tuple<int, int>[] ImportRhinoGeometry(GeometryBase geom, bool synchronize = true)
             {
-                if (doc == default) doc = RhinoDoc.ActiveDoc;
-
                 var filename = Path.ChangeExtension(Path.GetTempFileName(), ".step");
 
+                // Methods for rhino 6
+                /* RhinoDoc doc = RhinoDoc.ActiveDoc;
                 ObjectAttributes att = new ObjectAttributes();
                 DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
                 att.SetDisplayModeOverride(display);
                 att.Space = ActiveSpace.None;
                 att.ObjectColor = Color.DarkRed;
-                att.ColorSource = ObjectColorSource.ColorFromObject;
+                att.ColorSource = ObjectColorSource.ColorFromObject;*/
+
+                //Method for Rhino 7
+                RhinoDoc doc = RhinoDoc.CreateHeadless(null);
 
                 Guid id = doc.Objects.Add(geom);
 
                 Tuple<int, int>[] dimTags = new Tuple<int, int>[] { };
                 if (id != Guid.Empty)
                 {
-                    ObjRef obj = new ObjRef(id);
-
+                    // Method for rhino 6
+                    /*ObjRef obj = new ObjRef(id);
                     doc.Objects.UnselectAll();
                     var tmpObj = doc.Objects.Select(obj);
                     RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
-                    doc.Objects.Delete(obj, true);
+                    doc.Objects.Delete(obj, true);*/
+
+                    // Method for rhino 7
+                    FileStp.Write(filename, doc, new FileStpWriteOptions());
+                    doc.Dispose();
 
                     IGeometryOCCKernel.IBuilder.ImportShapes(filename, out dimTags);
                     SetOptionString("OCCTargetUnit", "M");
@@ -188,18 +202,21 @@ namespace Iguana.IguanaMesh
             /// <param name="doc"> Rhino document. </param>
             /// <param name="synchronize"> Synchronize the model. </param>
             /// <returns></returns>
-            public static Tuple<int, int>[] ImportRhinoGeometry(IEnumerable<GeometryBase> geom, RhinoDoc doc = default, bool synchronize = true)
+            public static Tuple<int, int>[] ImportRhinoGeometry(IEnumerable<GeometryBase> geom, bool synchronize = true)
             {
-                if (doc == default) doc = RhinoDoc.ActiveDoc;
-
                 var filename = Path.ChangeExtension(Path.GetTempFileName(), ".step");
 
+                // Methods for Rhino 6
+                /*RhinoDoc doc = RhinoDoc.ActiveDoc;
                 ObjectAttributes att = new ObjectAttributes();
                 DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
                 att.SetDisplayModeOverride(display);
                 att.Space = ActiveSpace.None;
                 att.ObjectColor = Color.DarkRed;
-                att.ColorSource = ObjectColorSource.ColorFromObject;
+                att.ColorSource = ObjectColorSource.ColorFromObject;*/
+
+                //Method for Rhino 7
+                RhinoDoc doc = RhinoDoc.CreateHeadless(null);
 
                 int count = geom.Count();
                 Guid[] id = new Guid[count];
@@ -210,10 +227,15 @@ namespace Iguana.IguanaMesh
                     obj[i] = new ObjRef(id[i]);
                 }
 
-                doc.Objects.UnselectAll();
+                // Method for Rhino 6
+                /*doc.Objects.UnselectAll();
                 var tmpObj = doc.Objects.Select(obj);
                 RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
-                doc.Objects.Delete(id, true);
+                doc.Objects.Delete(id, true);*/
+                
+                // Method for Rhino 7
+                FileStp.Write(filename, doc, new FileStpWriteOptions());
+                doc.Dispose();
 
                 Tuple<int, int>[] dimTags = new Tuple<int, int>[] { };
                 IGeometryOCCKernel.IBuilder.ImportShapes(filename, out dimTags);
@@ -221,7 +243,7 @@ namespace Iguana.IguanaMesh
 
                 File.Delete(filename);
                 if (synchronize) IGeometryOCCKernel.IBuilder.Synchronize();
-
+                
                 return dimTags;
             }
 
@@ -483,6 +505,40 @@ namespace Iguana.IguanaMesh
             }
 
             /// <summary>
+            /// Import an Iguana mesh.
+            /// </summary>
+            /// <param name="mesh"> Base Iguana mesh. </param>
+            /// <param name="dim"> Underlying discrete mode dimension. </param>
+            /// <param name="tag"> Underlying discrete model tag. </param>
+            /// <param name="angle"></param>
+            /// <param name="curveAngle"></param>
+            /// <param name="forceParametrizablePatches"> For complex geometries, patches can be too complex, too elongated or too large to be parametrized; setting the following option will force the creation of patches that are amenable to reparametrization:</param>
+            /// <param name="includeBoundary"> For open surfaces include the boundary edges in the classification process: </param>
+            public static void ImportMesh(Mesh mesh, int dim, int tag, double angle = 0, double curveAngle = 180, bool forceParametrizablePatches = true, bool includeBoundary = true)
+            {
+                int[] elementTypes;
+                long[][] elementTags, elementNodes;
+                long[] nodeTags;
+                double[] position;
+
+                ParseRhinoFaceData(mesh, out elementTypes, out elementTags, out elementNodes);
+                ParseRhinoVertexData(mesh, out nodeTags, out position);
+
+                IModel.AddDiscreteEntity(dim, tag, new int[] { });
+                IBuilder.AddNodes(dim, tag, nodeTags, position);
+
+                for (int i = 0; i < elementTypes.Length; i++)
+                {
+                    IBuilder.AddElementsByType(tag, elementTypes[i], elementTags[i], elementNodes[i]);
+                }
+
+                IBuilder.ClassifySurfaces(angle * Math.PI / 180, includeBoundary, forceParametrizablePatches, curveAngle * Math.PI / 180);
+                IBuilder.CreateGeometry();
+
+                IGeometryKernel.IBuilder.Synchronize();
+            }
+
+            /// <summary>
             /// Create a shell mesh from a brep. 
             /// </summary>
             /// <param name="brep"> Base brep. </param>
@@ -498,7 +554,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                ImportRhinoGeometry(brep, RhinoDoc.ActiveDoc);
+                ImportRhinoGeometry(brep);
 
                 // Set mesh size
                 SetMeshSize(solver.Size);
@@ -616,7 +672,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                Tuple<int, int>[] v = ImportRhinoGeometry(crv, RhinoDoc.ActiveDoc, false);
+                Tuple<int, int>[] v = ImportRhinoGeometry(crv, false);
 
                 // Surface filling
                 var crvTags = v.Where(keyPair => keyPair.Item1 == 1).Select(keyPair => keyPair.Item2).ToArray();
@@ -844,7 +900,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                ImportRhinoGeometry(surface, RhinoDoc.ActiveDoc);
+                ImportRhinoGeometry(surface);
 
                 // Set mesh size
                 SetMeshSize(solver.Size);
@@ -892,7 +948,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                Tuple<int, int>[] v = ImportRhinoGeometry(brep, RhinoDoc.ActiveDoc, false);
+                Tuple<int, int>[] v = ImportRhinoGeometry(brep, false);
 
                 int volTag = v.First(keypair => keypair.Item1 == 3).Item2;
 
@@ -942,7 +998,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                ImportRhinoGeometry(brep, RhinoDoc.ActiveDoc);
+                ImportRhinoGeometry(brep);
 
                 // Set mesh size
                 SetMeshSize(solver.Size);
@@ -1225,7 +1281,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                Tuple<int, int>[] v = ImportRhinoGeometry(brep, RhinoDoc.ActiveDoc, false);
+                Tuple<int, int>[] v = ImportRhinoGeometry(brep, false);
 
                 int volTag = v.First(keypair => keypair.Item1 == 3).Item2;
 
@@ -1330,7 +1386,8 @@ namespace Iguana.IguanaMesh
                 Tuple<int, int>[] dimTags = ImportRhinoMesh(rM, RhinoDoc.ActiveDoc, false);
 
                 var srfTag = dimTags.Where(keyPair => keyPair.Item1 == 2).Select(keyPair => keyPair.Item2).ToArray();
-                IGeometryKernel.IBuilder.AddSurfaceLoop(srfTag);
+                int shelltag = IGeometryKernel.IBuilder.AddSurfaceLoop(srfTag);
+                int volTag = IGeometryKernel.IBuilder.AddVolume(new []{ shelltag });
 
                 IGeometryKernel.IBuilder.Synchronize();
 
@@ -1396,6 +1453,49 @@ namespace Iguana.IguanaMesh
             }
 
             /// <summary>
+            /// Parse rhino face elements for the meshing kernel.  
+            /// </summary>
+            /// <param name="mesh"> Base Rhino mesh. </param>
+            /// <param name="elementTypes"> Types of elements. </param>
+            /// <param name="elementTags"> Tags of elements per type.. </param>
+            /// <param name="elementNodes"> Tags of nodes per element per type. </param>
+            internal static void ParseRhinoFaceData(Mesh mesh, out int[] elementTypes, out long[][] elementTags, out long[][] elementNodes)
+            {
+                Dictionary<int, List<long>> eTags = new Dictionary<int, List<long>>();
+                Dictionary<int, List<long>> eNodes = new Dictionary<int, List<long>>();
+
+                int eKey = 1;
+                foreach (MeshFace e in mesh.Faces)
+                {
+                    int eType = 2;
+                    if (e.IsQuad) eType = 4;
+
+                    if (!eTags.ContainsKey(eType))
+                    {
+                        eTags.Add(eType, new List<long>());
+                        eNodes.Add(eType, new List<long>());
+                    }
+
+                    eTags[eType].Add(eKey);
+                    
+                    if(eType==2) eNodes[eType].AddRange(new long[] { (long)e.A+1, (long)e.B+1, (long)e.C+1 });
+                    else eNodes[eType].AddRange(new long[] { (long)e.A+1, (long)e.B+1, (long)e.C+1, (long) e.D+1 });
+
+                    eKey++;
+                }
+
+                elementTypes = eTags.Keys.ToArray();
+                elementTags = new long[eTags.Count][];
+                elementNodes = new long[eTags.Count][];
+                for (int i = 0; i < elementTypes.Length; i++)
+                {
+                    int eType = elementTypes[i];
+                    elementTags[i] = eTags[eType].ToArray();
+                    elementNodes[i] = eNodes[eType].ToArray();
+                }
+            }
+
+            /// <summary>
             /// Parse ITopologicVertex into node data for the meshing kernel.  
             /// </summary>
             /// <param name="mesh"> Base Iguana mesh. </param>
@@ -1411,6 +1511,29 @@ namespace Iguana.IguanaMesh
                 foreach (ITopologicVertex v in mesh.Vertices)
                 {
                     nodeTags[i] = v.Key;
+                    position[i * 3] = v.X;
+                    position[i * 3 + 1] = v.Y;
+                    position[i * 3 + 2] = v.Z;
+                    i++;
+                }
+            }
+
+            /// <summary>
+            /// Parse Rhino Vertex into node data for the meshing kernel.  
+            /// </summary>
+            /// <param name="mesh"> Base Iguana mesh. </param>
+            /// <param name="nodeTags"> Tags of nodes. </param>
+            /// <param name="position"> Nodes position. </param>
+            internal static void ParseRhinoVertexData(Mesh mesh, out long[] nodeTags, out double[] position)
+            {
+
+                int count = mesh.Vertices.Count;
+                nodeTags = new long[count];
+                position = new double[count * 3];
+                int i = 0;
+                foreach (Point3d v in mesh.Vertices)
+                {
+                    nodeTags[i] = i+1;
                     position[i * 3] = v.X;
                     position[i * 3 + 1] = v.Y;
                     position[i * 3 + 2] = v.Z;

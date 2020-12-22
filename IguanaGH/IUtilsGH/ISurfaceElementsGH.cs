@@ -17,7 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Windows.Forms;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 using Iguana.IguanaMesh.IUtils;
@@ -27,6 +28,8 @@ namespace IguanaMeshGH.IUtils
 {
     public class I2DElementsAsSurfacesGH : GH_Component
     {
+        bool _massivePreview = false;
+
         /// <summary>
         /// Initializes a new instance of the I2DElementsAsSurfacesGH class.
         /// </summary>
@@ -62,14 +65,58 @@ namespace IguanaMeshGH.IUtils
             IMesh mesh = null;
             DA.GetData(0, ref mesh);
 
-            List<Surface> surfaces = IRhinoGeometry.Get2DElementsAsSurfaces(mesh);
+            int eCount = mesh.ElementsCount;
+            if (eCount > 1e4 && _massivePreview == false) AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "A large number of elements was detected. Enable 'Massive Display' for continuing but this might slow down the entire preview process.");
+            else
+            {
+                List<Surface> surfaces = IRhinoGeometry.Get2DElementsAsSurfaces(mesh);
 
-            DA.SetDataList(0, surfaces);
+                DA.SetDataList(0, surfaces);
+            }
         }
 
         public override GH_Exposure Exposure
         {
             get { return GH_Exposure.tertiary; }
+        }
+
+        public bool MassivePreview
+        {
+            get { return _massivePreview; }
+            set
+            {
+                _massivePreview = value;
+            }
+        }
+
+        public override bool Write(GH_IWriter writer)
+        {
+            writer.SetBoolean("Massive Preview", MassivePreview);
+            return base.Write(writer);
+        }
+
+        public override bool Read(GH_IReader reader)
+        {
+            bool refFlag = false;
+            if (reader.TryGetBoolean("Massive Preview", ref refFlag))
+            {
+                MassivePreview = refFlag;
+            }
+
+            return base.Read(reader);
+        }
+
+        protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+        {
+            ToolStripMenuItem item = Menu_AppendItem(menu, "Massive Preview", Menu_MassivePreviewClicked, true, MassivePreview);
+            item.ToolTipText = "CAUTION: When checked, disable the imposed limit of volume elements that can be represented as Brep.\nThis might slow down the entire preview process.";
+        }
+
+        private void Menu_MassivePreviewClicked(object sender, EventArgs e)
+        {
+            RecordUndoEvent("Massive Preview");
+            MassivePreview = !MassivePreview;
+            ExpireSolution(true);
         }
 
         /// <summary>

@@ -87,13 +87,13 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private bool BuildAllElementsSiblingHalfFacets()
         {
-            try
-            {
+            //try
+            //{
                 ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
                 _tempVertexToHalfFacets.Clear();
                 return true;
-            }
-            catch (Exception) { return false; }
+            //}
+            //catch (Exception) { return false; }
         }
 
         private void BuildElementSiblingHalFacets(int elementID)

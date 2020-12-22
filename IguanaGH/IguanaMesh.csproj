@@ -33,9 +33,9 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RhinoCommon, Version=6.30.20288.16411, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
+    <Reference Include="RhinoCommon, Version=6.32.20340.21001, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\Rhino 6\System\RhinoCommon.dll</HintPath>
+      <HintPath>C:\Program Files\Rhino 7\System\RhinoCommon.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -68,7 +68,7 @@
     <Compile Include="ICreatorsGH\IMesh3DFromPipeGH.cs" />
     <Compile Include="ICreatorsGH\IMesh3DFromSurfaceExtrusionGH.cs" />
     <Compile Include="ICreatorsGH\IMesh3DFromThickSolidGH.cs" />
-    <Compile Include="ICreatorsGH\IMeshParameterGH.cs" />
+    <Compile Include="IParametersGH\IMeshParameterGH.cs" />
     <Compile Include="ICreatorsGH\IPolygonalFaceGH.cs" />
     <Compile Include="ICreatorsGH\IPrismElementGH.cs" />
     <Compile Include="ICreatorsGH\IPyramidElementGH.cs" />
@@ -155,7 +155,6 @@
     <Compile Include="ITopologyGH\IEdgesGH.cs" />
     <Compile Include="ITopologyGH\IFindElementGH.cs" />
     <Compile Include="ITopologyGH\IVerticesGH.cs" />
-    <Compile Include="ICreatorsGH\IMesh2DFromRhinoMeshGH.cs" />
     <Compile Include="IPrimitivesGH\IHyperboloidOneSheetGH.cs" />
     <Compile Include="IPrimitivesGH\IParabolicCylinderGH.cs" />
     <Compile Include="IPrimitivesGH\IPlaneGH.cs" />
@@ -230,42 +229,6 @@
       <Project>{15742704-fe29-4302-b438-65b1eac8124b}</Project>
       <Name>Iguana</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iPoly.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iQuad.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iTrias.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iSurfacePatch.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCurvePatch.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iExtrudeCurve.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iVertex.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iBrepPatch.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iPipe.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iLoft.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iPlanar.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iThick2D.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ItorusIcon.ico" />
@@ -346,12 +309,6 @@
     <None Include="Resources\iRotate.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\iFromRhinoMesh.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iConstructor.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\iElementDelete.png" />
   </ItemGroup>
   <ItemGroup>
@@ -389,12 +346,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\iRhinoMesh.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iSurfaceElement.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iVolumesElement.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\iHexahedronSettings.png" />
@@ -451,9 +402,6 @@
     <None Include="Resources\iTransfiniteCurve.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\iPolylineEdges.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\iNakedEdges.png" />
   </ItemGroup>
   <ItemGroup>
@@ -464,6 +412,102 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\iVerticesNaked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Hyperboloid.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCube2D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCylinder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDumpin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMobeius.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iParabolic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPlane.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSphere.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTorus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCone3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCube3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCylinder3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSphere3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTorus3d.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iDeconstructEntity.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iMeshParam.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iBrepPatch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iBrepPatch3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iConstructor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iCurvePatch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iExtrudeCurve.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iFromRhinoMesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iLoft.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iLoft3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPipe.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPipe3D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPlanar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfaceExtrude.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfacePatch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iThick2D.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iThick3D.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\iAnisoCrvField.png" />
@@ -535,82 +579,37 @@
     <None Include="Resources\iThesholdField.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Hyperboloid.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCone.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCube2D.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCylinder.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iDumpin.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iMobeius.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iParabolic.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iPlane.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iSphere.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iTorus.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCone3d.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCube3d.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iCylinder3d.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iSphere3d.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iTorus3d.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iBrepPatch3D.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\iHexahedron.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\iLoft3D.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iPipe3D.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iPyramid.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iSurfaceExtrude.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iTetrahedron.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\iThick3D.png" />
+    <None Include="Resources\iPoly.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\iPrism.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\iDeconstructEntity.png" />
+    <None Include="Resources\iPyramid.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\iMeshParam.png" />
+    <None Include="Resources\iQuad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTetrahedron.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iTrias.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVertex.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iPolylineEdges.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iSurfaceElement.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\iVolumesElement.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

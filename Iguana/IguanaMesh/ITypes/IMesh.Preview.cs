@@ -86,12 +86,18 @@ namespace Iguana.IguanaMesh.ITypes
         }
 
         public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
+            if (RenderMesh == null) return;
             args.Pipeline.DrawMeshShaded(RenderMesh, args.Material);
         }
 
         public void DrawViewportWires(GH_PreviewWireArgs args)
         {
-            if (!_elementTypes.Contains(-1))
+            if (RenderMesh == null) return;
+
+            // Check high order elements (visualization is not supported with rhino mesh)
+            if ( !_elementTypes.Contains(-1) && !_elementTypes.Contains(17) && !_elementTypes.Contains(18) && 
+                !_elementTypes.Contains(19) && !_elementTypes.Contains(9) && !_elementTypes.Contains(16)
+                && !_elementTypes.Contains(11))
             {
                 args.Pipeline.DrawMeshWires(RenderMesh, args.Color);
             }
@@ -108,11 +114,29 @@ namespace Iguana.IguanaMesh.ITypes
                     }
                     else
                     {
-                        for (int i = 1; i <= e.HalfFacetsCount; i++)
+                        if (!IsMultidimensionalMesh)
                         {
-                            e.GetHalfFacet(i, out hf);
-                            pts = IRhinoGeometry.GetPointsFromElements(hf, this);
-                            args.Pipeline.DrawPolyline(pts, args.Color);
+                            for (int i = 1; i <= e.HalfFacetsCount; i++)
+                            {
+                                if (e.IsNakedSiblingHalfFacet(i))
+                                {
+                                    e.GetHalfFacet(i, out hf);
+                                    pts = IRhinoGeometry.GetPointsFromElements(hf, this);
+                                    args.Pipeline.DrawPolyline(pts, args.Color);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (e.IsBoundaryElement())
+                            {
+                                for (int i = 1; i <= e.HalfFacetsCount; i++)
+                                {
+                                    e.GetHalfFacet(i, out hf);
+                                    pts = IRhinoGeometry.GetPointsFromElements(hf, this);
+                                    args.Pipeline.DrawPolyline(pts, args.Color);
+                                }
+                            }
                         }
                     }
                 }

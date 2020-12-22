@@ -32,7 +32,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public AHF_TorusGH()
           : base("iTorus", "iTorus",
-              "Creates a torus quad-mesh.",
+              "Creates a structured shell quad-mesh torus.",
               "Iguana", "Primitives")
         {
         }

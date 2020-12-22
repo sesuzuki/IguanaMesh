@@ -49,7 +49,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public string TypeDescription
         {
-            get { return ("Defines an Iguana Mesh"); }
+            get => ToString();
         }
 
         public BoundingBox Boundingbox
@@ -59,7 +59,7 @@ namespace Iguana.IguanaMesh.ITypes
             }
         }
 
-        public Guid ReferenceID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public Guid ReferenceID { get => Guid.Empty; set => value = Guid.Empty; }
 
         public bool IsReferencedGeometry => false;
 

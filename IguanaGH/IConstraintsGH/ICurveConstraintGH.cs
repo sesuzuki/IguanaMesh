@@ -42,7 +42,6 @@ namespace IguanaMeshGH.IConstraints
         {
             pManager.AddCurveParameter("Curve", "Crv", "Curve to use as a geometric constraint.", GH_ParamAccess.list);
             pManager.AddNumberParameter("Size", "Size", "Target global mesh element size at the constraint curve.", GH_ParamAccess.list);
-
         }
 
         /// <summary>

@@ -31,7 +31,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public IEllipticDupinCyclideGH()
           : base("iEllipticDupinCyclide", "iCyclide",
-              "Creates an elliptic dupin cyclide quad-mesh.",
+              "Creates an structured shell quad-mesh elliptic dupin cyclide.",
               "Iguana", "Primitives")
         {
         }

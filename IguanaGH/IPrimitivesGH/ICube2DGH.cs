@@ -34,8 +34,8 @@ namespace IguanaMeshGH.IPrimitives
         /// Initializes a new instance of the ICubeGH class.
         /// </summary>
         public ICube2DGH()
-          : base("iCube2D", "iCube2D",
-              "Construct a cube surface mesh.",
+          : base("iCube", "iCube",
+              "Construct a structured shell mesh cube.",
               "Iguana", "Primitives")
         {
         }
@@ -67,7 +67,6 @@ namespace IguanaMeshGH.IPrimitives
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IMesh mesh = new IMesh();
             box = new Box();
 
             DA.GetData(0, ref box);
@@ -77,8 +76,7 @@ namespace IguanaMeshGH.IPrimitives
             DA.GetData(4, ref weld);
             DA.GetData(5, ref tolerance);
 
-            //Build AHF-DataStructure
-            mesh = IMeshCreator.CreateCube(box.ToBrep(), u, v, w, weld, tolerance);
+            IMesh mesh = IMeshCreator.CreateCube(box, u, v, w, weld, tolerance);
 
             DA.SetData(0, mesh);
         }

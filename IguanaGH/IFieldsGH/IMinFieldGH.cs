@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.ITypes;
 
 namespace IguanaMeshGH.IFields
@@ -39,7 +40,7 @@ namespace IguanaMeshGH.IFields
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iFieldList", "iFieldList", "Fields to evaluate.", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iFieldList", "iFieldList", "Fields to evaluate.", GH_ParamAccess.tree);
         }
 
         /// <summary>
@@ -57,7 +58,14 @@ namespace IguanaMeshGH.IFields
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<IField> fieldList = new List<IField>();
-            DA.GetDataList(0, fieldList);
+            foreach (IGH_Goo data in Params.Input[0].VolatileData.AllData(true))
+            {
+                IField f;
+                if (data.CastTo(out f))
+                {
+                    fieldList.Add(f);
+                }
+            }
 
             IField.Min field = new IField.Min();
             field.FieldsList = fieldList;

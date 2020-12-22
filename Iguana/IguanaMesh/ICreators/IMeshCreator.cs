@@ -51,7 +51,7 @@ namespace Iguana.IguanaMesh.ICreators
             return mesh;
         }
 
-        public static IMesh CreateCube(Brep box, int u, int v, int w, Boolean weld, double tolerance)
+        public static IMesh CreateCube(Box box, int u, int v, int w, Boolean weld, double tolerance)
         {
             ICube data = new ICube(box, u, v, w, weld, tolerance);
             IMesh mesh = data.BuildMesh();

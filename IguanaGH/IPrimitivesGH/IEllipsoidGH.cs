@@ -31,7 +31,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public IEllipsoidGH()
           : base("iEllipsoid", "iEllipsoid",
-              "Creates a ellipsoid quad-mesh.",
+              "Creates a structured shell quad-mesh ellipsoid.",
               "Iguana", "Primitives")
         {
         }

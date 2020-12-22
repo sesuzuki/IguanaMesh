@@ -33,7 +33,7 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         public ITorus3DGH()
           : base("iTorus3D", "iTorus3D",
-              "Construct a torus volume mesh",
+              "Construct a volume mesh torus",
               "Iguana", "Primitives")
         {
         }
@@ -48,7 +48,6 @@ namespace IguanaMeshGH.IPrimitives
             pManager.AddNumberParameter("Radius2", "R2", "Parameter for the semi minor axis.", GH_ParamAccess.item, r2);
             pManager.AddNumberParameter("Angle", "Angle", "Defines the angular opening in degrees (from 0 to 360).", GH_ParamAccess.item, ang);
             pManager.AddGenericParameter("iSettings", "iSettings", "Volume mesh settings.", GH_ParamAccess.item);
-            pManager[4].Optional = true;
         }
 
         /// <summary>
