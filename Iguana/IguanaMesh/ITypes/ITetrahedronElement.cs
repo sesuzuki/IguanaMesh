@@ -38,10 +38,8 @@ namespace Iguana.IguanaMesh.ITypes
         /// <para><paramref name="N2"/> : Second vertex identifier. </para>
         /// <para><paramref name="N3"/> : Third vertex identifier. </para>
         /// <para><paramref name="N4"/> : Fourth vertex identifier. </para>
-        /// <para><paramref name="N5"/> : Fifth vertex identifier. </para>
         /// </summary>
-        ///
-        public ITetrahedronElement(int N1, int N2, int N3, int N4, int N5) : base(new int[] { N1, N2, N3, N4, N5 }, 4, 3, 4) { }
+        public ITetrahedronElement(int N1, int N2, int N3, int N4) : base(new int[] { N1, N2, N3, N4 }, 4, 3, 4) { }
 
         public override IElement CleanCopy()
         {

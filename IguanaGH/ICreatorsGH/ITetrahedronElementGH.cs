@@ -42,7 +42,6 @@ namespace IguanaMeshGH.ICreators
             pManager.AddIntegerParameter("Second", "N2", "Second vertex.", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Third", "N3", "Third vertex.", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Fourth", "N4", "Fourth vertex.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Fifth", "N5", "Fifth vertex.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -66,7 +65,7 @@ namespace IguanaMeshGH.ICreators
             DA.GetData(3, ref N4);
             DA.GetData(4, ref N5);
 
-            ITetrahedronElement e = new ITetrahedronElement(N1, N2, N3, N4, N5);
+            ITetrahedronElement e = new ITetrahedronElement(N1, N2, N3, N4);
 
             DA.SetData(0, e);
         }
