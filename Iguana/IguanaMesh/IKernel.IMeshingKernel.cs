@@ -108,36 +108,6 @@ namespace Iguana.IguanaMesh
             /// <returns></returns>
             public static Tuple<int, int>[] ImportRhinoMesh(Mesh mesh, RhinoDoc doc, bool synchronize = true)
             {
-                //var filename = Path.ChangeExtension(Path.GetTempFileName(), ".stl");
-
-                // Methods for Rhino 6
-                /*ObjectAttributes att = new ObjectAttributes();
-                DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
-                att.SetDisplayModeOverride(display);
-                att.Space = ActiveSpace.None;
-                att.ObjectColor = Color.DarkRed;
-                att.ColorSource = ObjectColorSource.ColorFromObject;
-                Guid id = doc.Objects.AddMesh(mesh, att);*/
-
-                /*Guid id = doc.Objects.AddMesh(mesh);
-                ObjRef obj = new ObjRef(id);
-
-                doc.Objects.UnselectAll();
-                var tmpObj = doc.Objects.Select(obj);*/
-
-                // Method for Rhino 6
-                //RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
-
-                /*doc.Objects.Delete(obj, true);
-
-                Merge(filename);
-                File.Delete(filename);
-
-                IBuilder.ClassifySurfaces(0, true, true, Math.PI);
-                IBuilder.CreateGeometry();
-
-                IGeometryKernel.IBuilder.Synchronize();*/
-
                 ImportMesh(mesh, 2, 1);
 
                 Tuple<int, int>[] dimTags;
@@ -157,16 +127,6 @@ namespace Iguana.IguanaMesh
             {
                 var filename = Path.ChangeExtension(Path.GetTempFileName(), ".step");
 
-                // Methods for rhino 6
-                /* RhinoDoc doc = RhinoDoc.ActiveDoc;
-                ObjectAttributes att = new ObjectAttributes();
-                DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
-                att.SetDisplayModeOverride(display);
-                att.Space = ActiveSpace.None;
-                att.ObjectColor = Color.DarkRed;
-                att.ColorSource = ObjectColorSource.ColorFromObject;*/
-
-                //Method for Rhino 7
                 RhinoDoc doc = RhinoDoc.CreateHeadless(null);
 
                 Guid id = doc.Objects.Add(geom);
@@ -174,14 +134,6 @@ namespace Iguana.IguanaMesh
                 Tuple<int, int>[] dimTags = new Tuple<int, int>[] { };
                 if (id != Guid.Empty)
                 {
-                    // Method for rhino 6
-                    /*ObjRef obj = new ObjRef(id);
-                    doc.Objects.UnselectAll();
-                    var tmpObj = doc.Objects.Select(obj);
-                    RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
-                    doc.Objects.Delete(obj, true);*/
-
-                    // Method for rhino 7
                     FileStp.Write(filename, doc, new FileStpWriteOptions());
                     doc.Dispose();
 
@@ -206,16 +158,6 @@ namespace Iguana.IguanaMesh
             {
                 var filename = Path.ChangeExtension(Path.GetTempFileName(), ".step");
 
-                // Methods for Rhino 6
-                /*RhinoDoc doc = RhinoDoc.ActiveDoc;
-                ObjectAttributes att = new ObjectAttributes();
-                DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
-                att.SetDisplayModeOverride(display);
-                att.Space = ActiveSpace.None;
-                att.ObjectColor = Color.DarkRed;
-                att.ColorSource = ObjectColorSource.ColorFromObject;*/
-
-                //Method for Rhino 7
                 RhinoDoc doc = RhinoDoc.CreateHeadless(null);
 
                 int count = geom.Count();
@@ -227,13 +169,6 @@ namespace Iguana.IguanaMesh
                     obj[i] = new ObjRef(id[i]);
                 }
 
-                // Method for Rhino 6
-                /*doc.Objects.UnselectAll();
-                var tmpObj = doc.Objects.Select(obj);
-                RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
-                doc.Objects.Delete(id, true);*/
-                
-                // Method for Rhino 7
                 FileStp.Write(filename, doc, new FileStpWriteOptions());
                 doc.Dispose();
 
