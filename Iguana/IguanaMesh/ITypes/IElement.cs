@@ -296,6 +296,7 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 if (GetSiblingHalfFacet(i) != 0)
                 {
+                    if (TopologicDimension == 1) msg += "Edge Element ID: " + GetSiblingElementID(i) + " :: Half-Edge ID: " + GetSiblingHalfFacetID(i) + "\n";
                     if (TopologicDimension == 2) msg += "Face Element ID: " + GetSiblingElementID(i) + " :: Half-Edge ID: " + GetSiblingHalfFacetID(i) + "\n";
                     if (TopologicDimension == 3) msg += "Solid Element ID: " + GetSiblingElementID(i) + " :: Half-Face ID: " + GetSiblingHalfFacetID(i) + "\n";
                 }

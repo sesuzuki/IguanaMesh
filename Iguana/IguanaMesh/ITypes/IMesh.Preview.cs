@@ -97,23 +97,30 @@ namespace Iguana.IguanaMesh.ITypes
             // Check high order elements (visualization is not supported with rhino mesh)
             if ( !_elementTypes.Contains(-1) && !_elementTypes.Contains(17) && !_elementTypes.Contains(18) && 
                 !_elementTypes.Contains(19) && !_elementTypes.Contains(9) && !_elementTypes.Contains(16)
-                && !_elementTypes.Contains(11))
+                && !_elementTypes.Contains(11) && !_elementTypes.Contains(1)) // Here I included "1" so it skips to else when there are IBarElements
             {
                 args.Pipeline.DrawMeshWires(RenderMesh, args.Color);
             }
             else
-            {
+            {                    
                 int[] hf;
                 Point3d[] pts;
                 foreach (IElement e in Elements)
                 {
-                    if (e.TopologicDimension == 2)
+                    if (e.TopologicDimension == 1) 
                     {
                         pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, this);
                         args.Pipeline.DrawPolyline(pts, args.Color);
                     }
-                    else
+
+                    if (e.TopologicDimension == 2)
                     {
+                        pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, this);
+                        args.Pipeline.DrawPolyline(pts, args.Color);
+                    }                 
+                    
+                    else
+                    {                        
                         if (!IsMultidimensionalMesh)
                         {
                             for (int i = 1; i <= e.HalfFacetsCount; i++)
@@ -137,9 +144,9 @@ namespace Iguana.IguanaMesh.ITypes
                                     args.Pipeline.DrawPolyline(pts, args.Color);
                                 }
                             }
-                        }
+                        }                        
                     }
-                }
+                }               
             }
         }
     }

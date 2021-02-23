@@ -25,7 +25,7 @@ namespace Iguana.IguanaMesh
     {
         internal static class IElementParser
         {
-            internal static int[] implementedElements = new int[] { 2, 3, 9, 10, 16, 20, 22, 24, 11, 4, 19, 7, 6, 18, 5, 17 };
+            internal static int[] implementedElements = new int[] {1, 2, 3, 9, 10, 16, 20, 22, 24, 11, 4, 19, 7, 6, 18, 5, 17};
 
             internal static bool IsElementImplemented(int elementType)
             {
@@ -50,6 +50,11 @@ namespace Iguana.IguanaMesh
 
                         switch (elementType)
                         {
+                            //1st-order Bar Element
+                            case 1:
+                                e = new IBarElement(eD);
+                                break;
+
                             //1st-order Triangle Face
                             case 2:
                                 e = new ISurfaceElement(eD);
