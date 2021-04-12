@@ -146,7 +146,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             int[] temp = GetNakedVerticesID();
             List<int> corners = new List<int>();
-            foreach(int vKey in temp)
+            foreach (int vKey in temp)
             {
                 if (IsCornerVertex(vKey)) corners.Add(vKey);
             }
@@ -254,7 +254,7 @@ namespace Iguana.IguanaMesh.ITypes
                     {
                         if (eData != 0)
                         {
-                            key = (Int32) (eData >> 32);
+                            key = (Int32)(eData >> 32);
 
                             nE = iM.GetElementWithKey(key);
 
@@ -322,17 +322,24 @@ namespace Iguana.IguanaMesh.ITypes
 
             foreach (int eK in iM.ElementsKeys)
             {
-
                 IElement e = iM.GetElementWithKey(eK);
 
                 if (e.TopologicDimension == 2)
                 {
                     Int64[] sibhf = e.GetSiblingHalfFacets();
                     int vk1, vk2;
+
                     for (int i = 0; i < sibhf.Length; i++)
                     {
+                        //Int32 elemID;
+                        //Int32 hfID;
+
                         Int64 hf = sibhf[i];
-                        if (hf == 0)
+
+                        //IHelpers.UnpackKey(hf, out elemID, out hfID);
+                        //IElement e_ = iM.GetElementWithKey(elemID);
+
+                        if (hf == 0)// || e_.TopologicDimension == 1)
                         {
                             int A = i;
                             int B = i + 1;
@@ -489,29 +496,48 @@ namespace Iguana.IguanaMesh.ITypes
             foreach (int elementID in iM.ElementsKeys)
             {
                 IElement e = iM.GetElementWithKey(elementID);
-
-                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                                
+                if (e.TopologicDimension == 1)
                 {
-                    e.GetHalfFacet(halfFacetID, out hf);
+                    int[] vertices = e.Vertices;
 
-                    count = 1;
-                    if (e.TopologicDimension == 3) count = hf.Length;
-                    for (int i = 0; i < count; i++)
+                    data1 = (Int64)vertices[0] << 32 | (Int64)vertices[1];
+                    data2 = (Int64)vertices[1] << 32 | (Int64)vertices[0];
+
+                    if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
                     {
-                        next = i + 1;
-                        if (i == count - 1)
+                        v1 = iM.GetVertexWithKey(vertices[0]);
+                        v2 = iM.GetVertexWithKey(vertices[1]);
+                        edges.Add(new ITopologicEdge(v1, v2));
+                        edgesID.Add(data1);
+                    }
+                }
+
+                else
+                {
+                    for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                    {
+                        e.GetHalfFacet(halfFacetID, out hf);
+
+                        count = 1;
+                        if (e.TopologicDimension == 3) count = hf.Length;
+                        for (int i = 0; i < count; i++)
                         {
-                            if (count > 1) next = 0;
-                            else next = 1;
-                        }
-                        data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
-                        data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
-                        if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
-                        {
-                            v1 = iM.GetVertexWithKey(hf[i]);
-                            v2 = iM.GetVertexWithKey(hf[next]);
-                            edges.Add(new ITopologicEdge(v1, v2));
-                            edgesID.Add(data1);
+                            next = i + 1;
+                            if (i == count - 1)
+                            {
+                                if (count > 1) next = 0;
+                                else next = 1;
+                            }
+                            data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
+                            data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
+                            if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
+                            {
+                                v1 = iM.GetVertexWithKey(hf[i]);
+                                v2 = iM.GetVertexWithKey(hf[next]);
+                                edges.Add(new ITopologicEdge(v1, v2));
+                                edgesID.Add(data1);
+                            }
                         }
                     }
                 }
@@ -529,13 +555,15 @@ namespace Iguana.IguanaMesh.ITypes
         {
             var neighbor = new int[0];
             iM.CleanElementsVisits();
-            int[] e1,e2;
+            int[] e1, e2;
             if (iM.ContainsVertexKey(vKey1) && iM.ContainsVertexKey(vKey2))
             {
                 e1 = iM.Topology.GetVertexIncidentElements(vKey1);
                 e2 = iM.Topology.GetVertexIncidentElements(vKey2);
 
                 neighbor = e1.Intersect(e2).ToArray();
+                //neighbor = e1.Concat(e2).ToArray();
+                //neighbor = neighbor.Distinct().ToArray();
             }
             return neighbor;
         }
@@ -629,7 +657,7 @@ namespace Iguana.IguanaMesh.ITypes
                 IVector3D v1, v2;
                 ITopologicVertex vv0, vv1, vv2;
                 int prev_i, next_i;
-                for(int i=0; i < e.VerticesCount; i++)
+                for (int i = 0; i < e.VerticesCount; i++)
                 {
                     prev_i = i - 1;
                     if (i == 0) prev_i = e.VerticesCount - 1;
@@ -678,7 +706,7 @@ namespace Iguana.IguanaMesh.ITypes
                     v1 = vv1.RhinoPoint - vv0.RhinoPoint;
                     v2 = vv2.RhinoPoint - vv0.RhinoPoint;
 
-                    normal += Vector3d.CrossProduct(v1,v2);
+                    normal += Vector3d.CrossProduct(v1, v2);
                     position += vv0.RhinoPoint;
                 }
                 normal /= e.VerticesCount;
@@ -770,7 +798,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             double[] temp = ComputeEdgeCosDihedralAngle(vKey1, vKey2);
             double[] dA = new double[temp.Length];
-            for(int i=0; i<temp.Length; i++)
+            for (int i = 0; i < temp.Length; i++)
             {
                 dA[i] = Math.Acos(temp[i]);
             }
@@ -801,7 +829,7 @@ namespace Iguana.IguanaMesh.ITypes
             else if (y >= x && y >= z) coord = 2;
             int prev_i, next_i;
             ITopologicVertex prevV, v, nextV;
-            for(int i=0; i<e.VerticesCount; i++)
+            for (int i = 0; i < e.VerticesCount; i++)
             {
                 prev_i = i - 1;
                 if (i == 0) prev_i = e.VerticesCount - 1;
@@ -1063,7 +1091,7 @@ namespace Iguana.IguanaMesh.ITypes
 
             if (eKeys.Length == 0) return false;
 
-            foreach(int eK in eKeys)
+            foreach (int eK in eKeys)
             {
                 IVector3D n, p;
                 ComputeTwoDimensionalElementNormal(eK, out n, out p);
@@ -1082,7 +1110,7 @@ namespace Iguana.IguanaMesh.ITypes
             normals = new IVector3D[eKeys.Length];
             centers = new IVector3D[eKeys.Length];
             int start, end;
-            for(int i=0; i<eKeys.Length; i++)
+            for (int i = 0; i < eKeys.Length; i++)
             {
                 Int64 eK = eKeys[i];
                 IHelpers.UnpackKey(eK, out start, out end);
@@ -1098,13 +1126,13 @@ namespace Iguana.IguanaMesh.ITypes
             normals = new Vector3d[eKeys.Length];
             centers = new Point3d[eKeys.Length];
             int start, end;
-            IVector3D vv,pp;
+            IVector3D vv, pp;
             for (int i = 0; i < eKeys.Length; i++)
             {
                 Int64 eK = eKeys[i];
                 IHelpers.UnpackKey(eK, out start, out end);
                 edges[i] = new ITopologicEdge(iM.GetVertexWithKey(start), iM.GetVertexWithKey(end));
-                
+
                 iM.Topology.ComputeEdgeNormal(start, end, out vv, out pp);
                 normals[i] = new Vector3d(vv.X, vv.Y, vv.Z);
                 centers[i] = new Point3d(pp.X, pp.Y, pp.Z);
@@ -1140,7 +1168,7 @@ namespace Iguana.IguanaMesh.ITypes
             int[] nKey = iM.Topology.GetVertexAdjacentVertices(vKey);
             ITopologicVertex v = iM.GetVertexWithKey(vKey);
             int next_i;
-            for(int i=0; i<nKey.Length; i++)
+            for (int i = 0; i < nKey.Length; i++)
             {
                 next_i = i + 1;
                 if (i == nKey.Length - 1) next_i = 0;
@@ -1150,10 +1178,10 @@ namespace Iguana.IguanaMesh.ITypes
                 vect1 = IVector3D.CreateVector(v.Position, p1.Position);
                 vect2 = IVector3D.CreateVector(p1.Position, p2.Position);
                 vect3 = IVector3D.CreateVector(p2.Position, v.Position);
-                double c12 = IVector3D.Dot(vect1,vect2);
-                double c23 = IVector3D.Dot(vect2,vect3);
-                double c31 = IVector3D.Dot(vect3,vect1);
-                vect2 = IVector3D.Cross(vect1,vect3,false);
+                double c12 = IVector3D.Dot(vect1, vect2);
+                double c23 = IVector3D.Dot(vect2, vect3);
+                double c31 = IVector3D.Dot(vect3, vect1);
+                vect2 = IVector3D.Cross(vect1, vect3, false);
                 double area = 0.5 * vect2.Mag();
 
                 // This angle is obtuse
@@ -1166,16 +1194,16 @@ namespace Iguana.IguanaMesh.ITypes
                 {
                     if (area > 0.0 && area > -1e-9 * (c12 + c23))
                     {
-                        mixed -= 0.125 * 0.5 * (c12 * IVector3D.Dot(vect3,vect3) + c23 * IVector3D.Dot(vect1,vect1)) / area;
+                        mixed -= 0.125 * 0.5 * (c12 * IVector3D.Dot(vect3, vect3) + c23 * IVector3D.Dot(vect1, vect1)) / area;
                     }
                 }
                 gauss += Math.Abs(Math.Atan2(2.0 * area, -c31));
                 vect3 *= c12;
                 vect1 *= -c23;
                 vect3 += vect1;
-                meanCurvatureVector += vect3 * (0.5/area);
+                meanCurvatureVector += vect3 * (0.5 / area);
             }
-            
+
             meanCurvatureVector *= (0.5 / mixed);
             // Discrete gaussian curvature
             return (2.0 * Math.PI - gauss) / mixed;
@@ -1201,14 +1229,14 @@ namespace Iguana.IguanaMesh.ITypes
 
             int next_i;
             double area = 0;
-            for(int i=0; i < nKeys.Length; i++)
+            for (int i = 0; i < nKeys.Length; i++)
             {
                 next_i = i + 1;
                 if (i == nKeys.Length - 1) next_i = 0;
 
-                vv1 = ComputeAveragePosition(new int[]{nKeys[i], vKey});
-                vv2 = ComputeAveragePosition(new int[]{ nKeys[next_i], vKey });
-                area += ComputePolygonArea(new IPoint3D[]{vv1,vv2,v});                
+                vv1 = ComputeAveragePosition(new int[] { nKeys[i], vKey });
+                vv2 = ComputeAveragePosition(new int[] { nKeys[next_i], vKey });
+                area += ComputePolygonArea(new IPoint3D[] { vv1, vv2, v });
             }
             area /= nKeys.Length;
 
@@ -1220,9 +1248,9 @@ namespace Iguana.IguanaMesh.ITypes
             IVector3D v = new IVector3D();
             for (int i = 0; i < keys.Length; i++) v += iM.GetVertexWithKey(keys[i]).Position;
             v /= keys.Length;
-            return new IPoint3D(v.X,v.Y,v.Z);
+            return new IPoint3D(v.X, v.Y, v.Z);
         }
-  
+
         public IVector3D ComputeVertexNormal(int vKey)
         {
             int[] eKeys = GetVertexIncidentElements(vKey);

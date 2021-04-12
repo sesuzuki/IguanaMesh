@@ -227,6 +227,12 @@ namespace Iguana.IguanaMesh.ITypes
 
             if (topo.Count == 1)
             {
+                if (topo[0] == 1)
+                {
+                    msg = "Bar Mesh (1D)";
+                    dim = 1;
+                }
+
                 if (topo[0] == 2)
                 {
                     msg = "Surface Mesh (2D)";
@@ -253,6 +259,15 @@ namespace Iguana.IguanaMesh.ITypes
             get
             {
                 if (dim == 2) return true;
+                else return false;
+            }
+        }
+
+        public bool IsBarMesh
+        {
+            get
+            {
+                if (dim == 1) return true;
                 else return false;
             }
         }

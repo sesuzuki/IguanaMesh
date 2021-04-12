@@ -87,11 +87,13 @@ namespace IguanaMeshGH.IUtils
 
                     if (sibData != 0)
                     {
+                        if (e.TopologicDimension == 1) msg = new GH_String("Edge Element ID: " + e.GetSiblingElementID(i) + " :: Half-Vertex ID: " + e.GetSiblingHalfFacetID(i));
                         if (e.TopologicDimension == 2) msg = new GH_String("Face Element ID: " + e.GetSiblingElementID(i) + " :: Half-Edge ID: " + e.GetSiblingHalfFacetID(i));
                         if (e.TopologicDimension == 3) msg = new GH_String("Solid Element ID: " + e.GetSiblingElementID(i) + " :: Half-Face ID: " + e.GetSiblingHalfFacetID(i));
                     }
                     else
                     {
+                        if (e.TopologicDimension == 1) msg = new GH_String("Naked Half-Vertex");
                         if (e.TopologicDimension == 2) msg = new GH_String("Naked Half-Edge");
                         if (e.TopologicDimension == 3) msg = new GH_String("Naked Half-Face");
                     }

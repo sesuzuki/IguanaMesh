@@ -57,7 +57,7 @@ namespace IguanaMeshGH.ICreators
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             List<int> vKeys = new List<int>();
-            DA.GetData(0, ref vKeys);
+            DA.GetDataList(0, vKeys);
 
             ISurfaceElement e = new ISurfaceElement(vKeys.ToArray());
 

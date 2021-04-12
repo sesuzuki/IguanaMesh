@@ -65,10 +65,21 @@ namespace IguanaMeshGH.ITopology
             DA.GetData(1, ref eKey);
 
             IElement e = mesh.GetElementWithKey(eKey);
-            Brep brep = IRhinoGeometry.GetBrepFromElement(mesh, eKey);
-
             DA.SetData(0, e);
-            DA.SetData(1, brep);
+
+            if (e.TopologicDimension == 1)
+            {
+                ITopologicVertex v1 = (mesh.GetVertexWithKey(e.Vertices[0]));
+                ITopologicVertex v2 = (mesh.GetVertexWithKey(e.Vertices[1]));
+
+                Line line = new Line(v1.RhinoPoint, v2.RhinoPoint);
+                DA.SetData(1, line);
+            }
+            else
+            {
+                Brep brep = IRhinoGeometry.GetBrepFromElement(mesh, eKey); 
+                DA.SetData(1, brep);
+            }       
         }
 
         /// <summary>
