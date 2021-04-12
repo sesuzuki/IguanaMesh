@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 using Rhino.Geometry;
@@ -40,8 +41,8 @@ namespace IguanaMeshGH.ITransform
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Vertex", "v-Key", "Vertex key.", GH_ParamAccess.item);
-            pManager.AddVectorParameter("Vector", "T", "Translation vector.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Vertex", "v-Key", "Vertex key.", GH_ParamAccess.list);
+            pManager.AddVectorParameter("Vector", "T", "Translation vector.", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -59,17 +60,24 @@ namespace IguanaMeshGH.ITransform
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             IMesh mesh = new IMesh();
-            Vector3d vec = new Vector3d();
-            int vKey = 0;
+            List<Vector3d> vec = new List<Vector3d>();
+            List<int> vKey = new List<int>();
 
             DA.GetData(0, ref mesh);
-            DA.GetData(1, ref vKey);
-            DA.GetData(2, ref vec);
+            DA.GetDataList(1, vKey);
+            DA.GetDataList(2, vec);
 
             IMesh dM = mesh.DeepCopy();
+            IVector3D T = new IVector3D(vec[0]);
+            bool flag = vKey.Count.Equals(vec.Count);
+            for (int i = 0; i < vKey.Count; i++)
+            {
+                ITopologicVertex v = dM.GetVertexWithKey(vKey[i]);
 
-            ITopologicVertex v = dM.GetVertexWithKey(vKey);
-            dM.SetVertexPosition(vKey, v.Position + new IVector3D(vec.X, vec.Y, vec.Z));
+                if (flag) T = new IVector3D(vec[i]);
+                dM.SetVertexPosition(vKey[i], v.Position + T);
+            }
+            dM.UpdateGraphics();
 
             DA.SetData(0, dM);
         }

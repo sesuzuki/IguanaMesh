@@ -28,7 +28,6 @@ namespace IguanaMeshGH.IPrimitives
         private int u = 10, v = 10, w = 10;
         private Boolean weld = false;
         private double tolerance = 0.01;
-        private Box box;
 
         /// <summary>
         /// Initializes a new instance of the ICubeGH class.
@@ -45,11 +44,14 @@ namespace IguanaMeshGH.IPrimitives
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddBoxParameter("Base Box", "B", "Base box to construct the cube mesh.", GH_ParamAccess.item, new Box(Plane.WorldXY, new Interval(-1, 1), new Interval(-1, 1), new Interval(-1, 1)));
+            pManager.AddPlaneParameter("Base Plane", "B", "Base plane to construct the cube mesh.", GH_ParamAccess.item, Plane.WorldXY);
+            pManager.AddIntervalParameter("DomainX", "X", "Domain of the box in the {x} direction.", GH_ParamAccess.item, new Interval(-1, 1));
+            pManager.AddIntervalParameter("DomainY", "Y", "Domain of the box in the {y} direction.", GH_ParamAccess.item, new Interval(-1, 1));
+            pManager.AddIntervalParameter("DomainZ", "Z", "Domain of the box in the {z} direction.", GH_ParamAccess.item, new Interval(-1, 1));
             pManager.AddIntegerParameter("U Count", "U", "Number of faces along the {x} direction.", GH_ParamAccess.item, u);
             pManager.AddIntegerParameter("V Count", "V", "Number of faces along the {y} direction.", GH_ParamAccess.item, v);
             pManager.AddIntegerParameter("W Count", "W", "Number of faces along the {z} direction.", GH_ParamAccess.item, w);
-            pManager.AddBooleanParameter("Weld", "We", "Weld creases in the mesh.", GH_ParamAccess.item, weld);
+            pManager.AddBooleanParameter("Weld", "Weld", "Weld creases in the mesh.", GH_ParamAccess.item, weld);
             pManager.AddNumberParameter("Tolerance", "t", "Welding tolerance (Vertices smaller than this tolerance will be merged)", GH_ParamAccess.item, tolerance);
         }
 
@@ -67,16 +69,22 @@ namespace IguanaMeshGH.IPrimitives
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            box = new Box();
+            Plane pl = new Plane();
+            Interval x = new Interval();
+            Interval y = new Interval();
+            Interval z = new Interval();
 
-            DA.GetData(0, ref box);
-            DA.GetData(1, ref u);
-            DA.GetData(2, ref v);
-            DA.GetData(3, ref w);
-            DA.GetData(4, ref weld);
-            DA.GetData(5, ref tolerance);
+            DA.GetData(0, ref pl);
+            DA.GetData(1, ref x);
+            DA.GetData(2, ref y);
+            DA.GetData(3, ref z);
+            DA.GetData(4, ref u);
+            DA.GetData(5, ref v);
+            DA.GetData(6, ref w);
+            DA.GetData(7, ref weld);
+            DA.GetData(8, ref tolerance);
 
-            IMesh mesh = IMeshCreator.CreateCube(box, u, v, w, weld, tolerance);
+            IMesh mesh = IMeshCreator.CreateCube(pl, x, y, z, u, v, w, weld, tolerance);
 
             DA.SetData(0, mesh);
         }

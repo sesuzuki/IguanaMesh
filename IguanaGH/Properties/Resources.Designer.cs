@@ -203,6 +203,16 @@ namespace IguanaMeshGH.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap iCurvature {
+            get {
+                object obj = ResourceManager.GetObject("iCurvature", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap iCurvatureField {
             get {
                 object obj = ResourceManager.GetObject("iCurvatureField", resourceCulture);
@@ -213,9 +223,19 @@ namespace IguanaMeshGH.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap iCurveConstraints {
+        internal static System.Drawing.Bitmap iCurveCountConstraints {
             get {
-                object obj = ResourceManager.GetObject("iCurveConstraints", resourceCulture);
+                object obj = ResourceManager.GetObject("iCurveCountConstraints", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap iCurveLengthConstraints {
+            get {
+                object obj = ResourceManager.GetObject("iCurveLengthConstraints", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -486,16 +506,6 @@ namespace IguanaMeshGH.Properties {
         internal static System.Drawing.Bitmap iFrustumField {
             get {
                 object obj = ResourceManager.GetObject("iFrustumField", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap iGauss {
-            get {
-                object obj = ResourceManager.GetObject("iGauss", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -39,6 +39,8 @@ namespace Iguana.IguanaMesh.ITypes
                 ITopologicVertex v = (ITopologicVertex)entry.Clone();
                 copy._vertices.Add(v.Key, v);
             });
+
+            copy._renderMesh = _renderMesh;
             copy._tempVertexToHalfFacets = _tempVertexToHalfFacets.ToDictionary(entry => entry.Key, entry => entry.Value);
             copy.dim = dim;
             copy.message = message;
@@ -46,6 +48,7 @@ namespace Iguana.IguanaMesh.ITypes
             copy._valid = _valid;
             return copy;
         }
+
         public IMesh CleanCopy()
         {
             IMesh copy = new IMesh();
@@ -59,6 +62,7 @@ namespace Iguana.IguanaMesh.ITypes
                 ITopologicVertex v = (ITopologicVertex)entry.CleanCopy();
                 copy._vertices.Add(v.Key, v);
             });
+            copy._renderMesh = _renderMesh;
             copy.elementKey = elementKey;
             copy._valid = _valid;
             return copy;

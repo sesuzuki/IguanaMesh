@@ -128,7 +128,7 @@ namespace Iguana.IguanaMesh
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        internal static void SetOptionNumber(string name, double value)
+        public static void SetOptionNumber(string name, double value)
         {
             IWrap.GmshOptionSetNumber(name, value, ref _ierr);
         }
@@ -147,7 +147,7 @@ namespace Iguana.IguanaMesh
         /// Set a string option to `value'. `name' is of the form "category.option" or
         /// "category[num].option". Available categories and options are listed in the Gmsh reference manual.
         /// </summary>
-        internal static void SetOptionString(string name, string value)
+        public static void SetOptionString(string name, string value)
         {
             IWrap.GmshOptionSetString(name, value, ref _ierr);
         }

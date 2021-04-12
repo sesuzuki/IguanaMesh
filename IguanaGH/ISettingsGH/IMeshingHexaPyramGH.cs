@@ -83,6 +83,8 @@ namespace IguanaMeshGH.ISettings
             DA.GetData(7, ref qualityThreshold);
             DA.GetData(8, ref recombine);
 
+            maxSize *= 2;
+            minSize *= 2;
             if (minSize < 0.1 && MassiveRefinement == false)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, solverOpt.MinSizeWarning);
@@ -91,6 +93,7 @@ namespace IguanaMeshGH.ISettings
 
             double size = (maxSize + minSize) / 2;
             DA.GetData(0, ref size);
+            size *= 2;
 
             solverOpt.MeshingAlgorithm = solver;
             solverOpt.CharacteristicLengthMin = minSize;

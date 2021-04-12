@@ -20,6 +20,7 @@ using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
+using static Iguana.IguanaMesh.ITypes.ITransfinite;
 
 namespace IguanaMeshGH.IConstraints
 {
@@ -27,9 +28,7 @@ namespace IguanaMeshGH.IConstraints
     {
         int count = 10;
         double coef = 1.0;
-        TransCurve type = TransCurve.Progression;
-
-        private enum TransCurve { Progression=0, Bump=1 }
+        TransfiniteCurveType type = TransfiniteCurveType.Progression;
 
         /// <summary>
         /// Initializes a new instance of the ITransfiniteCurveGH class.
@@ -82,16 +81,16 @@ namespace IguanaMeshGH.IConstraints
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("TransCurve", (int) type);
+            writer.SetInt32("type", (int) type);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
             int aIndex = -1;
-            if (reader.TryGetInt32("TransCurve", ref aIndex))
+            if (reader.TryGetInt32("type", ref aIndex))
             {
-                type = (TransCurve)aIndex;
+                type = (TransfiniteCurveType)aIndex;
             }
 
             return base.Read(reader);
@@ -99,16 +98,16 @@ namespace IguanaMeshGH.IConstraints
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            foreach (TransCurve s in Enum.GetValues(typeof(TransCurve)))
+            foreach (TransfiniteCurveType s in Enum.GetValues(typeof(TransfiniteCurveType)))
                 GH_Component.Menu_AppendItem(menu, s.ToString(), GetType, true, s == this.type).Tag = s;
             base.AppendAdditionalComponentMenuItems(menu);
         }
 
         private void GetType(object sender, EventArgs e)
         {
-            if (sender is ToolStripMenuItem item && item.Tag is TransCurve)
+            if (sender is ToolStripMenuItem item && item.Tag is TransfiniteCurveType)
             {
-                this.type = (TransCurve)item.Tag;
+                this.type = (TransfiniteCurveType)item.Tag;
                 ExpireSolution(true);
             }
         }

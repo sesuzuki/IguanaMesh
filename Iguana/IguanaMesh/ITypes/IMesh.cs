@@ -98,9 +98,9 @@ namespace Iguana.IguanaMesh.ITypes
 
             //Add Vertices
             int keyVertex = FindNextVertexKey();
-            foreach(int i in mesh.VerticesKeys)
+            foreach(int vK in mesh.VerticesKeys)
             {
-                ITopologicVertex pt = mesh.GetVertexWithKey(i);
+                ITopologicVertex v = mesh.GetVertexWithKey(vK);
 
                 if (weld)
                 {
@@ -110,25 +110,25 @@ namespace Iguana.IguanaMesh.ITypes
                     {
                         ITopologicVertex oldVertex = this.GetVertexWithKey(oldKey);
 
-                        if (oldVertex.DistanceTo(pt) < tolerance)
+                        if (oldVertex.DistanceTo(v) < tolerance)
                         {
-                            maps.Add(i, oldKey);
+                            maps.Add(vK, oldKey);
                             flag = true;
                         }
                     });
 
                     if (flag == false)
                     {
-                        maps.Add(i, keyVertex);
-                        this.AddVertex(keyVertex, pt);
+                        maps.Add(vK, keyVertex);
+                        this.AddVertex(keyVertex, v);
                         keyVertex++;
                     }
                 }
 
                 else
                 {
-                    maps.Add(i, keyVertex);
-                    this.AddVertex(keyVertex, pt);
+                    maps.Add(vK, keyVertex);
+                    this.AddVertex(keyVertex, v);
                     keyVertex++;
                 }
             }
@@ -148,7 +148,7 @@ namespace Iguana.IguanaMesh.ITypes
                 this.AddElement(e);
             }
 
-            this.BuildTopology();
+            this.BuildTopology(true);
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace Iguana.IguanaMesh.ITypes
                 this.AddElement(e);
             }
 
-            this.BuildTopology();
+            this.BuildTopology(true);
         }
 
         public override string ToString()

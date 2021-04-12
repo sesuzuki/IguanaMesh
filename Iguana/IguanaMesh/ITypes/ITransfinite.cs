@@ -17,17 +17,71 @@
 
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
+using System.Collections.Generic;
 
 namespace Iguana.IguanaMesh.ITypes
 {
     public struct ITransfinite : IGH_Goo
     {
+        public enum TransfiniteSurfaceType { Left = 0, Right = 1, AlternateLeft = 2, AlternateRight = 3 }
+        public enum TransfiniteCurveType { Progression = 0, Bump = 1 }
+
         public int Dim { get; set; }
         public int Tag { get; set; }
         public int[] Corners { get; set; }
         public int NodesNumber { get; set; }
         public double Coef { get; set; }
         public string MethodType { get; set; }
+
+        /// <summary>
+        /// Transfinite surface constraint.
+        /// </summary>
+        /// <param name="tag"> ID of the underlying surface. </param>
+        /// <param name="type"> Surface distribution type. </param>
+        /// <param name="corners"> Specify the 3 or 4 corners of the transfinite interpolation explicitly. </param>
+        /// <returns></returns>
+        public static ITransfinite Surface(int tag, TransfiniteSurfaceType type, List<int> corners=default)
+        {
+            if (corners == default) corners = new List<int>();
+
+            ITransfinite data = new ITransfinite();
+            data.Dim = 2;
+            data.Tag = tag;
+            data.MethodType = type.ToString();
+            data.Corners = corners.ToArray();
+
+            return data;
+        }
+
+        /// <summary>
+        /// Transfinite curve constraint.
+        /// </summary>
+        /// <param name="tag"> ID of the underlying curve. </param>
+        /// <param name="type"> Curve distribution type. </param>
+        /// <param name="nodesCount"> Number of nodes to be uniformly placed nodes on the curve. </param>
+        /// <param name="coef"> Geometrical progression with power Coef for node distribution when using Progression type. </param>
+        /// <returns></returns>
+        public static ITransfinite Curve(int tag, TransfiniteCurveType type, int nodesCount, double coef)
+        {
+            ITransfinite data = new ITransfinite();
+            data.Dim = 1;
+            data.Tag = tag;
+            data.MethodType = type.ToString();
+            data.NodesNumber = nodesCount;
+            data.Coef = coef;
+
+            return data;
+        }
+
+        public static ITransfinite Volume(int tag, TransfiniteSurfaceType type)
+        {
+            ITransfinite data = new ITransfinite();
+            data.Dim = 3;
+            data.Tag = tag;
+            data.MethodType = type.ToString();
+
+            return data;
+        }
 
         #region GH_methods
         public bool IsValid
@@ -48,7 +102,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public override string ToString()
         {
-            return "IguanaGmshTransfinite";
+            return "ITransfinite";
         }
 
         public string TypeName

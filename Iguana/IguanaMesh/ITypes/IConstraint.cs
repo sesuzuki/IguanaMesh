@@ -28,15 +28,23 @@ namespace Iguana.IguanaMesh.ITypes
         private double _val;
         private int _entityDim;
         private int _entityTag;
+        private int _numberOfNodes;
+        private double _divisionLength;
 
-        public IConstraint(int dimension, Object geometry, double size, int entityDimension, int entityTag)
+        public IConstraint(int dimension, Object geometry, double size, int entityDimension, int entityTag, int numberOfNodes=1, double divisionLength=1)
         {
             _dim = dimension;
             _geom = geometry;
             _val = size;
             _entityDim = entityDimension;
             _entityTag = entityTag;
+            _divisionLength = divisionLength;
+            _numberOfNodes = numberOfNodes;
         }
+
+        public int NodesCountPerCurve { get => _numberOfNodes; }
+
+        public double CurveDivisionLength { get => _divisionLength; }
 
         public Object RhinoGeometry { get => _geom; }
 

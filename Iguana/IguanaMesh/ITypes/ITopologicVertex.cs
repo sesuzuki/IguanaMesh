@@ -260,15 +260,11 @@ namespace Iguana.IguanaMesh.ITypes
 
         public bool CastTo<T>(out T target)
         {
-            if (typeof(T).IsAssignableFrom(typeof(ITopologicVertex)))
+            if (typeof(T).Equals(typeof(GH_Point)))
             {
-                if (this == null)
-                    target = default(T);
-                else
-                    target = (T)(object)this;
+                target = (T)(object)new GH_Point(new Point3d(X, Y, Z));
                 return true;
             }
-
             target = default(T);
             return false;
         }

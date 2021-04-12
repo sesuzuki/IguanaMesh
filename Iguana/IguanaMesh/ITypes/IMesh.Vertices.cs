@@ -45,7 +45,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void AddVertex(int key, ITopologicVertex vertex)
         {
-            if (key <= 0) key = FindNextVertexKey();
+            if (key < 0) key = FindNextVertexKey();
             vertex.Key = key;
             _vertices.Add(key, vertex);
         }
@@ -73,26 +73,29 @@ namespace Iguana.IguanaMesh.ITypes
             _vertices[key] = vertex;
         }
 
-        public void SetVertexPosition(int key, Point3d point)
+        public void SetVertexPosition(int key, Point3d point, bool updateGraphics = false)
         {
             ITopologicVertex v = _vertices[key];
             v.Position = new IPoint3D(point.X, point.Y, point.Z);
             _vertices[key] = v;
+            if (updateGraphics) UpdateGraphics();
         }
 
-        public void SetVertexPosition(int key, IPoint3D position)
+        public void SetVertexPosition(int key, IPoint3D position, bool updateGraphics = false)
         {
             ITopologicVertex v = _vertices[key];
             v.Position = position;
             _vertices[key] = v;
+            if (updateGraphics) UpdateGraphics();
         }
 
 
-        public void SetVertexPosition(int key, double x, double y, double z)
+        public void SetVertexPosition(int key, double x, double y, double z, bool updateGraphics = false)
         {
             ITopologicVertex v = _vertices[key];
             v.Position = new IPoint3D(x, y, z);
             _vertices[key] = v;
+            if(updateGraphics) UpdateGraphics();
         }
 
         public void SetVertexTextureCoordinates(int key, double u, double v, double w)
@@ -115,31 +118,45 @@ namespace Iguana.IguanaMesh.ITypes
             }
         }
 
-        public void DeleteVertex(int vKey, bool updateTopology = true)
+        public void DeleteVertex(int vKey)
         {
             int[] eKeys = Topology.GetVertexIncidentElements(vKey);
-            eKeys.All(eK =>
+            foreach (int eK in eKeys)
             {
-                if (_elements.ContainsKey(eK)) _elements.Remove(eK);
-                return true;
-            });
+                _elements.Remove(eK);
+            }
+
             _vertices.Remove(vKey);
-            if (updateTopology) BuildTopology(true);
+
+            BuildTopology(true);
         }
 
-        public void DeleteVertices(IEnumerable<int> vKeys, bool updateTopology = true)
+        public void DeleteVertices(IEnumerable<int> vKeys)
         {
+            HashSet<int> deleteE = new HashSet<int>();
+            HashSet<int> deleteV = new HashSet<int>();
+
             foreach (int vK in vKeys)
             {
                 int[] eKeys = Topology.GetVertexIncidentElements(vK);
-                eKeys.All(eK =>
+                foreach(int eK in eKeys)
                 {
-                    if (_elements.ContainsKey(eK)) _elements.Remove(eK);
-                    return true;
-                });
+                    deleteE.Add(eK);
+                }
+                deleteV.Add(vK);
+            }
+
+            foreach (int vK in deleteV)
+            {
                 _vertices.Remove(vK);
             }
-            if (updateTopology) BuildTopology(true);
+
+            foreach (int eK in deleteE)
+            {
+                _elements.Remove(eK);
+            }
+
+            BuildTopology(true);
         }
 
         public bool ContainsVertexKey(int key)

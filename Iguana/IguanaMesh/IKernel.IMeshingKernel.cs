@@ -90,8 +90,8 @@ namespace Iguana.IguanaMesh
                     Merge(filePath);
 
                     Tuple<int, int>[] dimTags;
-                    IKernel.IModel.GetEntities(out dimTags);
-                    mesh = TryCreateIMesh(dimTags[0].Item1);
+                    IModel.GetEntities(out dimTags);
+                    mesh = ParseIMeshData(dimTags[0].Item1);
 
                     End();
                 }
@@ -117,7 +117,7 @@ namespace Iguana.IguanaMesh
             }
 
             /// <summary>
-            /// Import rhino geometry.
+            /// Import rhino 7 geometry.
             /// </summary>
             /// <param name="geom"> Rhino geometry. Default is the current active Rhino doc. </param>
             /// <param name="doc"> Rhino document. </param>
@@ -148,7 +148,7 @@ namespace Iguana.IguanaMesh
             }
 
             /// <summary>
-            /// Import a collection of rhino geometries.
+            /// Import a collection of rhino 7 geometries.
             /// </summary>
             /// <param name="geom"> Rhino geometry. Default is the current active Rhino doc. </param>
             /// <param name="doc"> Rhino document. </param>
@@ -183,6 +183,89 @@ namespace Iguana.IguanaMesh
             }
 
             /// <summary>
+            /// Import rhino 6 geometry.
+            /// </summary>
+            /// <param name="geom"> Rhino geometry. Default is the current active Rhino doc. </param>
+            /// <param name="doc"> Rhino document. </param>
+            /// <param name="synchronize"> Synchronize the model. </param>
+            /// <returns></returns>
+            private static Tuple<int, int>[] ImportRhino6Geometry(GeometryBase geom, bool synchronize = true)
+            {
+                var filename = Path.ChangeExtension(Path.GetTempFileName(), ".step");
+
+                RhinoDoc doc = RhinoDoc.ActiveDoc;
+                ObjectAttributes att = new ObjectAttributes();
+                DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
+                att.SetDisplayModeOverride(display);
+                att.Space = ActiveSpace.None;
+                att.ObjectColor = Color.DarkRed;
+                att.ColorSource = ObjectColorSource.ColorFromObject;
+
+                Guid id = doc.Objects.Add(geom);
+
+                Tuple<int, int>[] dimTags = new Tuple<int, int>[] { };
+                if (id != Guid.Empty)
+                {
+                    ObjRef obj = new ObjRef(id);
+                    doc.Objects.UnselectAll();
+                    var tmpObj = doc.Objects.Select(obj);
+                    RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
+                    doc.Objects.Delete(obj, true);
+
+                    IGeometryOCCKernel.IBuilder.ImportShapes(filename, out dimTags);
+                    SetOptionString("OCCTargetUnit", "M");
+
+                    File.Delete(filename);
+                    if (synchronize) IGeometryOCCKernel.IBuilder.Synchronize();
+                }
+
+                return dimTags;
+            }
+
+            /// <summary>
+            /// Import a collection of rhino 6 geometries.
+            /// </summary>
+            /// <param name="geom"> Rhino geometry. Default is the current active Rhino doc. </param>
+            /// <param name="doc"> Rhino document. </param>
+            /// <param name="synchronize"> Synchronize the model. </param>
+            /// <returns></returns>
+            private static Tuple<int, int>[] ImportRhino6Geometry(IEnumerable<GeometryBase> geom, bool synchronize = true)
+            {
+                var filename = Path.ChangeExtension(Path.GetTempFileName(), ".step");
+
+                RhinoDoc doc = RhinoDoc.ActiveDoc;
+                ObjectAttributes att = new ObjectAttributes();
+                DisplayModeDescription display = DisplayModeDescription.GetDisplayMode(DisplayModeDescription.WireframeId);
+                att.SetDisplayModeOverride(display);
+                att.Space = ActiveSpace.None;
+                att.ObjectColor = Color.DarkRed;
+                att.ColorSource = ObjectColorSource.ColorFromObject;
+
+                int count = geom.Count();
+                Guid[] id = new Guid[count];
+                ObjRef[] obj = new ObjRef[count];
+                for (int i = 0; i < count; i++)
+                {
+                    id[i] = doc.Objects.Add(geom.ElementAt(i));
+                    obj[i] = new ObjRef(id[i]);
+                }
+
+                doc.Objects.UnselectAll();
+                var tmpObj = doc.Objects.Select(obj);
+                RhinoApp.RunScript("_-Export " + "\"" + filename + "\" _Enter", false);
+                doc.Objects.Delete(id, true);
+
+                Tuple<int, int>[] dimTags = new Tuple<int, int>[] { };
+                IGeometryOCCKernel.IBuilder.ImportShapes(filename, out dimTags);
+                SetOptionString("OCCTargetUnit", "M");
+
+                File.Delete(filename);
+                if (synchronize) IGeometryOCCKernel.IBuilder.Synchronize();
+
+                return dimTags;
+            }
+
+            /// <summary>
             /// Set the size of elements before meshing.
             /// </summary>
             /// <param name="size"> Target element size. </param>
@@ -197,10 +280,9 @@ namespace Iguana.IguanaMesh
             /// Apply transfinite constraints along the meshing process.
             /// </summary>
             /// <param name="transfinite"> List of transfinite constraints. </param>
-            internal static void ApplyTransfiniteSettings(List<ITransfinite> transfinite)
+            internal static void ApplyTransfiniteSettings(IEnumerable<ITransfinite> transfinite)
             {
-                if (transfinite.Count == 0) return;
-                if (transfinite == default) return;
+                if (transfinite.Count() == 0) return;
 
                 foreach (ITransfinite t in transfinite)
                 {
@@ -272,14 +354,41 @@ namespace Iguana.IguanaMesh
             }
 
             /// <summary>
-            /// Try to create the Iguana mesh.
+            /// Generate a two-dimensional IMesh.
+            /// </summary>
+            /// <param name="solver"> Two-dimensional solver settings. </param>
+            /// <param name="transfinites"> [OPTIONAL] Transfinite settings. </param>
+            /// <returns></returns>
+            public static IMesh GenerateIMesh2D(ISolver2D solver = default, IEnumerable<ITransfinite> transfinites = default)
+            {
+                if(transfinites!=default) ApplyTransfiniteSettings(transfinites);
+                if (solver != default) solver.ApplySolverSettings();
+                IBuilder.Generate(2);
+                return ParseIMeshData(2);
+            }
+
+            /// <summary>
+            /// Generate a three-dimensional IMesh.
+            /// </summary>
+            /// <param name="solver"> Three-dimensional solver settings. </param>
+            /// <param name="transfinites"> [OPTIONAL] Transfinite settings. </param>
+            /// <returns></returns>
+            public static IMesh GenerateIMesh3D(ISolver3D solver = default, IEnumerable<ITransfinite> transfinites = default)
+            {
+                if (transfinites != default) ApplyTransfiniteSettings(transfinites);
+                if (solver!=default) solver.ApplySolverSettings();
+                IBuilder.Generate(3);
+                return ParseIMeshData(3);
+            }
+
+            /// <summary>
+            /// Parse topologic data into an IMesh structure.
             /// </summary>
             /// <param name="dim"> Dimension of the mesh. </param>
             /// <returns> Iguana Mesh </returns>
-            public static IMesh TryCreateIMesh(int dim = 2)
+            public static IMesh ParseIMeshData(int dim = 2)
             {
-                if (dim > 3) dim = 3;
-                else if (dim < 2) dim = 2;
+                if (dim != 2 && dim != 3) return new IMesh();
 
                 IMesh mesh = new IMesh();
                 HashSet<int> parsedNodes;
@@ -497,15 +606,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(2);
-
-                IMesh mesh = TryCreateIMesh();
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -540,11 +644,12 @@ namespace Iguana.IguanaMesh
 
                 if (crv.IsPolyline())
                 {
-                    crvTags = IGeometryKernel.CreateUnderlyingLinesFromCurve(crv, solver.Size);
+                    crvTags = IGeometryKernel.CreateUnderlyingLinesFromCurveDividedByCount(crv, solver.Size, 1);
                 }
                 else
                 {
-                    crvTags = IGeometryKernel.CreateUnderlyingSplinesFromCurve(crv, solver.Size);
+                    NurbsCurve nCrv = crv.ToNurbsCurve();
+                    crvTags = IGeometryKernel.CreateUnderlyingSplinesFromCurve(nCrv, solver.Size);
                 }
 
                 Tuple<int, int>[] dimTags = new Tuple<int, int>[crvTags.Length];
@@ -573,14 +678,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(2);
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -621,17 +722,11 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, surfaceTag);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
-
-                // 2d mesh generation
-                IBuilder.Generate(2);
+                solver.Field = field;
 
                 // Iguana mesh construction
-                IMesh mesh = TryCreateIMesh();
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -687,17 +782,11 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
-
-                // 2d mesh generation
-                IBuilder.Generate(2);
+                solver.Field = field;
 
                 // Iguana mesh construction
-                IMesh mesh = TryCreateIMesh();
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -754,15 +843,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(2);
-
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -790,7 +874,7 @@ namespace Iguana.IguanaMesh
                 logInfo = Initialize();
                 StartLogger();
 
-                int surfaceTag = IGeometryKernel.CreateUnderlyingPlaneSurface(outerboundary, holes, solver.Size);
+                int surfaceTag = IGeometryKernel.CreateUnderlyingPlaneSurfaceDividedByCount(outerboundary, holes, solver.Size, 1);
                 IGeometryKernel.IBuilder.Synchronize();
 
                 // Set mesh size
@@ -799,16 +883,11 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryKernel.EmbedConstraints(constraints, 2, surfaceTag);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 //solver options
-                solver.ApplySolverSettings(field);
-
-                IBuilder.Generate(2);
+                solver.Field = field;
 
                 // Iguana mesh construction
-                IMesh mesh = TryCreateIMesh();
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -843,17 +922,11 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
-
-                // 2d mesh generation
-                IBuilder.Generate(2);
+                solver.Field = field;
 
                 // Iguana mesh construction
-                IMesh mesh = TryCreateIMesh();
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -898,15 +971,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(2);
-
-                IMesh mesh = TryCreateIMesh();
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -941,15 +1009,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(3);
-
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -1005,17 +1068,11 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
-
-                // 2d mesh generation
-                IBuilder.Generate(3);
+                solver.Field = field;
 
                 // Iguana mesh construction
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -1072,15 +1129,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(3);
-
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -1169,9 +1221,6 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 3, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Extrude
                 Tuple<int, int>[] ov;
                 var geom = new Tuple<int, int>[] { Tuple.Create(2, surfaceTag) }; ;
@@ -1180,13 +1229,10 @@ namespace Iguana.IguanaMesh
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
-
-                // 2d mesh generation
-                IBuilder.Generate(3);
+                solver.Field = field;
 
                 // Iguana mesh construction
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -1231,15 +1277,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryOCCKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(3);
-
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo += GetLogger();
@@ -1281,15 +1322,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(2);
-
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo = GetLogger();
@@ -1332,15 +1368,10 @@ namespace Iguana.IguanaMesh
                 // Embed constraints
                 IGeometryKernel.EmbedConstraints(constraints, 2, -1);
 
-                //Transfinite
-                ApplyTransfiniteSettings(transfinites);
-
                 // Preprocessing settings
-                solver.ApplySolverSettings(field);
+                solver.Field = field;
 
-                IBuilder.Generate(3);
-
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver, transfinites);
                 entities = GetUnderlyingEntitiesInformation();
 
                 logInfo = GetLogger();
@@ -1562,10 +1593,7 @@ namespace Iguana.IguanaMesh
                 int tag = IGeometryOCCKernel.IBuilder.AddCone(plane.OriginX, plane.OriginY, plane.OriginZ, n.X, n.Y, n.Z, radius1, radius2, angle * Math.PI / 180);
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(3);
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver);
 
                 End();
 
@@ -1589,10 +1617,7 @@ namespace Iguana.IguanaMesh
                 int tag = IGeometryOCCKernel.IBuilder.AddCone(plane.OriginX, plane.OriginY, plane.OriginZ, n.X, n.Y, n.Z, radius1, radius2, angle * Math.PI / 180);
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(2);
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver);
 
                 End();
 
@@ -1641,14 +1666,19 @@ namespace Iguana.IguanaMesh
 
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                IBuilder.Generate(2);
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D();
 
                 End();
 
                 return mesh;
             }
 
+            public static IMesh CreateVolumeMeshFromBox(Plane pl, Interval x, Interval y, Interval z, int u, int v, int w, ISolver3D solver)
+            {
+                Box box = new Box(pl, x, y, z);
+                IMesh m = CreateVolumeMeshFromBox(box, u, v, w, solver);
+                return m;
+            }
             /// <summary>
             /// Create a volume mesh from a box.
             /// </summary>
@@ -1691,10 +1721,7 @@ namespace Iguana.IguanaMesh
 
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(3);
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver);
 
                 End();
 
@@ -1717,10 +1744,7 @@ namespace Iguana.IguanaMesh
 
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(2);
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver);
 
                 End();
 
@@ -1743,10 +1767,7 @@ namespace Iguana.IguanaMesh
 
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(3);
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver);
 
                 End();
 
@@ -1770,10 +1791,7 @@ namespace Iguana.IguanaMesh
                 int tag = IGeometryOCCKernel.IBuilder.AddCylinder(plane.OriginX, plane.OriginY, plane.OriginZ, n.X, n.Y, n.Z, radius, angle * Math.PI / 180);
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(2);
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver);
 
                 End();
 
@@ -1797,10 +1815,7 @@ namespace Iguana.IguanaMesh
                 int tag = IGeometryOCCKernel.IBuilder.AddCylinder(plane.OriginX, plane.OriginY, plane.OriginZ, n.X, n.Y, n.Z, radius, angle * Math.PI / 180);
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(3);
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver);
 
                 End();
 
@@ -1823,10 +1838,7 @@ namespace Iguana.IguanaMesh
                 int tag = IGeometryOCCKernel.IBuilder.AddTorus(center.X, center.Y, center.Z, radius1, radius2, angle * Math.PI / 180);
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(2);
-                IMesh mesh = TryCreateIMesh(2);
+                IMesh mesh = GenerateIMesh2D(solver);
 
                 IKernel.End();
 
@@ -1849,10 +1861,7 @@ namespace Iguana.IguanaMesh
                 int tag = IGeometryOCCKernel.IBuilder.AddTorus(center.X, center.Y, center.Z, radius1, radius2, angle * Math.PI / 180);
                 IGeometryOCCKernel.IBuilder.Synchronize();
 
-                solver.ApplySolverSettings();
-
-                IBuilder.Generate(3);
-                IMesh mesh = TryCreateIMesh(3);
+                IMesh mesh = GenerateIMesh3D(solver);
 
                 IKernel.End();
 
@@ -1863,7 +1872,7 @@ namespace Iguana.IguanaMesh
 
             #region Gmsh Methods 
 
-            internal static class IBuilder
+            public static class IBuilder
             {
                 /// <summary>
                 /// Generate a mesh of the current model, up to dimension `dim' (0, 1, 2 or 3).
@@ -2100,7 +2109,7 @@ namespace Iguana.IguanaMesh
                 /// as recombined: currently supported values are "Left", "Right",
                 /// "AlternateLeft" and "AlternateRight". `cornerTags' can be used to specify
                 /// the(3 or 4) corners of the transfinite interpolation explicitly;
-                /// specifying the corners explicitly is mandatory if the surface has more that
+                /// specifying the corners explicitly is mandatory if the surface has more than
                 /// 3 or 4 points on its boundary.
                 /// </summary>
                 public static void SetTransfiniteSurface(int tag, string arrangement = "Left", int[] cornerTags = default)

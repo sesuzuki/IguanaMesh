@@ -113,6 +113,11 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         public bool ToleranceEdgeLength { get; set; }
 
+        /// <summary>
+        /// Mesh field.
+        /// </summary>
+        public IField Field { get; set; }
+
         #endregion
 
         /////////////////////////////////////////////////////////////////////////

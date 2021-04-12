@@ -1122,65 +1122,6 @@ namespace Iguana.IguanaMesh.ITypes
             return center;
         }
 
-        /// <summary>
-        /// Computes the discrete Gaussian curvature as in the paper "Discrete Differential-Geometry Operators for Triangulated
-        /// 2-Manifolds" (http://www.cs.caltech.edu/~mmeyer/Publications/diffGeomOps.pdf)
-        /// </summary>
-        public double ComputesGaussianCurvature(int vKey)
-        {
-            IVector3D meanCurvatureVector = new IVector3D();
-            if (IsNakedVertex(vKey)) return 0.0;
-
-            IVector3D vect1 = new IVector3D();
-            IVector3D vect2 = new IVector3D();
-            IVector3D vect3 = new IVector3D();
-            double mixed = 0.0;
-            double gauss = 0.0;
-
-            int[] nKey = iM.Topology.GetVertexAdjacentVertices(vKey);
-            ITopologicVertex v = iM.GetVertexWithKey(vKey);
-            int next_i;
-            for(int i=0; i<nKey.Length; i++)
-            {
-                next_i = i + 1;
-                if (i == nKey.Length - 1) next_i = 0;
-
-                ITopologicVertex p1 = iM.GetVertexWithKey(nKey[i]);
-                ITopologicVertex p2 = iM.GetVertexWithKey(nKey[next_i]);
-                vect1 = IVector3D.CreateVector(v.Position, p1.Position);
-                vect2 = IVector3D.CreateVector(p1.Position, p2.Position);
-                vect3 = IVector3D.CreateVector(p2.Position, v.Position);
-                double c12 = IVector3D.Dot(vect1,vect2);
-                double c23 = IVector3D.Dot(vect2,vect3);
-                double c31 = IVector3D.Dot(vect3,vect1);
-                vect2 = IVector3D.Cross(vect1,vect3,false);
-                double area = 0.5 * vect2.Mag();
-
-                // This angle is obtuse
-                if (c31 > 0.0) mixed += 0.5 * area;
-                else if (c12 > 0.0 || c23 > 0.0)
-                {
-                    mixed += 0.25 * area;
-                }
-                else
-                {
-                    if (area > 0.0 && area > -1e-9 * (c12 + c23))
-                    {
-                        mixed -= 0.125 * 0.5 * (c12 * IVector3D.Dot(vect3,vect3) + c23 * IVector3D.Dot(vect1,vect1)) / area;
-                    }
-                }
-                gauss += Math.Abs(Math.Atan2(2.0 * area, -c31));
-                vect3 *= c12;
-                vect1 *= -c23;
-                vect3 += vect1;
-                meanCurvatureVector += vect3 * (0.5/area);
-            }
-            
-            meanCurvatureVector *= (0.5 / mixed);
-            // Discrete gaussian curvature
-            return (2.0 * Math.PI - gauss) / mixed;
-        }
-
         public double ComputeVertexArea(int vKey)
         {
             double area = 0;
@@ -1193,6 +1134,11 @@ namespace Iguana.IguanaMesh.ITypes
             return area;
         }
 
+        /// <summary>
+        /// Computes the barycentric area of a given vertex. 
+        /// </summary>
+        /// <param name="vKey"> Key of the vertex. </param>
+        /// <returns></returns>
         public double ComputeBarycentricVertexArea(int vKey)
         {
             int[] nKeys = GetVertexAdjacentVertices(vKey);
@@ -1215,6 +1161,34 @@ namespace Iguana.IguanaMesh.ITypes
             return area;
         }
 
+        /// <summary>
+        /// Sum of all surface areas of two-dimensional elements incident to the given vertex.
+        /// Return 0 when the vertex is not incident to a two-dimensional element.
+        /// </summary>
+        /// <param name="vKey"> The key of the vertex. </param>
+        /// <returns></returns>
+        public double ComputeSurfaceElementVertexArea(int vKey)
+        {
+            int[] eKeys = GetVertexIncidentElements(vKey);
+            double area = 0;
+            IElement e;
+            for (int i = 0; i < eKeys.Length; i++)
+            {
+                e = iM.GetElementWithKey(eKeys[i]);
+                if (e.TopologicDimension == 2)
+                {
+                    IPoint3D[] pts = new IPoint3D[e.VerticesCount];
+                    for(int j=0; j< e.VerticesCount; j++)
+                    {
+                        pts[j] = iM.GetVertexWithKey(e.Vertices[j]).Position;
+                    }
+                    area += ComputePolygonArea(pts);
+                }
+            }
+
+            return area;
+        }
+
         internal IPoint3D ComputeAveragePosition(int[] keys)
         {
             IVector3D v = new IVector3D();
@@ -1222,7 +1196,12 @@ namespace Iguana.IguanaMesh.ITypes
             v /= keys.Length;
             return new IPoint3D(v.X,v.Y,v.Z);
         }
-  
+
+        /// <summary>
+        /// Computes the normal vector at a vertex as the normalized weighted sum of the normals of incident faces.
+        /// </summary>
+        /// <param name="vKey"> Key of the vertex. </param>
+        /// <returns></returns>
         public IVector3D ComputeVertexNormal(int vKey)
         {
             int[] eKeys = GetVertexIncidentElements(vKey);
@@ -1237,7 +1216,13 @@ namespace Iguana.IguanaMesh.ITypes
             return normal;
         }
 
-        public IVector3D ComputeVertexNormalAsFaceAreaWeighted(int vKey)
+        /// <summary>
+        /// Computes the normal vector at a vertex as the normalized weighted sum of the normals of incident faces,
+        /// with weights proportional to the surface areas of the faces.
+        /// </summary>
+        /// <param name="vKey"> Key of the vertex. </param>
+        /// <returns></returns>
+        public IVector3D ComputeWeightedVertexNormal(int vKey)
         {
             int[] eKeys = GetVertexIncidentElements(vKey);
             IVector3D normal = new IVector3D();
@@ -1252,6 +1237,161 @@ namespace Iguana.IguanaMesh.ITypes
             }
             normal.Norm();
             return normal;
+        }
+
+        /// <summary>
+        /// Estimates the curvature of a two-dimensional mesh.
+        /// See: "Taubin, Gabriel. (1995). Estimating the tensor of curvature of a surface from a polyhedralapproximation. Computer Vision, IEEE International Conference on. 902-907. 10.1109/ICCV.1995.466840." 
+        /// </summary>
+        /// <param name="mesh"> Base mesh. </param>
+        /// <param name="vKeys"> Keys of the vertices. </param>
+        /// <param name="T1"> Maximum principal curvature directions. </param>
+        /// <param name="T2"> Minimum principal curvature directions. </param>
+        /// <param name="k1"> Maximum principal curvature values. </param>
+        /// <param name="k2"> Minimum principal curvature values. </param>
+        /// <param name="mean"> Mean curvatures. </param>
+        /// <param name="gauss"> Gauss curvatures. </param>
+        /// <returns></returns>
+        public bool ComputeMeshCurvature(out int[] vKeys, out IVector3D[] T1, out IVector3D[] T2, out double[] k1, out double[] k2, out double[] mean, out double[] gauss)
+        {
+            if (!iM.IsSurfaceMesh)
+            {
+                vKeys = new int[0];
+                T1 = new IVector3D[0];
+                T2 = new IVector3D[0];
+                k1 = new double[0];
+                k2 = new double[0];
+                mean = new double[0];
+                gauss = new double[0];
+                return false;
+            }
+
+            int count = iM.VerticesCount;
+            vKeys = iM.VerticesKeys.ToArray();
+            T1 = new IVector3D[count];
+            T2 = new IVector3D[count];
+            k1 = new double[count];
+            k2 = new double[count];
+            mean = new double[count];
+            gauss = new double[count];
+
+            for (int i=0; i<count; i++)
+            {
+                ComputeVertexCurvatureTensor(vKeys[i], out T1[i], out T2[i], out k1[i], out k2[i], out mean[i], out gauss[i]);
+            }
+
+            return true; 
+        }
+
+        /// <summary>
+        /// Estimates the tensor of curvature at a given vertex (Only for two-diemensional meshes).
+        /// See: "Taubin, Gabriel. (1995). Estimating the tensor of curvature of a surface from a polyhedralapproximation. Computer Vision, IEEE International Conference on. 902-907. 10.1109/ICCV.1995.466840." 
+        /// </summary>
+        /// <param name="mesh"> Base mesh. </param>
+        /// <param name="vKey"> Key of the vertex. </param>
+        /// <param name="T1"> Maximum principal curvature direction. </param>
+        /// <param name="T2"> Minimum principal curvature direction. </param>
+        /// <param name="k1"> Maximum principal curvature value. </param>
+        /// <param name="k2"> Minimum principal curvature value. </param>
+        /// <param name="mean"> Mean curvature. </param>
+        /// <param name="gauss"> Gauss curvature. </param>
+        /// <returns></returns>
+        public bool ComputeVertexCurvatureTensor(int vKey, out IVector3D T1, out IVector3D T2, out double k1, out double k2, out double mean, out double gauss)
+        {
+            if (!iM.IsSurfaceMesh)
+            {
+                T1 = new IVector3D(0, 0, 0);
+                T2 = new IVector3D(0, 0, 0);
+                k1 = 0;
+                k2 = 0;
+                mean = 0;
+                gauss = 0;
+                return false;
+            }
+
+            int[] vertexStar = iM.Topology.GetVertexAdjacentVertices(vKey);
+            IVector3D n = iM.Topology.ComputeWeightedVertexNormal(vKey);
+            IMatrix I = IMatrix.Identity3x3Matrix;
+            IMatrix N = new IMatrix(n);
+            IMatrix Nt = N.Transpose();
+            double area = 0, k;
+            double[] weight = new double[vertexStar.Length];
+
+            for (int i = 0; i < vertexStar.Length; i++)
+            {
+                int[] elementStar = iM.Topology.GetEdgeIncidentElements(vKey, vertexStar[i]);
+                for (int j = 0; j < elementStar.Length; j++)
+                {
+                    weight[i] += iM.Topology.ComputeTwoDimensionalElementArea(elementStar[j]);
+                }
+                area += weight[i];
+            }
+
+            // Compute matrix M
+            IMatrix M = new IMatrix(3, 3);
+            for (int i = 0; i < vertexStar.Length; i++)
+            {
+
+                // Compute weight proportional to the sum of surface areas incident to both vertices Vi and Vj
+                weight[i] /= area;
+
+                // Get vector Vj - Vi
+                IVector3D vec = iM.GetVertexWithKey(vertexStar[i]).Position - iM.GetVertexWithKey(vKey).Position;
+
+                // T as the unit length normalized projection of the vector vj and vi over the normal plane.
+                IVector3D t = new IVector3D((I - N * Nt) * vec);
+                t.Norm();
+
+                vec.Reverse();
+                double[] data = (2 * Nt) * vec;
+                k = data[0] / Math.Pow(vec.Mag(), 2);
+
+                IMatrix T = new IMatrix(t);
+                IMatrix Tt = T.Transpose();
+
+                M += weight[i] * k * T * Tt;
+            }
+
+            // Compute the Householder matrix Q
+            IVector3D E1 = new IVector3D(1, 0, 0);
+            IVector3D w;
+            if (1 - n.Mag() > 1 + n.Mag())
+            {
+                w = E1 - n;
+            }
+            else
+            {
+                w = E1 + n;
+            }
+            w.Norm();
+
+            IMatrix W = new IMatrix(w);
+            IMatrix Q = I - 2 * W * W.Transpose();
+            IMatrix D = Q.Transpose() * M * Q;
+
+            IVector3D t1 = new IVector3D(Q.GetColumn(1));
+            IVector3D t2 = new IVector3D(Q.GetColumn(2));
+
+            double m11 = D.GetData(1, 1);
+            double m22 = D.GetData(2, 2);
+            double m12 = D.GetData(1, 2);
+
+            // Givens rotation
+            double theta = 0.5 * Math.Atan2(2 * m11 * m12 + 2 * m12 * m22, m11 * m11 + m12 * m12 - m12 * m12 - m22 * m22);
+            double c = Math.Cos(theta);
+            double s = Math.Sin(theta);
+
+            // Curvature directions
+            T1 = c * t1 - s * t2;
+            T2 = s * t1 + c * t2;
+
+            // Curvature values
+            k1 = 3 * m11 - m22;
+            k2 = 3 * m22 - m11;
+            mean = (k1 + k2) / 2;
+            gauss = k1 * k2;
+
+            return true;
         }
     }
 }

@@ -100,6 +100,11 @@ namespace Iguana.IguanaMesh.ITypes
             }
         }
 
+        public override string ToString()
+        {
+            return "ITopologicEdge (" + Start.DistanceTo(End) + ")";
+        }
+
         public string TypeName
         {
             get => "ITopologicEdge";
@@ -107,7 +112,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         public string TypeDescription
         {
-            get => "ITopologicEdge (" + Start.DistanceTo(End) + ")";
+            get => ToString();
         }
 
         public BoundingBox ClippingBox => new BoundingBox(new Point3d[] { Start.RhinoPoint, End.RhinoPoint });
@@ -129,15 +134,12 @@ namespace Iguana.IguanaMesh.ITypes
 
         public bool CastTo<T>(out T target)
         {
-            if (typeof(T).IsAssignableFrom(typeof(ITopologicEdge)))
+            if (typeof(T).Equals(typeof(GH_Curve)))
             {
-                if (this == null)
-                    target = default(T);
-                else
-                    target = (T)(object)this;
+                LineCurve ln = new LineCurve(new Point3d(_start.X, _start.Y, _start.Z), new Point3d(_end.X, _end.Y, _end.Z));
+                target = (T)(object)new GH_Curve(ln);
                 return true;
             }
-
             target = default(T);
             return false;
         }

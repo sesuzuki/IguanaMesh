@@ -34,8 +34,7 @@ namespace Iguana.IguanaMesh
 
             public static void EmbedConstraints(List<IConstraint> constraints, int dim = 2, int tag = -1)
             {
-                if (constraints.Count == 0) return;
-                if (constraints == default) return;
+                if (constraints == null || constraints == default || constraints.Count == 0) return;
 
                 Tuple<int, int>[] dimTags;
                 IModel.GetEntities(out dimTags, dim);
@@ -62,6 +61,7 @@ namespace Iguana.IguanaMesh
 
                     IConstraint data;
                     double t = 0.0001;
+                    Curve crv;
 
                     for (int i = 0; i < count; i++)
                     {
@@ -82,13 +82,13 @@ namespace Iguana.IguanaMesh
                                 break;
 
                             case 1:
-                                Polyline poly = (Polyline)data.RhinoGeometry;
-                                crvTags.AddRange(CreateUnderlyingLinesFromPolyline(poly, data.Size, ref ptsTags, ref ptsCloud, t));
+                                crv = (Curve)data.RhinoGeometry;
+                                crvTags.AddRange(CreateUnderlyingLinesFromCurveDividedByLength(crv, data.Size, data.CurveDivisionLength));
                                 break;
 
                             case 2:
-                                Curve crv = (Curve)data.RhinoGeometry;
-                                crvTags.AddRange(CreateUnderlyingSplinesFromCurve(crv, data.Size));
+                                crv = (Curve)data.RhinoGeometry;
+                                crvTags.AddRange(CreateUnderlyingLinesFromCurveDividedByCount(crv, data.Size, data.NodesCountPerCurve));
                                 break;
                             case 3:
                                 Brep b = (Brep)data.RhinoGeometry;
@@ -165,21 +165,42 @@ namespace Iguana.IguanaMesh
                 return wireTag;
             }
 
-            public static int CreateUnderlyingPolylineFromCurve(Curve curve, double size)
+            public static int CreateUnderlyingPolylineFromCurveDividedByLength(Curve curve, double size, double length)
             {
                 List<int> ptsTag = new List<int>();
                 PointCloud ptsCloud = new PointCloud();
-                int[] crvTags = CreateUnderlyingLinesFromCurve(curve, size);
+                int[] crvTags = CreateUnderlyingLinesFromCurveDividedByLength(curve, size, length);
                 int wireTag = IBuilder.AddCurveLoop(crvTags);
                 return wireTag;
             }
 
-            public static int CreateUnderlyingPlaneSurface(Curve boundary, List<Curve> holes, double size)
+            public static int CreateUnderlyingPolylineFromCurveDividedByCount(Curve curve, double size, int count)
+            {
+                List<int> ptsTag = new List<int>();
+                PointCloud ptsCloud = new PointCloud();
+                int[] crvTags = CreateUnderlyingLinesFromCurveDividedByCount(curve, size, count);
+                int wireTag = IBuilder.AddCurveLoop(crvTags);
+                return wireTag;
+            }
+
+            public static int CreateUnderlyingPlaneSurfaceDividedByLength(Curve boundary, List<Curve> holes, double size, double length)
             {
                 int[] crv_tags = new int[holes.Count + 1];
-                crv_tags[0] = CreateUnderlyingPolylineFromCurve(boundary, size);
+                crv_tags[0] = CreateUnderlyingPolylineFromCurveDividedByLength(boundary, size, length);
 
-                for (int i = 0; i < holes.Count; i++) crv_tags[i + 1] = CreateUnderlyingPolylineFromCurve(holes[i], size);
+                for (int i = 0; i < holes.Count; i++) crv_tags[i + 1] = CreateUnderlyingPolylineFromCurveDividedByLength(holes[i], size, length);
+
+                int surfaceTag = IBuilder.AddPlaneSurface(crv_tags);
+
+                return surfaceTag;
+            }
+
+            public static int CreateUnderlyingPlaneSurfaceDividedByCount(Curve boundary, List<Curve> holes, double size, int count)
+            {
+                int[] crv_tags = new int[holes.Count + 1];
+                crv_tags[0] = CreateUnderlyingPolylineFromCurveDividedByCount(boundary, size, count);
+
+                for (int i = 0; i < holes.Count; i++) crv_tags[i + 1] = CreateUnderlyingPolylineFromCurveDividedByCount(holes[i], size, count);
 
                 int surfaceTag = IBuilder.AddPlaneSurface(crv_tags);
 
@@ -220,42 +241,134 @@ namespace Iguana.IguanaMesh
                 return crvTags;
             }
 
-            public static int[] CreateUnderlyingLinesFromCurve(Curve crv, double size, bool synchronize = false)
+
+            public static int[] CreateUnderlyingLinesFromCurveDividedByCount(Curve crv, double size, int nodeNumber, bool synchronize = false)
             {
-                Polyline poly;
-                crv.TryGetPolyline(out poly);
-
-                List<int> ptsTags = new List<int>();
-                PointCloud ptsCloud = new PointCloud();
-                int tag;
-                Point3d p;
-
-                int[] tempTags = new int[poly.Count];
-                int idx;
-                for (int i = 0; i < poly.Count; i++)
+                if (!crv.IsLinear())
                 {
-                    p = poly[i];
-                    idx = EvaluatePoint(ptsCloud, p, 0.001);
+                    Curve[] seg = crv.DuplicateSegments();
 
-                    if (idx == -1)
+                    List<int> ptTags = new List<int>();
+                    bool isClosed = crv.IsClosed;
+                    Point3d p;
+
+                    for (int i = 0; i < seg.Length; i++)
                     {
-                        tag = IBuilder.AddPoint(p.X, p.Y, p.Z, size);
-                        ptsTags.Add(tag);
-                        ptsCloud.Add(p);
-                        idx = ptsCloud.Count - 1;
+                        Curve c = seg[i];
+                        double[] t = c.DivideByCount(nodeNumber, true);
+
+                        int count = t.Length - 1;
+                        if (i == seg.Length - 1 && !isClosed) count = t.Length;
+
+                        for (int j = 0; j < count; j++)
+                        {
+                            p = c.PointAt(t[j]);
+                            ptTags.Add(IBuilder.AddPoint(p.X, p.Y, p.Z, size));
+                        }
                     }
 
-                    tempTags[i] = idx;
-                }
+                    List<int> lnTags = new List<int>();
+                    for (int i = 0; i < ptTags.Count - 1; i++)
+                    {
+                        lnTags.Add(IBuilder.AddLine(ptTags[i], ptTags[i + 1]));
+                    }
 
-                int[] dimTags = new int[poly.SegmentCount];
-                for (int i = 0; i < poly.SegmentCount; i++)
+                    if (isClosed)
+                    {
+                        lnTags.Add(IBuilder.AddLine(ptTags[ptTags.Count - 1], ptTags[0]));
+                    }
+
+                    if (synchronize) IBuilder.Synchronize();
+                    return lnTags.ToArray();
+                }
+                else
                 {
-                    dimTags[i] = IBuilder.AddLine(ptsTags[tempTags[i]], ptsTags[tempTags[i + 1]]);
-                }
+                    List<int> ptTags = new List<int>();
+                    Point3d p;
+                    double[] t = crv.DivideByCount(nodeNumber, true);
 
-                if (synchronize) IBuilder.Synchronize();
-                return dimTags;
+                    for (int i = 0; i < t.Length; i++)
+                    {
+                        p = crv.PointAt(t[i]);
+                        ptTags.Add(IBuilder.AddPoint(p.X, p.Y, p.Z, size));
+                    }
+
+                    List<int> lnTags = new List<int>();
+                    for (int i = 0; i < ptTags.Count - 1; i++)
+                    {
+                        lnTags.Add(IBuilder.AddLine(ptTags[i], ptTags[i + 1]));
+                    }
+
+                    if (synchronize) IBuilder.Synchronize();
+                    return lnTags.ToArray();
+                }
+            }
+
+            public static int[] CreateUnderlyingLinesFromCurveDividedByLength(Curve crv, double size, double length, bool synchronize = false)
+            {
+                if (!crv.IsLinear())
+                {
+                    Curve[] seg = crv.DuplicateSegments();
+
+                    List<int> ptTags = new List<int>();
+                    bool isClosed = crv.IsClosed;
+                    Point3d p;
+
+                    for (int i = 0; i < seg.Length; i++)
+                    {
+                        Curve c = seg[i];
+                        double[] t = c.DivideByLength(length, true);
+
+                        for (int j = 0; j < t.Length; j++)
+                        {
+                            p = c.PointAt(t[j]);
+                            ptTags.Add(IBuilder.AddPoint(p.X, p.Y, p.Z, size));
+                        }
+
+                        if (i == seg.Length - 1 && !isClosed)
+                        {
+                            p = c.PointAtEnd;
+                            ptTags.Add(IBuilder.AddPoint(p.X, p.Y, p.Z, size));
+                        }
+                    }
+
+                    List<int> lnTags = new List<int>();
+                    for (int i = 0; i < ptTags.Count - 1; i++)
+                    {
+                        lnTags.Add(IBuilder.AddLine(ptTags[i], ptTags[i + 1]));
+                    }
+
+                    if (isClosed)
+                    {
+                        lnTags.Add(IBuilder.AddLine(ptTags[ptTags.Count - 1], ptTags[0]));
+                    }
+
+                    if (synchronize) IBuilder.Synchronize();
+                    return lnTags.ToArray();
+                }
+                else
+                {
+                    List<int> ptTags = new List<int>();
+                    Point3d p;
+                    double[] t = crv.DivideByLength(length, true);
+
+                    for (int i = 0; i < t.Length; i++)
+                    {
+                        p = crv.PointAt(t[i]);
+                        ptTags.Add(IBuilder.AddPoint(p.X, p.Y, p.Z, size));
+                    }
+                    p = crv.PointAtEnd;
+                    ptTags.Add(IBuilder.AddPoint(p.X, p.Y, p.Z, size));
+
+                    List<int> lnTags = new List<int>();
+                    for (int i = 0; i < ptTags.Count - 1; i++)
+                    {
+                        lnTags.Add(IBuilder.AddLine(ptTags[i], ptTags[i + 1]));
+                    }
+
+                    if (synchronize) IBuilder.Synchronize();
+                    return lnTags.ToArray();
+                }
             }
 
             public static int[] CreateUnderlyingSplinesFromCurve(Curve crv, double size, bool synchronize = false)
@@ -324,7 +437,7 @@ namespace Iguana.IguanaMesh
             #endregion
 
             #region Gmsh Methods
-            internal static class IBuilder
+            public static class IBuilder
             {
                 /// <summary>
                 /// Add a geometrical point in the built-in CAD representation, at coordinates (`x', `y', `z').

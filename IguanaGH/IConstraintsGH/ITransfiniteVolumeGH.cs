@@ -21,13 +21,13 @@ using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
+using static Iguana.IguanaMesh.ITypes.ITransfinite;
 
 namespace IguanaMeshGH.IConstraints
 {
     public class ITransfiniteVolumeGH : GH_Component
     {
-        private enum TransSurface { Left = 0, Right = 1, AlternateLeft = 2, AlternateRight = 3 }
-        TransSurface type = TransSurface.Left;
+        TransfiniteSurfaceType type = TransfiniteSurfaceType.Left;
 
         /// <summary>
         /// Initializes a new instance of the ITransfiniteVolumeGH class.
@@ -83,16 +83,16 @@ namespace IguanaMeshGH.IConstraints
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetInt32("TransSurface", (int)type);
+            writer.SetInt32("type", (int)type);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
             int aIndex = -1;
-            if (reader.TryGetInt32("TransSurface", ref aIndex))
+            if (reader.TryGetInt32("type", ref aIndex))
             {
-                type = (TransSurface)aIndex;
+                type = (TransfiniteSurfaceType)aIndex;
             }
 
             return base.Read(reader);
@@ -100,16 +100,16 @@ namespace IguanaMeshGH.IConstraints
 
         protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
         {
-            foreach (TransSurface s in Enum.GetValues(typeof(TransSurface)))
+            foreach (TransfiniteSurfaceType s in Enum.GetValues(typeof(TransfiniteSurfaceType)))
                 GH_Component.Menu_AppendItem(menu, s.ToString(), GetType, true, s == this.type).Tag = s;
             base.AppendAdditionalComponentMenuItems(menu);
         }
 
         private void GetType(object sender, EventArgs e)
         {
-            if (sender is ToolStripMenuItem item && item.Tag is TransSurface)
+            if (sender is ToolStripMenuItem item && item.Tag is TransfiniteSurfaceType)
             {
-                this.type = (TransSurface)item.Tag;
+                this.type = (TransfiniteSurfaceType)item.Tag;
                 ExpireSolution(true);
             }
         }

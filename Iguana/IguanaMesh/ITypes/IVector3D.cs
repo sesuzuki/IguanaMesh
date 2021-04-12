@@ -15,13 +15,16 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using GH_IO.Serialization;
+using Grasshopper.Kernel.Types;
+using Rhino;
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 
 namespace Iguana.IguanaMesh.ITypes
 {
-    public struct IVector3D
+    public struct IVector3D : IGH_Goo
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -32,6 +35,34 @@ namespace Iguana.IguanaMesh.ITypes
             this.X = _x;
             this.Y = _y;
             this.Z = _z;
+        }
+
+        public IVector3D(double[] xyz)
+        {
+            if (xyz.Length == 3)
+            {
+                this.X = xyz[0];
+                this.Y = xyz[1];
+                this.Z = xyz[2];
+            }
+            else if (xyz.Length == 2)
+            {
+                this.X = xyz[0];
+                this.Y = xyz[1];
+                this.Z = 0;
+            }
+            else if (xyz.Length == 1)
+            {
+                this.X = xyz[0];
+                this.Y = 0;
+                this.Z = 0;
+            }
+            else
+            {
+                this.X = 0;
+                this.Y = 0;
+                this.Z = 0;
+            }
         }
 
         public IVector3D(IVector3D vector)
@@ -80,7 +111,7 @@ namespace Iguana.IguanaMesh.ITypes
             double[][] data = new double[3][];
             data[0] = new double[3]{ X * vec.X, X * vec.Y, X * vec.Z };
             data[1] = new double[3]{ Y * vec.X, Y * vec.Y, Y * vec.Z };
-            data[2] = new double[3] { Z * vec.X, Z * vec.Y, Z * vec.Z };
+            data[2] = new double[3]{Z * vec.X, Z * vec.Y, Z * vec.Z };
             return new IMatrix(data);
         }
 
@@ -193,6 +224,12 @@ namespace Iguana.IguanaMesh.ITypes
         }
 
         public static IVector3D operator *(IVector3D vector, double scalar)
+        {
+            IVector3D newVector = new IVector3D(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
+            return newVector;
+        }
+
+        public static IVector3D operator *(double scalar, IVector3D vector)
         {
             IVector3D newVector = new IVector3D(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
             return newVector;
@@ -509,5 +546,62 @@ namespace Iguana.IguanaMesh.ITypes
         public static IVector3D UnitZ { get => new IVector3D(0, 0, 1); }
         public static IVector3D UnitY { get => new IVector3D(0, 1, 0); }
         public static IVector3D UnitX { get => new IVector3D(1, 0, 0); }
+
+        public IGH_Goo Duplicate()
+        {
+            return (IGH_Goo) this.Copy();
+        }
+
+        public IGH_GooProxy EmitProxy()
+        {
+            return null;
+        }
+
+        public bool CastFrom(object source)
+        {
+            if (typeof(GH_Vector).IsAssignableFrom(source.GetType()))
+            {
+                Vector3d vec = ((GH_Vector)source).Value;
+                this.X = vec.X;
+                this.Y = vec.Y;
+                this.Z = vec.Z;
+                return true;
+            }
+            return false;
+        }
+
+        public bool CastTo<T>(out T target)
+        {
+            if (typeof(T).Equals(typeof(GH_Vector)))
+            {
+                target = (T)(object)new GH_Vector(new Vector3d(X, Y, Z));
+                return true;
+            }
+            target = default(T);
+            return false;
+        }
+
+        public object ScriptVariable()
+        {
+            return this;
+        }
+
+        public bool Write(GH_IWriter writer)
+        {
+            return true;
+        }
+
+        public bool Read(GH_IReader reader)
+        {
+            return true;
+        }
+
+        public bool IsValid => true;
+
+        public string IsValidWhyNot => "";
+
+        public string TypeName => "IVector3D";
+
+        public string TypeDescription => "Three-dimensional vector";
     }
 }

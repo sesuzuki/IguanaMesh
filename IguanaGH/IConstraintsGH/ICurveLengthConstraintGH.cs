@@ -16,20 +16,22 @@
 */
 
 using System;
+using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
+using Rhino.Geometry;
 
-namespace IguanaMeshGH.ITopology
+namespace IguanaMeshGH.IConstraints
 {
-    public class IGaussCurvatureGH : GH_Component
+    public class ICurveLengthConstraintGH : GH_Component
     {
         /// <summary>
-        /// Initializes a new instance of the IGausCurvatureGH class.
+        /// Initializes a new instance of the ILineConstraintGH class.
         /// </summary>
-        public IGaussCurvatureGH()
-          : base("iGaussCurvature", "iGauss",
-              "Computes the discrete Gaussian curvature.",
-              "Iguana", "Topology")
+        public ICurveLengthConstraintGH()
+          : base("iCurveLengthConstraint", "iCurveLengthConstraint",
+              "Embed a curve divided by length to constraint mesh generation.",
+              "Iguana", "Constraints")
         {
         }
 
@@ -38,7 +40,9 @@ namespace IguanaMeshGH.ITopology
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
+            pManager.AddCurveParameter("Curve", "Crv", "Curve to use as a geometric constraint.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Size", "Size", "Target global mesh element size at the constraint curve.", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Length", "Length", "Length used to divide the curve.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -46,8 +50,7 @@ namespace IguanaMeshGH.ITopology
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddNumberParameter("Gauss", "G", "Gaussian Curvature.", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Vertex", "v-Key", "Vertices keys.", GH_ParamAccess.list);
+            pManager.AddGenericParameter("iConstraint", "iConstraint", "Constraint for mesh generation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -56,26 +59,16 @@ namespace IguanaMeshGH.ITopology
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            IMesh mesh = new IMesh();
-            DA.GetData(0, ref mesh);
+            Curve crv = null;
+            double size = 0;
+            int length = 0;
+            DA.GetData(0, ref crv);
+            DA.GetData(1, ref size);
+            DA.GetData(2, ref length);
 
-            int[] vKeys = new int[mesh.VerticesCount];
-            double[] gauss = new double[mesh.VerticesCount];
-            int i = 0;
-            foreach (int vK in mesh.VerticesKeys)
-            {
-                vKeys[i] = vK;
-                gauss[i] = mesh.Topology.ComputesGaussianCurvature(vK);
-                i++;
-            }
+            IConstraint constraints = new IConstraint(1, crv, size, -1, -1, 1, length);
 
-            DA.SetDataList(0, gauss);
-            DA.SetDataList(1, vKeys);
-        }
-
-        public override GH_Exposure Exposure
-        {
-            get { return GH_Exposure.quarternary; }
+            DA.SetData(0, constraints);
         }
 
         /// <summary>
@@ -85,8 +78,7 @@ namespace IguanaMeshGH.ITopology
         {
             get
             {
-                return Properties.Resources.iGauss;
-
+                return Properties.Resources.iCurveLengthConstraints;
             }
         }
 
@@ -95,7 +87,7 @@ namespace IguanaMeshGH.ITopology
         /// </summary>
         public override Guid ComponentGuid
         {
-            get { return new Guid("8410e8ff-7fbe-4030-9f35-461332959830"); }
+            get { return new Guid("9f579201-4df0-41e5-bb3c-30f041e25eac"); }
         }
     }
 }

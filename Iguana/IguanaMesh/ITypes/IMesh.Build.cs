@@ -196,5 +196,61 @@ namespace Iguana.IguanaMesh.ITypes
                 }
             }
         }
+
+        public void RemoveDuplicateVertices()
+        {
+            PointCloud cloud = new PointCloud();
+            List<ITopologicVertex> vertices = Vertices;
+            List<int> culledVKeys = new List<int>();
+            Dictionary<int, IElement> modifiedElements = new Dictionary<int, IElement>(_elements);
+            Dictionary<int, ITopologicVertex> culledVertices = new Dictionary<int, ITopologicVertex>();
+            ITopologicVertex v;
+            IElement e;
+            Point3d p;
+            int idx;
+            double t = 0.0001;
+
+            for (int i=0; i<vertices.Count; i++)
+            {
+                v = vertices[i];
+                p = v.RhinoPoint;
+
+                idx = IKernel.EvaluatePoint(cloud, p, t);
+
+                if(idx == -1)
+                {
+                    culledVertices.Add(v.Key, v);
+                    culledVKeys.Add(v.Key);
+                    cloud.Add(p);
+                }
+                else
+                {
+                    int[] eKeys = Topology.GetVertexIncidentElements(v.Key);
+
+                    foreach(int eK in eKeys)
+                    {
+                        e = modifiedElements[eK];
+                        int[] vE = new int[e.VerticesCount];
+
+                        for(int j=0; j<vE.Length; j++)
+                        {
+                            vE[j] = e.Vertices[j];
+                            if (vE[j] == v.Key)
+                            {
+                                vE[j] = culledVKeys[idx];
+                            }
+                        }
+
+                        e.Vertices = vE;
+
+                        modifiedElements[eK] = e;
+                    }
+                }
+            }
+
+            _vertices = culledVertices;
+            _elements = modifiedElements;
+            BuildTopology(true);
+        }
     }
 }

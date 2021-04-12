@@ -42,6 +42,7 @@ namespace Iguana.IguanaMesh.ITypes
             CharacteristicLengthMax = 1e22;
             OptimizationSteps = 5;
             Size = 1.0;
+            Field = null;
         }
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace Iguana.IguanaMesh.ITypes
 
         #endregion
 
-        public void ApplySolverSettings(IField field = null)
+        internal void ApplySolverSettings()
         {
             IKernel.SetOptionNumber("Mesh.Algorithm", (int)MeshingAlgorithm);
             IKernel.SetOptionNumber("Mesh.ElementOrder", ElementOrder);
@@ -127,10 +128,10 @@ namespace Iguana.IguanaMesh.ITypes
                 IKernel.SetOptionNumber("Mesh.HighOrderPassMax", HighOrderPassMax);
             }
 
-            if (field != null)
+            if (Field != null)
             {
-                field.ApplyField();
-                IKernel.IMeshingKernel.IBuilder.SetMeshFieldAsBackgroundMesh(field.Tag);
+                Field.ApplyField();
+                IKernel.IMeshingKernel.IBuilder.SetMeshFieldAsBackgroundMesh(Field.Tag);
                 IKernel.SetOptionNumber("Mesh.CharacteristicLengthFromCurvature", 0);
                 IKernel.SetOptionNumber("Mesh.CharacteristicLengthFromPoints", 0);
                 IKernel.SetOptionNumber("Mesh.CharacteristicLengthExtendFromBoundary", 0);

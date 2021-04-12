@@ -23,7 +23,7 @@ namespace Iguana.IguanaMesh
 {
     public static partial class IKernel
     {
-        internal static partial class IModel
+        public static partial class IModel
         {
             /// <summary>
             /// Add a new model, with name `name', and set it as the current model.

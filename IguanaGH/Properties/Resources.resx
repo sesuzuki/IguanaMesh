@@ -160,11 +160,17 @@
   <data name="iCube3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\iCube3d.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="iCurvature" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCurvature.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="iCurvatureField" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\iCurvatureField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="iCurveConstraints" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\iCurveConstraints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="iCurveCountConstraints" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCurveCountConstraints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="iCurveLengthConstraints" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\iCurveLengthConstraints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="iCurvePatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\iCurvePatch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -246,9 +252,6 @@
   </data>
   <data name="iFrustumField" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\iFrustumField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="iGauss" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\iGauss.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="iGradientField" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\iGradientField.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

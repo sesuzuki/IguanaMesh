@@ -63,20 +63,15 @@ namespace IguanaMeshGH.IConstraints
             DA.GetDataList(0, pts);
             DA.GetDataList(1, values);
 
-            if (pts.Count == values.Count)
+            IConstraint[] constraints = new IConstraint[pts.Count];
+            double val = values[0];
+            for (int i = 0; i < pts.Count; i++)
             {
-                IConstraint[] constraints = new IConstraint[pts.Count];
-                for (int i = 0; i < pts.Count; i++)
-                {
-                    constraints[i] = new IConstraint(0, pts[i], values[i], -1, -1);
-                }
+                if (pts.Count == values.Count) val = values[i];
+                constraints[i] = new IConstraint(0, pts[i], val, -1, -1);
+            }
 
-                DA.SetDataList(0, constraints);
-            }
-            else
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Point count should equal to size count.");
-            }
+            DA.SetDataList(0, constraints);
         }
 
         /// <summary>

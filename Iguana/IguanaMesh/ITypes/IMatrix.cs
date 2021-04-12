@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using Rhino.Geometry;
 using System;
 
 namespace Iguana.IguanaMesh.ITypes
@@ -62,6 +63,22 @@ namespace Iguana.IguanaMesh.ITypes
 			}
 		}
 
+		public IMatrix(IVector3D vec)
+		{
+			matrix = new double[3, 1];
+			matrix[0, 0] = vec.X;
+			matrix[1, 0] = vec.Y;
+			matrix[2, 0] = vec.Z;
+		}
+
+		public IMatrix(Vector3d vec)
+		{
+			matrix = new double[3, 1];
+			matrix[0, 0] = vec.X;
+			matrix[1, 0] = vec.Y;
+			matrix[2, 0] = vec.Z;
+		}
+
 		public void SetData(int row, int column, double data)
 		{
 			matrix[row,column] = data;
@@ -90,6 +107,74 @@ namespace Iguana.IguanaMesh.ITypes
 				c[i] = matrix[i,index];
 			}
 			return c;
+		}
+
+		/// <summary>
+		/// Set the column of a matrix with an array. The length of the array should be equal to the number of rows in the matrix.
+		/// </summary>
+		/// <param name="index"> Column index. </param>
+		/// <param name="data"> Array of data. </param>
+		/// <returns></returns>
+		public bool SetColumn(int index, double[] data)
+		{
+			if (RowsCount != data.Length) return false;
+
+			for (int i = 0; i < data.Length; i++)
+			{
+				SetData(i, index, data[i]);
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Set the column of a matrix with an IVector3D. The number of rows in the matrix should be equal to 3.
+		/// </summary>
+		/// <param name="index"> Column index. </param>
+		/// <param name="data"> IVector3D. </param>
+		/// <returns></returns>
+		public bool SetColumn(int index, IVector3D vector)
+		{
+			if (RowsCount != 3) return false;
+
+			SetData(0, index, vector.X);
+			SetData(1, index, vector.Y);
+			SetData(2, index, vector.Z);
+
+			return true;
+		}
+
+		/// <summary>
+		/// Set the row of a matrix with an array. The length of the array should be equal to the number of columns in the matrix.
+		/// </summary>
+		/// <param name="index"> Row index. </param>
+		/// <param name="data"> Array of data. </param>
+		/// <returns></returns>
+		public bool SetRow(int index, double[] data)
+		{
+			if (ColumnsCount != data.Length) return false;
+
+			for (int i = 0; i < data.Length; i++)
+			{
+				SetData(index, i, data[i]);
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Set the row of a matrix with an IVector3D. The number of columns in the matrix should be equal to 3.
+		/// </summary>
+		/// <param name="index"> Row index. </param>
+		/// <param name="data"> IVector3D. </param>
+		/// <returns></returns>
+		public bool SetRow(int index, IVector3D vector)
+		{
+			if (ColumnsCount != 3) return false;
+
+			SetData(index, 0, vector.X);
+			SetData(index, 1, vector.Y);
+			SetData(index, 2, vector.Z);
+
+			return true;
 		}
 
 		public double[,] GetMatrix()
@@ -146,6 +231,46 @@ namespace Iguana.IguanaMesh.ITypes
 			}
 		}
 
+		public static IMatrix operator *(IMatrix matrix1, IMatrix matrix2)
+		{
+			try
+			{
+				IMatrix matrix = new IMatrix(matrix1.RowsCount, matrix2.ColumnsCount);
+				for (int i = 0; i < matrix.RowsCount; i++)
+				{
+					for (int j = 0; j < matrix.ColumnsCount; j++)
+					{
+						double newData = 0;
+						for (int k = 0; k < matrix1.ColumnsCount; k++)
+						{
+							newData += matrix1.GetData(i, k) * matrix2.GetData(k, j);
+						}
+						matrix.SetData(i, j, newData);
+					}
+				}
+				return matrix;
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Matrix with unequal column/row lengths");
+				return new IMatrix();
+			}
+		}
+
+		public static IMatrix operator *(double value, IMatrix matrix)
+		{
+			IMatrix m = new IMatrix(matrix.RowsCount, matrix.ColumnsCount);
+			for (int i = 0; i < matrix.RowsCount; i++)
+			{
+				for (int j = 0; j < matrix.ColumnsCount; j++)
+				{
+					double data = matrix.GetData(i, j) * value;
+					m.SetData(i, j, data);
+				}
+			}
+			return m;
+		}
+
 		public void Mult(IMatrix matrix1)
 		{
 			try
@@ -192,24 +317,17 @@ namespace Iguana.IguanaMesh.ITypes
 			}
 		}
 
-		public void Transpose()
+		public IMatrix Transpose()
 		{
-			try
+			IMatrix newMatrix = new IMatrix(ColumnsCount, RowsCount);
+			for (int i = 0; i < RowsCount; i++)
 			{
-				IMatrix newMatrix = new IMatrix(ColumnsCount, RowsCount);
-				for (int i = 0; i < RowsCount; i++)
+				for (int j = 0; j < ColumnsCount; j++)
 				{
-					for (int j = 0; j < ColumnsCount; j++)
-					{
-						newMatrix.SetData(j, i, matrix[i,j]);
-					}
+					newMatrix.SetData(j, i, matrix[i, j]);
 				}
-				this.matrix = newMatrix.GetMatrix();
 			}
-			catch (Exception)
-			{
-				Console.WriteLine("Matrix with unequal column/row lengths");
-			}
+			return newMatrix;
 		}
 
 		public static IMatrix Add(IMatrix matrix1, IMatrix matrix2)
@@ -222,6 +340,72 @@ namespace Iguana.IguanaMesh.ITypes
 					for (int j = 0; j < matrix1.ColumnsCount; j++)
 					{
 						double data = matrix1.GetData(i, j) + matrix2.GetData(i, j);
+						newMatrix.SetData(i, j, data);
+					}
+				}
+				return newMatrix;
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Matrices with unequal dimensions");
+				return new IMatrix();
+			}
+		}
+
+		public static IMatrix operator +(IMatrix matrix1, IMatrix matrix2)
+		{
+			try
+			{
+				IMatrix newMatrix = new IMatrix(matrix1.RowsCount, matrix1.ColumnsCount);
+				for (int i = 0; i < matrix1.RowsCount; i++)
+				{
+					for (int j = 0; j < matrix1.ColumnsCount; j++)
+					{
+						double data = matrix1.GetData(i, j) + matrix2.GetData(i, j);
+						newMatrix.SetData(i, j, data);
+					}
+				}
+				return newMatrix;
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Matrices with unequal dimensions");
+				return new IMatrix();
+			}
+		}
+
+		public static IMatrix Sub(IMatrix matrix1, IMatrix matrix2)
+		{
+			try
+			{
+				IMatrix newMatrix = new IMatrix(matrix1.RowsCount, matrix1.ColumnsCount);
+				for (int i = 0; i < matrix1.RowsCount; i++)
+				{
+					for (int j = 0; j < matrix1.ColumnsCount; j++)
+					{
+						double data = matrix1.GetData(i, j) - matrix2.GetData(i, j);
+						newMatrix.SetData(i, j, data);
+					}
+				}
+				return newMatrix;
+			}
+			catch (Exception)
+			{
+				Console.WriteLine("Matrices with unequal dimensions");
+				return new IMatrix();
+			}
+		}
+
+		public static IMatrix operator -(IMatrix matrix1, IMatrix matrix2)
+		{
+			try
+			{
+				IMatrix newMatrix = new IMatrix(matrix1.RowsCount, matrix1.ColumnsCount);
+				for (int i = 0; i < matrix1.RowsCount; i++)
+				{
+					for (int j = 0; j < matrix1.ColumnsCount; j++)
+					{
+						double data = matrix1.GetData(i, j) - matrix2.GetData(i, j);
 						newMatrix.SetData(i, j, data);
 					}
 				}
@@ -253,7 +437,7 @@ namespace Iguana.IguanaMesh.ITypes
 		}
 
 
-		public static double[] vectorMult(IMatrix matrix, double[] vector)
+		public static double[] VectorMult(IMatrix matrix, double[] vector)
 		{
 			if (matrix.ColumnsCount == vector.Length)
 			{
@@ -270,18 +454,30 @@ namespace Iguana.IguanaMesh.ITypes
 			else return null;
 		}
 
-		public static IVector3D VectorMult(IMatrix matrix, IVector3D vector)
+		public static double[] VectorMult(IMatrix matrix, IVector3D vector)
 		{
-			double[] F = new double[3];
-			for (int i = 0; i < 3; i++)
+			if (matrix.ColumnsCount == 3)
 			{
-				for (int j = 0; j < 3; j++)
+				double[] F = new double[matrix.RowsCount];
+				for (int i = 0; i < matrix.RowsCount; i++)
 				{
-					F[i] += matrix.GetData(i, j) * vector.GetVectorComponent(j);
+					for (int j = 0; j < matrix.ColumnsCount; j++)
+					{
+						F[i] += matrix.GetData(i, j) * vector.GetVectorComponent(j);
+					}
 				}
+				return F;
+            }
+            else
+            {
+				Console.WriteLine("Matrix number of columns not matching the number of vector´s rows");
+				return new double[0];
 			}
-			IVector3D vec = new IVector3D(F[0], F[1], F[2]);
-			return vec;
+		}
+
+		public static double[] operator *(IMatrix matrix, IVector3D vector)
+		{
+			return VectorMult(matrix, vector);
 		}
 
 		public double Determinant()
@@ -679,6 +875,43 @@ namespace Iguana.IguanaMesh.ITypes
 
 				return new IMatrix(data);
 			}
+		}
+
+		public bool IsSquare()
+        {
+			if (RowsCount == ColumnsCount) return true;
+			else return false;
+        }
+
+		public double Trace()
+        {
+			double trace = 0;
+            if (IsSquare())
+            {
+				for(int i=0; i<RowsCount; i++)
+                {
+					trace += GetData(i, i);
+                }
+            }
+			return trace;
+        }
+
+		/// <summary>
+		/// Rounds the values of the matrix to a specific number of fractional digits. 
+		/// </summary>
+		/// <param name="digits"></param>
+		public void RoundValues(int digits)
+        {
+			double value;
+			for(int i=0; i<RowsCount; i++)
+            {
+				for(int j=0; j<ColumnsCount; j++)
+                {
+					value = GetData(i, j);
+					SetData(i,j, Math.Round(value, digits));
+                }
+            }
+
 		}
 
 		public static IMatrix InvertIdentity3x3Matrix

@@ -58,6 +58,14 @@ namespace Iguana.IguanaMesh.ICreators
             return mesh;
         }
 
+        public static IMesh CreateCube(Plane pl, Interval x, Interval y, Interval z, int u, int v, int w, Boolean weld, double tolerance)
+        {
+            Box box = new Box(pl, x, y, z);
+            ICube data = new ICube(box, u, v, w, weld, tolerance);
+            IMesh mesh = data.BuildMesh();
+            return mesh;
+        }
+
         public static IMesh CreateFromRhinoMesh(Mesh m)
         {
             IFromRhinoMesh data = new IFromRhinoMesh(m);

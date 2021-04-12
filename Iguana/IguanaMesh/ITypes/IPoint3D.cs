@@ -15,12 +15,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using GH_IO.Serialization;
+using Grasshopper.Kernel.Types;
 using Iguana.IguanaMesh.IUtils;
 using Rhino.Geometry;
 
 namespace Iguana.IguanaMesh.ITypes
 {
-    public struct IPoint3D
+    public struct IPoint3D : IGH_Goo
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -91,5 +93,62 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get => new Point3d(X,Y,Z);
         }
+
+        public IGH_Goo Duplicate()
+        {
+            return (IGH_Goo) new IPoint3D(X,Y,Z);
+        }
+
+        public IGH_GooProxy EmitProxy()
+        {
+            return null;
+        }
+
+        public bool CastFrom(object source)
+        {
+            if (typeof(GH_Point).IsAssignableFrom(source.GetType()))
+            {
+                Point3d vec = ((GH_Point)source).Value;
+                this.X = vec.X;
+                this.Y = vec.Y;
+                this.Z = vec.Z;
+                return true;
+            }
+            return false;
+        }
+
+        public bool CastTo<T>(out T target)
+        {
+            if (typeof(T).Equals(typeof(GH_Point)))
+            {
+                target = (T)(object)new GH_Point(new Point3d(X, Y, Z));
+                return true;
+            }
+            target = default(T);
+            return false;
+        }
+
+        public object ScriptVariable()
+        {
+            return this;
+        }
+
+        public bool Write(GH_IWriter writer)
+        {
+            return true;
+        }
+
+        public bool Read(GH_IReader reader)
+        {
+            return true;
+        }
+
+        public bool IsValid => true;
+
+        public string IsValidWhyNot => "";
+
+        public string TypeName => "IPoint3D";
+
+        public string TypeDescription => "Three-dimensional point";
     }
 }
