@@ -500,9 +500,17 @@ namespace Iguana.IguanaMesh.ITypes
                 if (e.TopologicDimension == 1)
                 {
                     int[] vertices = e.Vertices;
-                    v1 = iM.GetVertexWithKey(vertices[0]);
-                    v2 = iM.GetVertexWithKey(vertices[1]);
-                    edges.Add(new ITopologicEdge(v1, v2));
+
+                    data1 = (Int64)vertices[0] << 32 | (Int64)vertices[1];
+                    data2 = (Int64)vertices[1] << 32 | (Int64)vertices[0];
+
+                    if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
+                    {
+                        v1 = iM.GetVertexWithKey(vertices[0]);
+                        v2 = iM.GetVertexWithKey(vertices[1]);
+                        edges.Add(new ITopologicEdge(v1, v2));
+                        edgesID.Add(data1);
+                    }
                 }
 
                 else
