@@ -174,6 +174,7 @@ namespace Iguana.IguanaMesh.ITypes
 
             HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID() };
             HashSet<int> newK;
+
             while (oldK.Count() > 0)
             {
                 newK = new HashSet<int>();

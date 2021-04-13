@@ -87,13 +87,9 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private bool BuildAllElementsSiblingHalfFacets()
         {
-            //try
-            //{
-                ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
-                _tempVertexToHalfFacets.Clear();
-                return true;
-            //}
-            //catch (Exception) { return false; }
+            ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
+            _tempVertexToHalfFacets.Clear();
+            return true;
         }
 
         private void BuildElementSiblingHalFacets(int elementID)
@@ -116,6 +112,7 @@ namespace Iguana.IguanaMesh.ITypes
                     for (int i = 0; i < hf.Length; i++)
                     {
                         vertexSiblings = _tempVertexToHalfFacets[hf[i]];
+                        vertexSiblings.OrderBy(data => (Int64)data << 32).ToList();
 
                         foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
@@ -129,9 +126,14 @@ namespace Iguana.IguanaMesh.ITypes
                                 nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
 
                                 int eval = hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
-                                if (hfs_us.Intersect(hf).Count() == eval)
+
+                                if (hfs_us.Intersect(hf).Count() == eval && e.GetSiblingHalfFacet(halfFacetID) == 0)
                                 {
                                     e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
+
+                                    e = nE;
+                                    current_KeyPair = sibling_KeyPair;
+                                    halfFacetID = sib_halfFacetID;
                                 }
                             }
                         }

@@ -60,10 +60,12 @@ namespace Iguana.IguanaMesh.ITypes
 
                 //Find vertex with larger ID
                 //Int32 v = hf.Max();
+
                 foreach (int v in hf)
                 {
                     if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new HashSet<long>());
                     _tempVertexToHalfFacets[v].Add(sibData);
+                    _tempVertexToHalfFacets[v].OrderBy(data => (Int64) data << 32).ToList();
                 }
             }
         }
