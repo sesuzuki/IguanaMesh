@@ -70,9 +70,10 @@ namespace Iguana.IguanaMesh.ITypes
                 IElement e;
                 ElementsKeys.ForEach(eK =>
                 {
-                    e = _elements[eK];
+                    int dim = _keyMaps[eK];
+                    e = _elements[dim][eK];
                     InitializeElementTopologicalData(e);
-                    _elements[eK] = e;
+                    _elements[dim][eK] = e;
                 });
                 BuildAllElementsSiblingHalfFacets();
                 return true;
@@ -94,7 +95,8 @@ namespace Iguana.IguanaMesh.ITypes
 
         private void BuildElementSiblingHalFacets(int elementID)
         {
-            IElement e = _elements[elementID];
+            int dim = _keyMaps[elementID];
+            IElement e = _elements[dim][elementID];
             IElement nE;
             HashSet<long> vertexSiblings;
 
@@ -114,24 +116,27 @@ namespace Iguana.IguanaMesh.ITypes
                         vertexSiblings = _tempVertexToHalfFacets[hf[i]];
                         vertexSiblings.OrderBy(data => (Int64)data << 32).ToList();
 
+                        //TODO: For 1D elements find the first element to match hfs_us with hf 
                         foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
                             int sib_elementID, sib_halfFacetID;
                             IHelpers.UnpackKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID);
-                            nE = _elements[sib_elementID];
+                            int sib_dim = _keyMaps[sib_elementID];
+                            nE = _elements[sib_dim][sib_elementID];
 
-                            if (!sibling_KeyPair.Equals(current_KeyPair))
-                            {
-                                int[] hfs_us;
-                                nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
+                        if (!sibling_KeyPair.Equals(current_KeyPair) && sib_dim==dim)
+                        {
 
-                                int eval = hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
+                            int[] hfs_us;
+                            nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
 
-                                if (hfs_us.Intersect(hf).Count() == eval && e.GetSiblingHalfFacet(halfFacetID) == 0)
+                                int eval = hf.Length;// hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
+
+                            if (hfs_us.Intersect(hf).Count() == eval && e.GetSiblingHalfFacet(halfFacetID) == 0)
                                 {
                                     e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
-
-                                    e = nE;
+  
+                                    e = nE;                          
                                     current_KeyPair = sibling_KeyPair;
                                     halfFacetID = sib_halfFacetID;
                                 }
@@ -182,18 +187,19 @@ namespace Iguana.IguanaMesh.ITypes
         private void BuildVertexToHalfFacet(int vKey, int elementID, int halfFacetID)
         {
             ITopologicVertex v = GetVertexWithKey(vKey);
+            int dim = _keyMaps[elementID];
 
-            if (v.V2HF == 0)
+            if (v.V2HF[dim] == 0)
             {
-                v.SetV2HF(elementID, halfFacetID);
+                v.SetV2HF(dim, elementID, halfFacetID);
                 SetVertex(vKey, v);
             }
 
-            if (_elements[elementID].GetSiblingHalfFacet(halfFacetID) == 0)
+            if (_elements[dim][elementID].GetSiblingHalfFacet(halfFacetID) == 0)
             {
-                if (v.GetElementID() != elementID || v.GetHalfFacetID() != halfFacetID)
+                if (v.GetElementID(dim) != elementID || v.GetHalfFacetID(dim) != halfFacetID)
                 {
-                    v.SetV2HF(elementID, halfFacetID);
+                    v.SetV2HF(dim, elementID, halfFacetID);
                     SetVertex(vKey, v);
                 }
             }
@@ -204,7 +210,8 @@ namespace Iguana.IguanaMesh.ITypes
             PointCloud cloud = new PointCloud();
             List<ITopologicVertex> vertices = Vertices;
             List<int> culledVKeys = new List<int>();
-            Dictionary<int, IElement> modifiedElements = new Dictionary<int, IElement>(_elements);
+            Dictionary<int, IElement>[] modifiedElements = new Dictionary<int, IElement>[_elements.Length];
+            Array.Copy(_elements, modifiedElements, _elements.Length);
             Dictionary<int, ITopologicVertex> culledVertices = new Dictionary<int, ITopologicVertex>();
             ITopologicVertex v;
             IElement e;
@@ -231,7 +238,8 @@ namespace Iguana.IguanaMesh.ITypes
 
                     foreach(int eK in eKeys)
                     {
-                        e = modifiedElements[eK];
+                        int dim = _keyMaps[eK];
+                        e = modifiedElements[dim][eK];
                         int[] vE = new int[e.VerticesCount];
 
                         for(int j=0; j<vE.Length; j++)
@@ -245,7 +253,7 @@ namespace Iguana.IguanaMesh.ITypes
 
                         e.Vertices = vE;
 
-                        modifiedElements[eK] = e;
+                        modifiedElements[dim][eK] = e;
                     }
                 }
             }

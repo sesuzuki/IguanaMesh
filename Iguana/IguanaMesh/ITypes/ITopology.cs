@@ -50,11 +50,9 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 ITopologicVertex v = iM.GetVertexWithKey(vKey);
 
-                if (v.V2HF != 0)
+                if (!v.IsIsolated())
                 {
-                    IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                    if (sibhe != 0)
+                    if (IsClothedVertex(v.Key))
                     {
                         clothed_temp.Add(vKey);
                     }
@@ -77,11 +75,9 @@ namespace Iguana.IguanaMesh.ITypes
             List<ITopologicVertex> corners_temp = new List<ITopologicVertex>();
             foreach (ITopologicVertex v in iM.Vertices)
             {
-                if (v.V2HF != 0)
+                if (!v.IsIsolated())
                 {
-                    IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                    if (sibhe != 0)
+                    if (IsClothedVertex(v.Key))
                     {
                         clothed_temp.Add(v);
                     }
@@ -104,11 +100,9 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 ITopologicVertex v = iM.GetVertexWithKey(vKey);
 
-                if (v.V2HF != 0)
+                if (!v.IsIsolated())
                 {
-                    IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                    if (sibhe != 0)
+                    if (IsClothedVertex(v.Key))
                     {
                         clothed.Add(vKey);
                     }
@@ -122,17 +116,30 @@ namespace Iguana.IguanaMesh.ITypes
             List<ITopologicVertex> clothed = new List<ITopologicVertex>();
             foreach (ITopologicVertex v in iM.Vertices)
             {
-                if (v.V2HF != 0)
+                if (v.IsIsolated())
                 {
-                    IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                    if (sibhe != 0)
+                    if (IsClothedVertex(v.Key))
                     {
                         clothed.Add(v);
                     }
                 }
             }
             return clothed.ToArray();
+        }
+
+        public bool IsClothedVertex(int vKey)
+        {
+            ITopologicVertex v = iM.GetVertexWithKey(vKey);
+            for (int i = 0; i < v.V2HF.Length; i++)
+            {
+                if (v.V2HF[i] != 0)
+                {
+                    IElement e = iM.GetElementWithKey(v.GetElementID(i));
+                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID(i));
+                    if (sibhe != 0) return true;
+                }
+            }
+            return false;
         }
 
         public Boolean IsCornerVertex(int vKey)
@@ -157,6 +164,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             ITopologicVertex[] temp = GetNakedVertices();
             List<ITopologicVertex> corners = new List<ITopologicVertex>();
+
             foreach (ITopologicVertex v in temp)
             {
                 if (IsCornerVertex(v.Key)) corners.Add(v);
@@ -172,35 +180,45 @@ namespace Iguana.IguanaMesh.ITypes
             Int64[] nK;
             int key;
 
-            HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID() };
-            HashSet<int> newK;
+            ITopologicVertex v = iM.GetVertexWithKey(vertexKey);
 
-            while (oldK.Count() > 0)
+            for (int i = 0; i < v.V2HF.Length; i++)
             {
-                newK = new HashSet<int>();
 
-                foreach (int eK in oldK)
+                if (v.V2HF[i] != 0)
                 {
-                    neighbor.Add(eK);
-                    nK = iM.GetElementWithKey(eK).GetSiblingHalfFacets();
 
-                    foreach (Int64 eData in nK)
+                    HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID(i) };
+                    HashSet<int> newK;
+
+                    while (oldK.Count() > 0)
                     {
-                        if (eData != 0)
+                        newK = new HashSet<int>();
+
+                        foreach (int eK in oldK)
                         {
-                            key = (Int32)(eData >> 32);
+                            neighbor.Add(eK);
+                            nK = iM.GetElementWithKey(eK).GetSiblingHalfFacets();
 
-                            IElement e = iM.GetElementWithKey(key);
-
-                            if (e.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                            foreach (Int64 eData in nK)
                             {
-                                newK.Add(key);
+                                if (eData != 0)
+                                {
+                                    key = (Int32)(eData >> 32);
+
+                                    IElement e = iM.GetElementWithKey(key);
+
+                                    if (e.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                                    {
+                                        newK.Add(key);
+                                    }
+                                }
                             }
                         }
+
+                        oldK = newK;
                     }
                 }
-
-                oldK = newK;
             }
             return neighbor.ToArray();
         }
@@ -215,59 +233,76 @@ namespace Iguana.IguanaMesh.ITypes
             int key;
             IElement e, nE;
 
-            HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID() };
-            HashSet<int> newK;
-            while (oldK.Count() > 0)
+            ITopologicVertex v = iM.GetVertexWithKey(vertexKey);
+
+            for (int i = 0; i < v.V2HF.Length; i++)
             {
-
-                newK = new HashSet<int>();
-
-                foreach (int eK in oldK)
+                if (v.V2HF[i] != 0)
                 {
-                    neighbor.Add(eK);
-                    e = iM.GetElementWithKey(eK);
-                    for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                    HashSet<int> oldK = new HashSet<int>() { iM.GetVertexWithKey(vertexKey).GetElementID(i) };
+                    HashSet<int> newK;
+                    while (oldK.Count() > 0)
                     {
-                        int[] hf;
-                        e.GetHalfFacet(halfFacetID, out hf);
 
-                        if (hf.Contains(vertexKey))
+                        newK = new HashSet<int>();
+
+                        foreach (int eK in oldK)
                         {
-                            int hfIdx = hf.ToList().IndexOf(vertexKey);
+                            neighbor.Add(eK);
+                            e = iM.GetElementWithKey(eK);
 
-                            int next = hfIdx + 1;
-                            int prev = hfIdx - 1;
-
-                            if (next > hf.Length - 1) next = 0;
-                            if (prev < 0) prev = hf.Length - 1;
-
-                            int nextV = hf[next];
-                            int prevV = hf[prev];
-
-                            if (!vNeighbor.Contains(nextV)) vNeighbor.Add(nextV);
-                            if (!vNeighbor.Contains(prevV)) vNeighbor.Add(prevV);
-                        }
-                    }
-
-                    //Check for siblings
-                    nK = e.GetSiblingHalfFacets();
-                    foreach (Int64 eData in nK)
-                    {
-                        if (eData != 0)
-                        {
-                            key = (Int32) (eData >> 32);
-
-                            nE = iM.GetElementWithKey(key);
-
-                            if (nE.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                            for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
                             {
-                                newK.Add(key);
+                                int[] hf;
+                                e.GetHalfFacet(halfFacetID, out hf);
+
+                                if (e.TopologicDimension == 1 && e.Vertices.Contains(vertexKey))
+                                {
+                                    if (!vNeighbor.Contains(hf[0]) && hf[0] != vertexKey) vNeighbor.Add(hf[0]);
+                                }
+                                else
+                                {
+                                    if (hf.Contains(vertexKey))
+                                    {
+
+                                        int hfIdx = hf.ToList().IndexOf(vertexKey);
+
+                                        int next = hfIdx + 1;
+                                        int prev = hfIdx - 1;
+
+                                        if (next > hf.Length - 1) next = 0;
+                                        if (prev < 0) prev = hf.Length - 1;
+
+                                        int nextV = hf[next];
+                                        int prevV = hf[prev];
+
+                                        if (!vNeighbor.Contains(nextV) && nextV != vertexKey) vNeighbor.Add(nextV);
+                                        if (!vNeighbor.Contains(prevV) && prevV != vertexKey) vNeighbor.Add(prevV);
+                                    }
+                                }
+                            }
+
+                            //Check for siblings
+                            nK = e.GetSiblingHalfFacets();
+                            foreach (Int64 eData in nK)
+                            {
+                                if (eData != 0)
+                                {
+                                    key = (Int32)(eData >> 32);
+
+                                    nE = iM.GetElementWithKey(key);
+
+                                    if (nE.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                                    {
+                                        newK.Add(key);
+                                    }
+                                }
                             }
                         }
+
+                        oldK = newK;
                     }
                 }
-
-                oldK = newK;
             }
             return vNeighbor.ToArray();
         }
@@ -344,6 +379,17 @@ namespace Iguana.IguanaMesh.ITypes
                         }
                     }
                 }
+                else if (e.TopologicDimension == 1)
+                {
+                    Int64[] sibhf = e.GetSiblingHalfFacets();
+                    Int64 hf = sibhf[0];
+                    if (hf == 0)
+                    {
+                        int vk1 = e.Vertices[0];
+                        int vk2 = e.Vertices[1];
+                        naked.Add(new ITopologicEdge(iM.GetVertexWithKey(vk1), iM.GetVertexWithKey(vk2)));
+                    }
+                }
             }
 
             return naked.ToArray();
@@ -355,11 +401,9 @@ namespace Iguana.IguanaMesh.ITypes
             foreach (int vKey in iM.VerticesKeys)
             {
                 ITopologicVertex v = iM.GetVertexWithKey(vKey);
-                if (v.V2HF != 0)
+                if (!v.IsIsolated())
                 {
-                    IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                    if (sibhe == 0)
+                    if (IsClothedVertex(v.Key))
                     {
                         naked.Add(vKey);
                     }
@@ -371,11 +415,9 @@ namespace Iguana.IguanaMesh.ITypes
         public bool IsNakedVertex(int vKey)
         {
             ITopologicVertex v = iM.GetVertexWithKey(vKey);
-            if (v.V2HF != 0)
+            if (!v.IsIsolated())
             {
-                IElement e = iM.GetElementWithKey(v.GetElementID());
-                Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                if (sibhe == 0) return true;
+                if (!IsClothedVertex(v.Key)) return true;
             }
             return false;
         }
@@ -389,11 +431,9 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 ITopologicVertex v = iM.GetVertexWithKey(vKey);
 
-                if (v.V2HF != 0)
+                if (!v.IsIsolated())
                 {
-                    IElement e = iM.GetElementWithKey(v.GetElementID());
-                    Int64 sibhe = e.GetSiblingHalfFacet(v.GetHalfFacetID());
-                    if (sibhe == 0) naked.Add(v);
+                    if (!IsClothedVertex(v.Key)) naked.Add(v);
                 }
             }
             return naked.ToArray();
@@ -491,29 +531,44 @@ namespace Iguana.IguanaMesh.ITypes
             {
                 IElement e = iM.GetElementWithKey(elementID);
 
-                for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+                if (e.TopologicDimension > 1)
                 {
-                    e.GetHalfFacet(halfFacetID, out hf);
-
-                    count = 1;
-                    if (e.TopologicDimension == 3) count = hf.Length;
-                    for (int i = 0; i < count; i++)
+                    for (int halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
                     {
-                        next = i + 1;
-                        if (i == count - 1)
+                        e.GetHalfFacet(halfFacetID, out hf);
+
+                        count = 1;
+                        if (e.TopologicDimension == 3) count = hf.Length;
+                        for (int i = 0; i < count; i++)
                         {
-                            if (count > 1) next = 0;
-                            else next = 1;
+                            next = i + 1;
+                            if (i == count - 1)
+                            {
+                                if (count > 1) next = 0;
+                                else next = 1;
+                            }
+                            data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
+                            data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
+                            if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
+                            {
+                                v1 = iM.GetVertexWithKey(hf[i]);
+                                v2 = iM.GetVertexWithKey(hf[next]);
+                                edges.Add(new ITopologicEdge(v1, v2));
+                                edgesID.Add(data1);
+                            }
                         }
-                        data1 = (Int64)hf[i] << 32 | (Int64)hf[next];
-                        data2 = (Int64)hf[next] << 32 | (Int64)hf[i];
-                        if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
-                        {
-                            v1 = iM.GetVertexWithKey(hf[i]);
-                            v2 = iM.GetVertexWithKey(hf[next]);
-                            edges.Add(new ITopologicEdge(v1, v2));
-                            edgesID.Add(data1);
-                        }
+                    }
+                }
+                else
+                {
+                    data1 = (Int64)e.Vertices[0] << 32 | (Int64)e.Vertices[1];
+                    data2 = (Int64)e.Vertices[1] << 32 | (Int64)e.Vertices[0];
+                    if (!edgesID.Contains(data1) && !edgesID.Contains(data2))
+                    {
+                        v1 = iM.GetVertexWithKey(e.Vertices[0]);
+                        v2 = iM.GetVertexWithKey(e.Vertices[1]);
+                        edges.Add(new ITopologicEdge(v1, v2));
+                        edgesID.Add(data1);
                     }
                 }
             }
@@ -529,14 +584,32 @@ namespace Iguana.IguanaMesh.ITypes
         public int[] GetEdgeIncidentElements(int vKey1, int vKey2)
         {
             var neighbor = new int[0];
-            iM.CleanElementsVisits();
-            int[] e1,e2;
+
             if (iM.ContainsVertexKey(vKey1) && iM.ContainsVertexKey(vKey2))
             {
-                e1 = iM.Topology.GetVertexIncidentElements(vKey1);
-                e2 = iM.Topology.GetVertexIncidentElements(vKey2);
+                iM.CleanElementsVisits();
+                IElement e;
 
-                neighbor = e1.Intersect(e2).ToArray();
+                int[] vK = new int[] { vKey1, vKey2 };
+
+                HashSet<int> result = new HashSet<int>();
+                for (int i = 0; i < vK.Length; i++)
+                {
+                    int next = i + 1;
+                    if (i == vK.Length - 1) next = 0;
+                    int[] eKeys = iM.Topology.GetVertexIncidentElements(vK[i]);
+
+                    foreach (int eK in eKeys)
+                    {
+                        e = iM.GetElementWithKey(eK);
+                        if ((e.TopologicDimension > 1 && e.Vertices.Contains(vK[next])) || e.TopologicDimension == 1)
+                        {
+                            result.Add(eK);
+                        }
+                    }
+                }
+
+                neighbor = result.ToArray();
             }
             return neighbor;
         }
@@ -712,18 +785,60 @@ namespace Iguana.IguanaMesh.ITypes
 
         public int[] GetElementAdjacentElements(int eKey)
         {
-
-            List<int> neighbor = new List<int>();
+            HashSet<Int32> result = new HashSet<Int32>();
             iM.CleanElementsVisits();
 
-            IElement ee = iM.GetElementWithKey(eKey);
+            Int64[] nK;
+            int key;
 
-            foreach (int vertexKey in ee.Vertices)
+            IElement e = iM.GetElementWithKey(eKey);
+
+            foreach (int vertexKey in e.Vertices)
             {
-                neighbor.AddRange(GetVertexIncidentElements(vertexKey));
+                HashSet<Int32> neighbor = new HashSet<Int32>();
+
+                ITopologicVertex v = iM.GetVertexWithKey(vertexKey);
+                for (int i = 0; i < v.V2HF.Length; i++)
+                {
+                    if (v.V2HF[i] != 0)
+                    {
+                        HashSet<int> oldK = new HashSet<int>() { v.GetElementID(i) };
+                        HashSet<int> newK;
+
+                        while (oldK.Count() > 0)
+                        {
+                            newK = new HashSet<int>();
+
+                            foreach (int eK in oldK)
+                            {
+                                if (eK != eKey) result.Add(eK);
+                                neighbor.Add(eK);
+
+                                nK = iM.GetElementWithKey(eK).GetSiblingHalfFacets();
+
+                                foreach (Int64 eData in nK)
+                                {
+                                    if (eData != 0)
+                                    {
+                                        key = (Int32)(eData >> 32);
+
+                                        IElement eN = iM.GetElementWithKey(key);
+
+                                        if (eN.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                                        {
+                                            newK.Add(key);
+                                        }
+                                    }
+                                }
+                            }
+
+                            oldK = newK;
+                        }
+                    }
+                }
             }
 
-            return neighbor.Distinct().ToArray();
+            return result.ToArray();
         }
 
         /// <summary>

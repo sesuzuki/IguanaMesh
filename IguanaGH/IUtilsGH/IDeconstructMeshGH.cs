@@ -68,7 +68,7 @@ namespace IguanaMeshGH.IUtils
             GH_Structure<GH_String> sibHalfFacets = new GH_Structure<GH_String>();
             GH_Structure<GH_String> elements = new GH_Structure<GH_String>();
             GH_Structure<GH_Number> eKeys = new GH_Structure<GH_Number>();
-            IElement e;
+            IElement e, nE;
             Int64 sibData;
             GH_Path path;
             GH_Path oPath = new GH_Path(0);
@@ -87,13 +87,15 @@ namespace IguanaMeshGH.IUtils
 
                     if (sibData != 0)
                     {
-                        if (e.TopologicDimension == 2) msg = new GH_String("Face Element ID: " + e.GetSiblingElementID(i) + " :: Half-Edge ID: " + e.GetSiblingHalfFacetID(i));
-                        if (e.TopologicDimension == 3) msg = new GH_String("Solid Element ID: " + e.GetSiblingElementID(i) + " :: Half-Face ID: " + e.GetSiblingHalfFacetID(i));
+                        int nE_ID = e.GetSiblingElementID(i);
+                        nE = mesh.GetElementWithKey(nE_ID);
+                        if (nE.TopologicDimension == 1) msg = new GH_String("Edge Element ID: " + nE_ID + " :: Half-Facet ID: " + e.GetSiblingHalfFacetID(i));
+                        if (nE.TopologicDimension == 2) msg = new GH_String("Face Element ID: " + nE_ID + " :: Half-Facet ID: " + e.GetSiblingHalfFacetID(i));
+                        if (nE.TopologicDimension == 3) msg = new GH_String("Volume Element ID: " + nE_ID + " :: Half-Facet ID: " + e.GetSiblingHalfFacetID(i));
                     }
                     else
                     {
-                        if (e.TopologicDimension == 2) msg = new GH_String("Naked Half-Edge");
-                        if (e.TopologicDimension == 3) msg = new GH_String("Naked Half-Face");
+                        msg = new GH_String("Naked Half-Facet");
                     }
 
                     sibHalfFacets.Append(msg, path);
@@ -108,7 +110,7 @@ namespace IguanaMeshGH.IUtils
             foreach (ITopologicVertex v in mesh.Vertices)
             {
                 GH_String msg = new GH_String("Empty");
-                if (v.V2HF > 0) msg.Value = v.SiblingHalfFacetDataToString();
+                if (!v.IsIsolated()) msg.Value = v.SiblingHalfFacetDataToString();
 
                 vertexToHalfFacet.Append(msg, oPath);
                 vertices.Append(new GH_Point(v.RhinoPoint), oPath);

@@ -61,7 +61,7 @@ namespace IguanaMeshGH.IConstraints
         {
             Curve crv = null;
             double size = 0;
-            int length = 0;
+            double length = 0;
             DA.GetData(0, ref crv);
             DA.GetData(1, ref size);
             DA.GetData(2, ref length);

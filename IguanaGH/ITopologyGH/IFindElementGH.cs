@@ -50,7 +50,7 @@ namespace IguanaMeshGH.ITopology
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddGenericParameter("iElement", "iElement", "Iguana element.", GH_ParamAccess.item);
-            pManager.AddGenericParameter("Geometry", "Geo", "Geometric representation.", GH_ParamAccess.item);
+            pManager.AddGeometryParameter("Geometry", "Geo", "Geometric representation.", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace IguanaMeshGH.ITopology
             DA.GetData(1, ref eKey);
 
             IElement e = mesh.GetElementWithKey(eKey);
-            Brep brep = IRhinoGeometry.GetBrepFromElement(mesh, eKey);
+            GeometryBase brep = IRhinoGeometry.GetGeometryFromElement(mesh, eKey);
 
             DA.SetData(0, e);
             DA.SetData(1, brep);

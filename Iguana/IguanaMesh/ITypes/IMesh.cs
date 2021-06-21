@@ -30,12 +30,14 @@ namespace Iguana.IguanaMesh.ITypes
         private int elementKey = 1;
         private ITopology _topology;
         private bool _valid = false;
+        private int _maxDimension = 3;
 
         private Mesh _renderMesh;
         private HashSet<int> _elementTypes;
         public Mesh RenderMesh => _renderMesh;
         public HashSet<int> ElementTypes => _elementTypes;
-        private Dictionary<int, IElement> _elements;
+        private Dictionary<int, int> _keyMaps;
+        private Dictionary<int, IElement>[] _elements;
         private Dictionary<int, ITopologicVertex> _vertices;
 
         //Temporary data structures for construction
@@ -79,9 +81,14 @@ namespace Iguana.IguanaMesh.ITypes
         private void initData()
         {
             _vertices = new Dictionary<int, ITopologicVertex>();
-            _elements = new Dictionary<int, IElement>();
+            _elements = new Dictionary<int, IElement>[_maxDimension];
+            for(int i=0; i<_maxDimension; i++)
+            {
+                _elements[i] = new Dictionary<int, IElement>();
+            }
             _tempVertexToHalfFacets = new Dictionary<Int32, HashSet<Int64>>();
             _topology = new ITopology(this);
+            _keyMaps = new Dictionary<int, int>();
             _elementTypes = new HashSet<int>();
         }
 
@@ -227,6 +234,11 @@ namespace Iguana.IguanaMesh.ITypes
 
             if (topo.Count == 1)
             {
+                if (topo[0] == 1)
+                {
+                    msg = "Line Mesh (1D)";
+                    dim = 1;
+                }
                 if (topo[0] == 2)
                 {
                     msg = "Surface Mesh (2D)";
@@ -238,14 +250,40 @@ namespace Iguana.IguanaMesh.ITypes
                     dim = 3;
                 }
             }
-
-            if (topo.Count == 2)
+            else if (topo.Count == 2)
             {
-                msg = "Multi-dimensional Mesh (2D+3D)";
-                dim = 4;
+                if (topo.Contains(1) && topo.Contains(2))
+                {
+                    msg = "Multi-dimensional Mesh (1D+2D)";
+                    dim = 4;
+                }
+                else if (topo.Contains(2) && topo.Contains(3))
+                {
+                    msg = "Multi-dimensional Mesh (2D+3D)";
+                    dim = 5;
+                }
+                else
+                {
+                    msg = "Multi-dimensional Mesh (1D+3D)";
+                    dim = 6;
+                }
+            }
+            else if (topo.Count == 3)
+            {
+                msg = "Multi-dimensional Mesh (1D+2D+3D)";
+                dim = 7;
             }
 
             return msg;
+        }
+
+        public bool IsLineMesh
+        {
+            get
+            {
+                if (dim == 1) return true;
+                else return false;
+            }
         }
 
         public bool IsSurfaceMesh

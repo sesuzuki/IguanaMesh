@@ -35,7 +35,7 @@ namespace Iguana.IguanaMesh.ITypes
         public IPoint3D Position { get => _pos; set => _pos = value; }
 
         private IPoint3D _pos;
-        private Int64 _v2hf;
+        private Int64[] _v2hf;
         private bool[] _visits;
 
         public ITopologicVertex(double _x, double _y, double _z, int _key=-1)
@@ -45,7 +45,7 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = 0;
             this.W = 0;
             this.Key = _key;
-            this._v2hf = 0;
+            this._v2hf = new Int64[3];
             _visits = new bool[2];
         }
 
@@ -56,7 +56,7 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = 0;
             this.W = 0;
             this.Key = _key;
-            this._v2hf = 0;
+            this._v2hf = new Int64[3];
             _visits = new bool[2];
         }
 
@@ -67,7 +67,7 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = v.V;
             this.W = v.W;
             this.Key = v.Key;
-            this._v2hf = 0;
+            this._v2hf = new Int64[3];
             _visits = new bool[2];
         }
 
@@ -78,7 +78,7 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = 0;
             this.W = 0;
             this.Key = _key;
-            this._v2hf = 0;
+            this._v2hf = new Int64[3];
             _visits = new bool[2];
         }
 
@@ -89,37 +89,45 @@ namespace Iguana.IguanaMesh.ITypes
             this.V = _v;
             this.W = _w;
             this.Key = _key;
-            this._v2hf = 0;
+            this._v2hf = new Int64[3];
             _visits = new bool[2];
         }
 
         public void CleanTopologicalData()
         {
-            _v2hf = 0;
+            _v2hf = new Int64[3];
         }
 
-        public void SetV2HF(Int32 elementID, Int32 halfFacetID)
+        public void SetV2HF(int dim, Int32 elementID, Int32 halfFacetID)
         {
-            _v2hf = (Int64) elementID << 32 | (Int64) halfFacetID;
+            _v2hf[dim] = (Int64) elementID << 32 | (Int64) halfFacetID;
         }
 
-        public void SetV2HF(Int64 sibData)
+        public void SetV2HF(int dim, Int64 sibData)
         {
-            _v2hf = sibData;
+            _v2hf[dim] = sibData;
         }
 
-        public Int32 GetElementID() {
-            return (Int32)(_v2hf >> 32);
+        public Int32 GetElementID(int dim) {
+            if (dim >= 0 && dim <= 2) return (Int32)(_v2hf[dim] >> 32);
+            else return -1;
         }
 
-        public Int32 GetHalfFacetID()
+        public Int32 GetHalfFacetID(int dim)
         {
-            return (Int32)_v2hf;
+            if (dim >= 0 && dim <= 2) return (Int32)_v2hf[dim];
+            else return -1;
         }
 
-        public Int64 V2HF
+        public Int64[] V2HF
         {
             get => _v2hf;
+        }
+
+        public bool IsIsolated()
+        {
+            if (_v2hf[0] != 0 || _v2hf[1] != 0 || _v2hf[2] != 0) return false;
+            else return true;
         }
 
         public double[] TextureCoordinates
@@ -211,7 +219,12 @@ namespace Iguana.IguanaMesh.ITypes
 
         public string SiblingHalfFacetDataToString()
         {
-            return "Vertex ID: " + Key + " :: Element ID: " + GetElementID() + " :: Half-Facet ID: " + GetHalfFacetID() + "\n";
+            string msg = "Vertex ID: " + Key + " =>\n";
+            if(_v2hf[0] != 0) msg += "1D-Element ID: " + GetElementID(0) + " :: Half-Facet ID: " + GetHalfFacetID(0) + "\n";
+            if(_v2hf[1] != 0) msg += "2D-Element ID: " + GetElementID(1) + " :: Half-Facet ID: " + GetHalfFacetID(1) + "\n";
+            if(_v2hf[2] != 0) msg += "2D-Element ID: " + GetElementID(2) + " :: Half-Facet ID: " + GetHalfFacetID(2) + "\n";
+
+            return msg;
         }
 
         #region IGH_Goo methods

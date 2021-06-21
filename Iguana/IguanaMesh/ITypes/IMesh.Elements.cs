@@ -28,12 +28,15 @@ namespace Iguana.IguanaMesh.ITypes
         {
             _tempVertexToHalfFacets.Clear();
             IElement e;
-            foreach (int eK in ElementsKeys)
+            for (int i = 0; i < _elements.Length; i++)
             {
-                e = _elements[eK];
-                e.CleanTopologicalData();
-                InitializeElementTopologicalData(e);
-                _elements[eK] = e;
+                foreach (int eK in _elements[i].Keys)
+                {
+                    e = _elements[i][eK];
+                    e.CleanTopologicalData();
+                    InitializeElementTopologicalData(e);
+                    _elements[i][eK] = e;
+                }
             }
         }
 
@@ -41,8 +44,21 @@ namespace Iguana.IguanaMesh.ITypes
         {
             element.Key = elementKey;
             InitializeElementTopologicalData(element);
-            _elements.Add(elementKey, element);
+            switch (element.TopologicDimension)
+            {
+                case 1:
+                    _elements[0].Add(elementKey, element);
+                    break;
+                case 2:
+                    _elements[1].Add(elementKey, element);
+                    break;
+                case 3:
+                    _elements[2].Add(elementKey, element);
+                    break;
+            }
+
             _elementTypes.Add(element.ElementType);
+            _keyMaps.Add(elementKey, element.TopologicDimension-1);
             elementKey++;
         }
 
@@ -65,7 +81,6 @@ namespace Iguana.IguanaMesh.ITypes
                 {
                     if (!_tempVertexToHalfFacets.ContainsKey(v)) _tempVertexToHalfFacets.Add(v, new HashSet<long>());
                     _tempVertexToHalfFacets[v].Add(sibData);
-                    _tempVertexToHalfFacets[v].OrderBy(data => (Int64) data << 32).ToList();
                 }
             }
         }
@@ -77,27 +92,32 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void CleanElements()
         {
-            _elements = new Dictionary<int, IElement>();
+            _elements = new Dictionary<int, IElement>[3];
         }
 
         public void CleanElementsVisits()
         {
-            Parallel.ForEach(_elements.Values, e =>
+            for (int i = 0; i < _elements.Length; i++)
             {
-                e.Visited = false;
-            });
+                Parallel.ForEach(_elements[i].Values, e =>
+                {
+                    e.Visited = false;
+                });
+            }
         }
 
         public bool ContainsElementKey(int key)
         {
-            return _elements.ContainsKey(key);
+            int dim = _keyMaps[key];
+            return _elements[dim].ContainsKey(key);
         }
 
         public void DeleteElements(IEnumerable<int> eKeys, bool updateTopology = true)
         {
             foreach(int eK in eKeys)
             {
-                _elements.Remove(eK);
+                int dim = _keyMaps[eK];
+                _elements[dim].Remove(eK);
             }
             if (updateTopology) BuildTopology(true);
         }
@@ -107,13 +127,19 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         public void DeleteElement(int eKey, bool updateTopology=true)
         {
-            _elements.Remove(eKey);
+            int dim = _keyMaps[eKey];
+            _elements[dim].Remove(eKey);
             if(updateTopology) BuildTopology(true);
         }
 
         public IElement GetElementWithKey(int key)
         {
-            return _elements[key];
+            if (_keyMaps.ContainsKey(key))
+            {
+                int dim = _keyMaps[key];
+                return _elements[dim][key];
+            }
+            else return null;
         }
 
         public int FindNextElementKey()
@@ -123,17 +149,25 @@ namespace Iguana.IguanaMesh.ITypes
 
         public List<int> ElementsKeys
         {
-            get => _elements.Keys.ToList();
+            get => _keyMaps.Keys.ToList();
         }
 
         public List<IElement> Elements
         {
-            get => _elements.Values.ToList();
+            get
+            {
+                List<IElement> result = new List<IElement>();
+                for(int i=0; i<_elements.Length; i++)
+                {
+                    result.AddRange(_elements[i].Values);
+                }
+                return result;
+            }
         }
 
         public int ElementsCount
         {
-            get => _elements.Count;
+            get => _keyMaps.Count;
         }
     }
 }

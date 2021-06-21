@@ -32,7 +32,18 @@ namespace Iguana.IguanaMesh.ITypes
             Elements.ForEach(entry => 
             { 
                 IElement e = (IElement) entry.Clone();
-                copy._elements.Add(e.Key, e);
+                switch (e.TopologicDimension)
+                {
+                    case 1:
+                        copy._elements[0].Add(e.Key, e);
+                        break;
+                    case 2:
+                        copy._elements[1].Add(e.Key, e);
+                        break;
+                    case 3:
+                        copy._elements[2].Add(e.Key, e);
+                        break;
+                }
             });
             Vertices.ForEach(entry =>
             {
@@ -55,7 +66,18 @@ namespace Iguana.IguanaMesh.ITypes
             Elements.ForEach(entry =>
             {
                 IElement e = (IElement)entry.CleanCopy();
-                copy._elements.Add(e.Key, e);
+                switch (e.TopologicDimension)
+                {
+                    case 1:
+                        copy._elements[0].Add(e.Key, e);
+                        break;
+                    case 2:
+                        copy._elements[1].Add(e.Key, e);
+                        break;
+                    case 3:
+                        copy._elements[2].Add(e.Key, e);
+                        break;
+                }
             });
             Vertices.ForEach(entry =>
             {

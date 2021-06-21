@@ -39,6 +39,7 @@ namespace IguanaMeshGH.ITopology
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
+            pManager.AddGenericParameter("iMesh", "iM", "Base Iguana mesh.", GH_ParamAccess.item);
         }
 
         /// <summary>

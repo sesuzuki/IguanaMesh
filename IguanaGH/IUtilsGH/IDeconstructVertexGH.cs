@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Iguana.IguanaMesh.ITypes;
 using Rhino.Geometry;
@@ -49,8 +50,8 @@ namespace IguanaMeshGH.IUtils
             pManager.AddIntegerParameter("Vertex", "v-Key", "´Vertex key.", GH_ParamAccess.item);
             pManager.AddPointParameter("Position", "Position", "Position.", GH_ParamAccess.item);
             pManager.AddPointParameter("TextureCoordinates", "Texture", "Texture coordinate.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Element", "e-Key", "Element key to which this vertex is associated.", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Half-facet", "hf-Key", "Half-facet key to which this vertex is associated.", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Element", "e-Key", "Element key to which this vertex is associated (One per dimension).", GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Half-facet", "hf-Key", "Half-facet key to which this vertex is associated (One per dimension).", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -64,12 +65,22 @@ namespace IguanaMeshGH.IUtils
 
             Point3d position = new Point3d(vertex.X, vertex.Y, vertex.Z);
             Point3d uvw = new Point3d(vertex.U, vertex.V, vertex.W );
+            List<int> eID = new List<int>();
+            List<int> hfID = new List<int>();
+            for (int i=0; i<vertex.V2HF.Length; i++)
+            {
+                if(vertex.V2HF[i] != 0)
+                {
+                    eID.Add(vertex.GetElementID(i));
+                    hfID.Add(vertex.GetHalfFacetID(i));
+                }
+            }
 
             DA.SetData(0, vertex.Key);
             DA.SetData(1, position);
             DA.SetData(2, uvw);
-            DA.SetData(3, vertex.GetElementID());
-            DA.SetData(4, vertex.GetHalfFacetID());
+            DA.SetDataList(3, eID);
+            DA.SetDataList(4, hfID);
         }
 
         public override GH_Exposure Exposure

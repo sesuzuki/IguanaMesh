@@ -37,7 +37,7 @@ namespace Iguana.IguanaMesh.ITypes
             get
             {
                 if (!_valid) return "Topologic errors appeared during the construction of the mesh.";
-                else if (_vertices.Count == 0 && _elements.Count == 0) return "Mesh was initialized with 0 vertices and 0 elements.";
+                else if (_vertices.Count == 0 && ElementsCount == 0) return "Mesh was initialized with 0 vertices and 0 elements.";
                 else return string.Empty;
             }
         }
