@@ -210,8 +210,14 @@ namespace Iguana.IguanaMesh.ITypes
             PointCloud cloud = new PointCloud();
             List<ITopologicVertex> vertices = Vertices;
             List<int> culledVKeys = new List<int>();
-            Dictionary<int, IElement>[] modifiedElements = new Dictionary<int, IElement>[_elements.Length];
-            Array.Copy(_elements, modifiedElements, _elements.Length);
+            Dictionary<int, IElement>[] modifiedElements = new Dictionary<int, IElement>[_maxDimension];
+            for(int i=0; i<_maxDimension; i++)
+            {
+                foreach (KeyValuePair<int, IElement> entry in _elements[i])
+                {
+                    modifiedElements[i].Add(entry.Key, (IElement)entry.Value.Clone());
+                }
+            }
             Dictionary<int, ITopologicVertex> culledVertices = new Dictionary<int, ITopologicVertex>();
             ITopologicVertex v;
             IElement e;

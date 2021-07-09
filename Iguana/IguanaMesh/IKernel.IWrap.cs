@@ -26,7 +26,7 @@ namespace Iguana.IguanaMesh
 {
     public static partial class IKernel
     {
-        private const string gmsh_dll = "gmsh-4.6.dll";
+        private const string gmsh_dll = "gmsh-4.8.dll";
 
         private static string tempFolder = "";
 

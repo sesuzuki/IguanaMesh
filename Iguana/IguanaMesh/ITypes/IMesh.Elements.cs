@@ -28,14 +28,17 @@ namespace Iguana.IguanaMesh.ITypes
         {
             _tempVertexToHalfFacets.Clear();
             IElement e;
-            for (int i = 0; i < _elements.Length; i++)
+            for (int i = 0; i < _maxDimension; i++)
             {
-                foreach (int eK in _elements[i].Keys)
+                if (_elements[i]!=null || _elements[i].Count>0)
                 {
-                    e = _elements[i][eK];
-                    e.CleanTopologicalData();
-                    InitializeElementTopologicalData(e);
-                    _elements[i][eK] = e;
+                    var keys = _elements[i].Keys;
+                    foreach (int eK in keys)
+                    {
+                        e = _elements[i][eK];
+                        e.CleanTopologicalData();
+                        InitializeElementTopologicalData(e);
+                    }
                 }
             }
         }
@@ -44,19 +47,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             element.Key = elementKey;
             InitializeElementTopologicalData(element);
-            switch (element.TopologicDimension)
-            {
-                case 1:
-                    _elements[0].Add(elementKey, element);
-                    break;
-                case 2:
-                    _elements[1].Add(elementKey, element);
-                    break;
-                case 3:
-                    _elements[2].Add(elementKey, element);
-                    break;
-            }
-
+            _elements[element.TopologicDimension-1].Add(elementKey, element);
             _elementTypes.Add(element.ElementType);
             _keyMaps.Add(elementKey, element.TopologicDimension-1);
             elementKey++;
@@ -92,12 +83,16 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void CleanElements()
         {
-            _elements = new Dictionary<int, IElement>[3];
+            _elements = new Dictionary<int, IElement>[_maxDimension];
+            for(int i=0; i<_maxDimension; i++)
+            {
+                _elements[i] = new Dictionary<int, IElement>();
+            }
         }
 
         public void CleanElementsVisits()
         {
-            for (int i = 0; i < _elements.Length; i++)
+            for (int i = 0; i < _maxDimension; i++)
             {
                 Parallel.ForEach(_elements[i].Values, e =>
                 {
@@ -157,9 +152,12 @@ namespace Iguana.IguanaMesh.ITypes
             get
             {
                 List<IElement> result = new List<IElement>();
-                for(int i=0; i<_elements.Length; i++)
+                for(int i=0; i<_maxDimension; i++)
                 {
-                    result.AddRange(_elements[i].Values);
+                    if (_elements[i] != null)
+                    {
+                        result.AddRange(_elements[i].Values);
+                    }
                 }
                 return result;
             }
