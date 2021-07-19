@@ -48,7 +48,6 @@ namespace Iguana.IguanaMesh.ITypes
             element.Key = elementKey;
             InitializeElementTopologicalData(element);
             _elements[element.TopologicDimension-1].Add(elementKey, element);
-            _elementTypes.Add(element.ElementType);
             _keyMaps.Add(elementKey, element.TopologicDimension-1);
             elementKey++;
         }
@@ -111,8 +110,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             foreach(int eK in eKeys)
             {
-                int dim = _keyMaps[eK];
-                _elements[dim].Remove(eK);
+                DeleteElement(eK, false);
             }
             if (updateTopology) BuildTopology(true);
         }
@@ -124,6 +122,8 @@ namespace Iguana.IguanaMesh.ITypes
         {
             int dim = _keyMaps[eKey];
             _elements[dim].Remove(eKey);
+            _keyMaps.Remove(eKey);
+
             if(updateTopology) BuildTopology(true);
         }
 

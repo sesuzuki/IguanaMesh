@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Iguana.IguanaMesh.ITypes
@@ -51,6 +52,7 @@ namespace Iguana.IguanaMesh.ITypes
                 copy._vertices.Add(v.Key, v);
             });
 
+            copy._keyMaps = _keyMaps.ToDictionary(entry => entry.Key, entry => entry.Value);
             copy._renderMesh = _renderMesh;
             copy._tempVertexToHalfFacets = _tempVertexToHalfFacets.ToDictionary(entry => entry.Key, entry => entry.Value);
             copy.dim = dim;
@@ -84,6 +86,7 @@ namespace Iguana.IguanaMesh.ITypes
                 ITopologicVertex v = (ITopologicVertex)entry.CleanCopy();
                 copy._vertices.Add(v.Key, v);
             });
+
             copy._renderMesh = _renderMesh;
             copy.elementKey = elementKey;
             copy._valid = _valid;
