@@ -33,29 +33,16 @@ namespace Iguana.IguanaMesh.ITypes
             Elements.ForEach(entry => 
             { 
                 IElement e = (IElement) entry.Clone();
-                switch (e.TopologicDimension)
-                {
-                    case 1:
-                        copy._elements[0].Add(e.Key, e);
-                        break;
-                    case 2:
-                        copy._elements[1].Add(e.Key, e);
-                        break;
-                    case 3:
-                        copy._elements[2].Add(e.Key, e);
-                        break;
-                }
+                copy.AddElement(e);
             });
             Vertices.ForEach(entry =>
             {
                 ITopologicVertex v = (ITopologicVertex)entry.Clone();
-                copy._vertices.Add(v.Key, v);
+                copy.AddVertex(v.Key, v);
             });
 
-            copy._keyMaps = _keyMaps.ToDictionary(entry => entry.Key, entry => entry.Value);
             copy._renderMesh = _renderMesh;
             copy._tempVertexToHalfFacets = _tempVertexToHalfFacets.ToDictionary(entry => entry.Key, entry => entry.Value);
-            copy.dim = dim;
             copy.message = message;
             copy.elementKey = elementKey;
             copy._valid = _valid;
@@ -67,24 +54,13 @@ namespace Iguana.IguanaMesh.ITypes
             IMesh copy = new IMesh();
             Elements.ForEach(entry =>
             {
-                IElement e = (IElement)entry.CleanCopy();
-                switch (e.TopologicDimension)
-                {
-                    case 1:
-                        copy._elements[0].Add(e.Key, e);
-                        break;
-                    case 2:
-                        copy._elements[1].Add(e.Key, e);
-                        break;
-                    case 3:
-                        copy._elements[2].Add(e.Key, e);
-                        break;
-                }
+                IElement e = entry.CleanCopy();
+                copy.AddElement(e);
             });
             Vertices.ForEach(entry =>
             {
-                ITopologicVertex v = (ITopologicVertex)entry.CleanCopy();
-                copy._vertices.Add(v.Key, v);
+                ITopologicVertex v = entry.CleanCopy();
+                copy.AddVertex(v.Key, v);
             });
 
             copy._renderMesh = _renderMesh;

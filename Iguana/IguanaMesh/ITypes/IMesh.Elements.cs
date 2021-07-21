@@ -33,6 +33,7 @@ namespace Iguana.IguanaMesh.ITypes
                 if (_elements[i]!=null || _elements[i].Count>0)
                 {
                     var keys = _elements[i].Keys;
+
                     foreach (int eK in keys)
                     {
                         e = _elements[i][eK];
@@ -52,7 +53,7 @@ namespace Iguana.IguanaMesh.ITypes
             elementKey++;
         }
 
-        // Initialize the topological data of an element
+        // Initialize the topological data of an element (1.1)
         internal void InitializeElementTopologicalData(IElement element)
         {
             // Initialize topological data
@@ -62,10 +63,8 @@ namespace Iguana.IguanaMesh.ITypes
                 Int32[] hf;
                 element.GetHalfFacet(halfFacetID, out hf);
 
+                // Pack half-facet key
                 Int64 sibData = (Int64)element.Key << 32 | (Int64)halfFacetID;
-
-                //Find vertex with larger ID
-                //Int32 v = hf.Max();
 
                 foreach (int v in hf)
                 {

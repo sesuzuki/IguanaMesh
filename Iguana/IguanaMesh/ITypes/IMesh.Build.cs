@@ -98,49 +98,67 @@ namespace Iguana.IguanaMesh.ITypes
         {
             int dim = _keyMaps[elementID];
             IElement e = _elements[dim][elementID];
-            IElement nE;
             HashSet<long> vertexSiblings;
             _elementTypes.Add(e.ElementType);
 
-            //Half-Facets from element e (Faces to edges)
+            //Half-Facets from element e
             for (Int32 halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
             {
                 if (e.GetSiblingHalfFacet(halfFacetID) == 0)
                 {
-                    //Adjacent vertices
                     int[] hf;
                     e.GetHalfFacet(halfFacetID, out hf);
 
                     Int64 current_KeyPair = (Int64)elementID << 32 | (Int64)halfFacetID;
 
-                    for (int i = 0; i < hf.Length; i++)
-                    {
-                        vertexSiblings = _tempVertexToHalfFacets[hf[i]];
-                        vertexSiblings.OrderBy(data => (Int64)data << 32).ToList();
+                    // Find vertex with larger ID
+                    Int32 v = hf.Max();
 
-                        //TODO: For 1D elements find the first element to match hfs_us with hf 
+                    // Get adjacent vertices
+                    int[] adj_v;
+                    if (hf.Length == 1)
+                    {
+                        adj_v = new int[] { hf[0] };
+                    }
+                    else if (hf.Length == 2)
+                    {
+                        adj_v = new int[] { hf[0] == v ? hf[1] : hf[0] };
+                    }
+                    else
+                    {
+                        int idx = Array.IndexOf(hf, v);
+                        int prev = idx - 1;
+                        int next = idx + 1;
+                        if (prev < 0) prev = hf.Length - 1;
+                        if (next > hf.Length - 1) next = 0;
+
+                        adj_v = new int[] { hf[prev], hf[next]};
+                    }
+
+                    for (int i = 0; i < adj_v.Length; i++)
+                    {
+                        vertexSiblings = _tempVertexToHalfFacets[adj_v[i]];
+
                         foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
                             int sib_elementID, sib_halfFacetID;
                             IHelpers.UnpackKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID);
+
+                            // Check the dimensionality of the element to associate elements of the same dimension.
                             int sib_dim = _keyMaps[sib_elementID];
-                            nE = _elements[sib_dim][sib_elementID];
 
-                        if (!sibling_KeyPair.Equals(current_KeyPair) && sib_dim==dim)
-                        {
+                            if (!sib_elementID.Equals(elementID) && sib_dim == dim)
+                            {
+                                int[] hfs_us;
+                                _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
 
-                            int[] hfs_us;
-                            nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
+                                int eval = hf.Length;
+                                // For 3D elements, we assume that two elements are associated if they share a common edge.
+                                if (dim == 2) eval = 2;
 
-                            int eval = hf.Length;// hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
-
-                            if (hfs_us.Intersect(hf).Count() == eval && e.GetSiblingHalfFacet(halfFacetID) == 0)
+                                if (hfs_us.Intersect(hf).Count() >= eval)
                                 {
                                     e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
-  
-                                    e = nE;                          
-                                    current_KeyPair = sibling_KeyPair;
-                                    halfFacetID = sib_halfFacetID;
                                 }
                             }
                         }

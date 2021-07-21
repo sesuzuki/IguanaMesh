@@ -172,6 +172,7 @@ namespace Iguana.IguanaMesh.IUtils
 
                     if (vertices.Count == 8) nE = new IHexahedronElement(vertices.ToArray());
                     else if (vertices.Count == 6) nE = new IPrismElement(vertices.ToArray());
+                    
                     if (nE != null)
                     {
                         dM.AddElement(nE);

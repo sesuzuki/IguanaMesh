@@ -166,8 +166,7 @@ namespace Iguana.IguanaMesh.ITypes
         /// <returns></returns>
         public ITopologicVertex CleanCopy()
         {
-            ITopologicVertex copy = new ITopologicVertex(X, Y, Z, U, V, W, Key);
-            return copy;
+            return new ITopologicVertex(X, Y, Z, U, V, W, Key);
         }
 
         public void DrawViewportMeshes(GH_PreviewMeshArgs args) { }

@@ -179,12 +179,12 @@ namespace Iguana.IguanaMesh.ITypes
 
             Int64[] nK;
             int key;
+            IElement e, nE;
 
             ITopologicVertex v = iM.GetVertexWithKey(vertexKey);
 
             for (int i = 0; i < v.V2HF.Length; i++)
             {
-
                 if (v.V2HF[i] != 0)
                 {
 
@@ -198,7 +198,10 @@ namespace Iguana.IguanaMesh.ITypes
                         foreach (int eK in oldK)
                         {
                             neighbor.Add(eK);
-                            nK = iM.GetElementWithKey(eK).GetSiblingHalfFacets();
+                            e = iM.GetElementWithKey(eK);
+
+                            //Check for siblings
+                            nK = e.GetSiblingHalfFacets();
 
                             foreach (Int64 eData in nK)
                             {
@@ -206,9 +209,9 @@ namespace Iguana.IguanaMesh.ITypes
                                 {
                                     key = (Int32)(eData >> 32);
 
-                                    IElement e = iM.GetElementWithKey(key);
+                                    nE = iM.GetElementWithKey(key);
 
-                                    if (e.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
+                                    if (nE.Vertices.Contains(vertexKey) && !neighbor.Contains(key))
                                     {
                                         newK.Add(key);
                                     }
@@ -305,6 +308,7 @@ namespace Iguana.IguanaMesh.ITypes
                     }
                 }
             }
+
             return vNeighbor.ToArray();
         }
 

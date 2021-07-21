@@ -87,6 +87,7 @@ namespace Iguana.IguanaMesh.ITypes
                 _elements[i] = new Dictionary<int, IElement>();
             }
             _tempVertexToHalfFacets = new Dictionary<Int32, HashSet<Int64>>();
+
             _topology = new ITopology(this);
             _keyMaps = new Dictionary<int, int>();
             _elementTypes = new HashSet<int>();
@@ -317,7 +318,7 @@ namespace Iguana.IguanaMesh.ITypes
         {
             get
             {
-                if (dim == 4) return true;
+                if (dim >= 4) return true;
                 else return false;
             }
         }
