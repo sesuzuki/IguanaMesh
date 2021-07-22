@@ -124,6 +124,27 @@ namespace Iguana.IguanaMesh.IUtils
             catch (Exception) { return false; }
         }
 
+        public static List<PolylineCurve> Get1DElementsAsLines(IMesh mesh)
+        {
+            List<PolylineCurve> lines = new List<PolylineCurve>();
+            PolylineCurve c;
+            foreach (IElement e in mesh.Elements)
+            {
+                if (e.TopologicDimension == 1)
+                {
+                    Point3d[] pts = new Point3d[e.VerticesCount];
+                    for (int i = 0; i < e.VerticesCount; i++)
+                    {
+                        pts[i] = mesh.GetVertexWithKey(e.Vertices[i]).RhinoPoint;
+                    }
+                    c = new PolylineCurve(pts);
+                    lines.Add(c);
+                }
+            }
+            return lines;
+        }
+
+
         public static List<Line> GetEdgesAsLines(IMesh mesh)
         {
             Point3d start, end;

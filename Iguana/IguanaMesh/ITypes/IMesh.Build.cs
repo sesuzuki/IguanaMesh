@@ -139,6 +139,9 @@ namespace Iguana.IguanaMesh.ITypes
                     {
                         vertexSiblings = _tempVertexToHalfFacets[adj_v[i]];
 
+                        // Temporary list of sibhfs for cyclical mapping 
+                        List<long> collectSibhf = new List<long>();
+
                         foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
                             int sib_elementID, sib_halfFacetID;
@@ -147,7 +150,7 @@ namespace Iguana.IguanaMesh.ITypes
                             // Check the dimensionality of the element to associate elements of the same dimension.
                             int sib_dim = _keyMaps[sib_elementID];
 
-                            if (!sib_elementID.Equals(elementID) && sib_dim == dim)
+                            if (dim != 0 && !sib_elementID.Equals(elementID) && sib_dim == dim)
                             {
                                 int[] hfs_us;
                                 _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
@@ -156,12 +159,34 @@ namespace Iguana.IguanaMesh.ITypes
                                 // For 3D elements, we assume that two elements are associated if they share a common edge.
                                 if (dim == 2) eval = 2;
 
-                                if (hfs_us.Intersect(hf).Count() >= eval)
-                                {
-                                    e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
-                                }
+                                if (hfs_us.Intersect(hf).Count() >= eval)                                
+                                    e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);                                
                             }
+
+                            if (dim == 0 && sib_dim == 0)
+                            {
+                                int[] hfs_us;
+                                _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
+
+                                if (hfs_us.Intersect(hf).Count() >= 1)                                
+                                    collectSibhf.Add(sibling_KeyPair);
+                                
+                            }
+
                         }
+
+                        // Cyclical Mapping of sibhf for 1D elements only
+                        if (dim == 0)
+                            for (int sib = 0; sib < collectSibhf.Count; sib++)
+                            {
+                                int next = sib + 1;
+                                if (sib + 1 == collectSibhf.Count) next = 0;
+
+                                int hf_e, hf_ind;
+                                IHelpers.UnpackKey(collectSibhf[sib], out hf_e, out hf_ind);
+
+                                _elements[dim][hf_e].SetSiblingHalfFacet(hf_ind, collectSibhf[next]);
+                            }
                     }
                 }
             }
