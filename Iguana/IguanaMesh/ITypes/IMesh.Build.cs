@@ -89,7 +89,7 @@ namespace Iguana.IguanaMesh.ITypes
         /// </summary>
         private bool BuildAllElementsSiblingHalfFacets()
         {
-            ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacets(elementID));
+            ElementsKeys.ForEach(elementID => BuildElementSiblingHalFacetsPrototype(elementID));
             _tempVertexToHalfFacets.Clear();
             return true;
         }
@@ -109,35 +109,9 @@ namespace Iguana.IguanaMesh.ITypes
                     int[] hf;
                     e.GetHalfFacet(halfFacetID, out hf);
 
-                    Int64 current_KeyPair = (Int64)elementID << 32 | (Int64)halfFacetID;
-
-                    // Find vertex with larger ID
-                    Int32 v = hf.Max();
-
-                    // Get adjacent vertices
-                    int[] adj_v;
-                    if (hf.Length == 1)
+                    for (int i = 0; i < hf.Length; i++)
                     {
-                        adj_v = new int[] { hf[0] };
-                    }
-                    else if (hf.Length == 2)
-                    {
-                        adj_v = new int[] { hf[0] == v ? hf[1] : hf[0] };
-                    }
-                    else
-                    {
-                        int idx = Array.IndexOf(hf, v);
-                        int prev = idx - 1;
-                        int next = idx + 1;
-                        if (prev < 0) prev = hf.Length - 1;
-                        if (next > hf.Length - 1) next = 0;
-
-                        adj_v = new int[] { hf[prev], hf[next]};
-                    }
-
-                    for (int i = 0; i < adj_v.Length; i++)
-                    {
-                        vertexSiblings = _tempVertexToHalfFacets[adj_v[i]];
+                        vertexSiblings = _tempVertexToHalfFacets[hf[i]];
 
                         foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
@@ -152,14 +126,70 @@ namespace Iguana.IguanaMesh.ITypes
                                 int[] hfs_us;
                                 _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
 
-                                int eval = hf.Length;
-                                // For 3D elements, we assume that two elements are associated if they share a common edge.
-                                if (dim == 2) eval = 2;
-
-                                if (hfs_us.Intersect(hf).Count() >= eval)
+                                if (hfs_us.Intersect(hf).Count() >= 1)
                                 {
                                     e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void BuildElementSiblingHalFacetsPrototype(int elementID)
+        {
+            int dim = _keyMaps[elementID];
+            IElement e = _elements[dim][elementID];
+            HashSet<long> vertexSiblings;
+            _elementTypes.Add(e.ElementType);
+
+            //Half-Facets from element e
+            for (Int32 halfFacetID = 1; halfFacetID <= e.HalfFacetsCount; halfFacetID++)
+            {
+                if (e.GetSiblingHalfFacet(halfFacetID) == 0)
+                {
+                    int[] hf;
+                    e.GetHalfFacet(halfFacetID, out hf);                    
+
+                    for (int i = 0; i < hf.Length; i++)
+                    {
+                        vertexSiblings = _tempVertexToHalfFacets[hf[i]];
+
+                        // Temporary list of sibhfs for cyclical mapping of 1D elements (if they exist)
+                        List<long> collectSibhf = new List<long>();
+
+                        foreach (Int64 sibling_KeyPair in vertexSiblings)
+                        {
+                            int sib_elementID, sib_halfFacetID;
+                            IHelpers.UnpackKey(sibling_KeyPair, out sib_elementID, out sib_halfFacetID);
+                            int sib_dim = _keyMaps[sib_elementID];
+
+                            if (sib_dim == dim)
+                            {
+                                int[] hfs_us;
+                                _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
+
+                                if (hfs_us.Intersect(hf).Count() >= 1)
+                                {
+                                    if (!sib_elementID.Equals(elementID) && dim!=0) e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
+                                    else if(dim==0) collectSibhf.Add(sibling_KeyPair);
+                                }
+                            }
+                        }
+
+                        // For 1D elements (not following CGNS standard) 
+                        if (collectSibhf.Count != 0)
+                        {
+                            for (int sib = 0; sib < collectSibhf.Count; sib++)
+                            {
+                                int next = sib + 1;
+                                if (sib + 1 == collectSibhf.Count) next = 0;
+
+                                int hf_e, hf_ind;
+                                IHelpers.UnpackKey(collectSibhf[sib], out hf_e, out hf_ind);
+
+                                _elements[0][hf_e].SetSiblingHalfFacet(hf_ind, collectSibhf[next]);
                             }
                         }
                     }

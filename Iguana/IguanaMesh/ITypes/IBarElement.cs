@@ -12,13 +12,13 @@ namespace Iguana.IguanaMesh.ITypes
 
         /// <summary>
         /// <para> General constructor for a bar. </para>
-        /// Element Type Reference: -1 for bars.
+        /// Element Type Reference: 1 for bars.
         /// <para><paramref name="vertices"/> : A collection of vertex identifiers. </para>
         /// </summary>
         ///
-        public IBarElement(int[] vertices) : base(vertices, 2, 1, -1) { }
+        public IBarElement(int[] vertices) : base(vertices, 2, 1, 1) { }
 
-        public IBarElement(int A, int B) : base(new int[] { A, B }, 2, 1, -1) { }
+        public IBarElement(int A, int B) : base(new int[] { A, B }, 2, 1, 1) { }
 
         public override IElement CleanCopy()
         {
