@@ -126,7 +126,7 @@ namespace Iguana.IguanaMesh.ITypes
                                 int[] hfs_us;
                                 _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
 
-                                if (hfs_us.Intersect(hf).Count() >= 1)
+                                if (hfs_us.Intersect(hf).Count() >= 2)
                                 {
                                     e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
                                 }
@@ -170,7 +170,7 @@ namespace Iguana.IguanaMesh.ITypes
                                 int[] hfs_us;
                                 _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
 
-                                if (hfs_us.Intersect(hf).Count() >= 1)
+                                if (hfs_us.Intersect(hf).Count() >= hf.Length)
                                 {
                                     if (!sib_elementID.Equals(elementID) && dim!=0) e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
                                     else if(dim==0) collectSibhf.Add(sibling_KeyPair);

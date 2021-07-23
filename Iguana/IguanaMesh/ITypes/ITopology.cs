@@ -607,7 +607,7 @@ namespace Iguana.IguanaMesh.ITypes
                     foreach (int eK in eKeys)
                     {
                         e = iM.GetElementWithKey(eK);
-                        if ((e.TopologicDimension > 1 && e.Vertices.Contains(vK[next])) || e.TopologicDimension == 1)
+                        if ((e.TopologicDimension > 1 && e.Vertices.Contains(vK[next])) || e.TopologicDimension == 1 && e.Vertices.Intersect(vK).Count()==1)
                         {
                             result.Add(eK);
                         }

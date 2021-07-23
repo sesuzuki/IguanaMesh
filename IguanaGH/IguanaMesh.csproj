@@ -88,6 +88,7 @@
     <Compile Include="IConstraintsGH\ICurveCountConstraintGH.cs" />
     <Compile Include="ICreatorsGH\IEdgeElementGH.cs" />
     <Compile Include="ICreatorsGH\IHexahedronElementGH.cs" />
+    <Compile Include="ICreatorsGH\IMesh1DFromLines.cs" />
     <Compile Include="ICreatorsGH\IMesh2DFromBrepGH.cs" />
     <Compile Include="ICreatorsGH\IMesh2DFromCurveExtrusion.cs" />
     <Compile Include="ICreatorsGH\IMesh2DFromThickSolidGH.cs" />

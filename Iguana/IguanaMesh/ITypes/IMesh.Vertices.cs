@@ -168,7 +168,8 @@ namespace Iguana.IguanaMesh.ITypes
 
         public ITopologicVertex GetVertexWithKey(int key)
         {
-            return _vertices[key];
+            if (key == 0) throw new IndexOutOfRangeException(" Vertex indexing starts at 1.");
+            else return _vertices[key];
         }
 
         public void DeleteVertexTextureCoordinates(int key)
