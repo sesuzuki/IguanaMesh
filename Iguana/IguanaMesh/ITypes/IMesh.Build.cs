@@ -28,7 +28,7 @@ namespace Iguana.IguanaMesh.ITypes
         /// <summary>
         /// Build topologic relationships.
         /// </summary>
-        public void BuildTopology(bool cleanPreviousTopology=false)
+        public void BuildTopology(bool cleanPreviousTopology = false)
         {
             if (cleanPreviousTopology)
             {
@@ -118,6 +118,8 @@ namespace Iguana.IguanaMesh.ITypes
                         vertexSiblings = _tempVertexToHalfFacets[hf[i]];
                         vertexSiblings.OrderBy(data => (Int64)data << 32).ToList();
 
+                        List<long> collectSibhf = new List<long>();
+
                         //TODO: For 1D elements find the first element to match hfs_us with hf 
                         foreach (Int64 sibling_KeyPair in vertexSiblings)
                         {
@@ -126,24 +128,47 @@ namespace Iguana.IguanaMesh.ITypes
                             int sib_dim = _keyMaps[sib_elementID];
                             nE = _elements[sib_dim][sib_elementID];
 
-                        if (!sibling_KeyPair.Equals(current_KeyPair) && sib_dim==dim)
-                        {
+                            if (dim != 0 && !sibling_KeyPair.Equals(current_KeyPair) && sib_dim == dim)
+                            {
 
-                            int[] hfs_us;
-                            nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
+                                int[] hfs_us;
+                                nE.GetHalfFacet(sib_halfFacetID, out hfs_us);
 
-                            int eval = hf.Length;// hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
+                                int eval = hf.Length;// hfs_us.Length < hf.Length ? hfs_us.Length : hf.Length;
 
-                            if (hfs_us.Intersect(hf).Count() == eval && e.GetSiblingHalfFacet(halfFacetID) == 0)
+                                if (hfs_us.Intersect(hf).Count() == eval && e.GetSiblingHalfFacet(halfFacetID) == 0)
                                 {
                                     e.SetSiblingHalfFacet(halfFacetID, sibling_KeyPair);
-  
-                                    e = nE;                          
+
+                                    e = nE;
                                     current_KeyPair = sibling_KeyPair;
                                     halfFacetID = sib_halfFacetID;
                                 }
                             }
+
+                            if (dim == 0 && sib_dim == 0)
+                            {
+                                int[] hfs_us;
+                                _elements[sib_dim][sib_elementID].GetHalfFacet(sib_halfFacetID, out hfs_us);
+
+                                if (hfs_us.Intersect(hf).Count() >= 1)
+                                    collectSibhf.Add(sibling_KeyPair);
+
+                            }
                         }
+
+                        // Cyclical Mapping of sibhf for 1D elements only
+                        if (dim == 0)
+                            for (int sib = 0; sib < collectSibhf.Count; sib++)
+                            {
+                                int next = sib + 1;
+                                if (sib + 1 == collectSibhf.Count) next = 0;
+
+                                int hf_e, hf_ind;
+                                IHelpers.UnpackKey(collectSibhf[sib], out hf_e, out hf_ind);
+
+                                _elements[dim][hf_e].SetSiblingHalfFacet(hf_ind, collectSibhf[next]);
+                            }
                     }
                 }
             }
@@ -169,7 +194,7 @@ namespace Iguana.IguanaMesh.ITypes
                         int[] hf;
                         e.GetHalfFacet(halfFacetID, out hf);
 
-                        for(int i=0; i< hf.Length; i++)
+                        for (int i = 0; i < hf.Length; i++)
                         {
                             BuildVertexToHalfFacet(hf[i], elementID, halfFacetID);
                         }
@@ -213,7 +238,7 @@ namespace Iguana.IguanaMesh.ITypes
             List<ITopologicVertex> vertices = Vertices;
             List<int> culledVKeys = new List<int>();
             Dictionary<int, IElement>[] modifiedElements = new Dictionary<int, IElement>[_maxDimension];
-            for(int i=0; i<_maxDimension; i++)
+            for (int i = 0; i < _maxDimension; i++)
             {
                 foreach (KeyValuePair<int, IElement> entry in _elements[i])
                 {
@@ -227,14 +252,14 @@ namespace Iguana.IguanaMesh.ITypes
             int idx;
             double t = 0.0001;
 
-            for (int i=0; i<vertices.Count; i++)
+            for (int i = 0; i < vertices.Count; i++)
             {
                 v = vertices[i];
                 p = v.RhinoPoint;
 
                 idx = IKernel.EvaluatePoint(cloud, p, t);
 
-                if(idx == -1)
+                if (idx == -1)
                 {
                     culledVertices.Add(v.Key, v);
                     culledVKeys.Add(v.Key);
@@ -244,13 +269,13 @@ namespace Iguana.IguanaMesh.ITypes
                 {
                     int[] eKeys = Topology.GetVertexIncidentElements(v.Key);
 
-                    foreach(int eK in eKeys)
+                    foreach (int eK in eKeys)
                     {
                         int dim = _keyMaps[eK];
                         e = modifiedElements[dim][eK];
                         int[] vE = new int[e.VerticesCount];
 
-                        for(int j=0; j<vE.Length; j++)
+                        for (int j = 0; j < vE.Length; j++)
                         {
                             vE[j] = e.Vertices[j];
                             if (vE[j] == v.Key)
