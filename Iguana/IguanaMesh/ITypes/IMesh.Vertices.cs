@@ -123,8 +123,7 @@ namespace Iguana.IguanaMesh.ITypes
             int[] eKeys = Topology.GetVertexIncidentElements(vKey);
             foreach (int eK in eKeys)
             {
-                int dim = _keyMaps[eK];
-                _elements[dim].Remove(eK);
+                DeleteElement(eK, false);
             }
 
             _vertices.Remove(vKey);
@@ -134,7 +133,6 @@ namespace Iguana.IguanaMesh.ITypes
 
         public void DeleteVertices(IEnumerable<int> vKeys)
         {
-            HashSet<int> deleteE = new HashSet<int>();
             HashSet<int> deleteV = new HashSet<int>();
 
             foreach (int vK in vKeys)
@@ -142,21 +140,13 @@ namespace Iguana.IguanaMesh.ITypes
                 int[] eKeys = Topology.GetVertexIncidentElements(vK);
                 foreach(int eK in eKeys)
                 {
-                    deleteE.Add(eK);
+                    DeleteElement(eK, false);
                 }
                 deleteV.Add(vK);
             }
 
-            foreach (int vK in deleteV)
-            {
-                _vertices.Remove(vK);
-            }
-
-            foreach (int eK in deleteE)
-            {
-                int dim = _keyMaps[eK];
-                _elements[dim].Remove(eK);
-            }
+            foreach (int vK in deleteV)         
+                _vertices.Remove(vK);  
 
             BuildTopology(true);
         }
