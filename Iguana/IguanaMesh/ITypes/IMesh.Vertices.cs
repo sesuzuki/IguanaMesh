@@ -118,7 +118,7 @@ namespace Iguana.IguanaMesh.ITypes
             }
         }
 
-        public void DeleteVertex(int vKey)
+        public void DeleteVertex(int vKey, bool updateTopology = true)
         {
             int[] eKeys = Topology.GetVertexIncidentElements(vKey);
             foreach (int eK in eKeys)
@@ -128,10 +128,10 @@ namespace Iguana.IguanaMesh.ITypes
 
             _vertices.Remove(vKey);
 
-            BuildTopology(true);
+            if (updateTopology) BuildTopology(true);
         }
 
-        public void DeleteVertices(IEnumerable<int> vKeys)
+        public void DeleteVertices(IEnumerable<int> vKeys, bool updateTopology = true)
         {
             HashSet<int> deleteV = new HashSet<int>();
 
@@ -146,9 +146,9 @@ namespace Iguana.IguanaMesh.ITypes
             }
 
             foreach (int vK in deleteV)         
-                _vertices.Remove(vK);  
+                _vertices.Remove(vK);
 
-            BuildTopology(true);
+            if (updateTopology) BuildTopology(true);
         }
 
         public bool ContainsVertexKey(int key)
