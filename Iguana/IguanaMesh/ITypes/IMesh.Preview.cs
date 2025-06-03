@@ -107,7 +107,7 @@ namespace Iguana.IguanaMesh.ITypes
                 Point3d[] pts;
                 foreach (IElement e in Elements)
                 {
-                    if (e.TopologicDimension == 2)
+                    if (e.TopologicDimension == 1 || e.TopologicDimension == 2)
                     {
                         pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, this);
                         args.Pipeline.DrawPolyline(pts, args.Color);
