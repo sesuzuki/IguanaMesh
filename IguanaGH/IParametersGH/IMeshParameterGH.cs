@@ -72,7 +72,7 @@ namespace IguanaMeshGH.IParameters
                     Point3d[] pts;
                     foreach (IElement e in m.Elements)
                     {
-                        if (e.TopologicDimension == 2)
+                        if (e.TopologicDimension == 1 || e.TopologicDimension == 2)
                         {
                             pts = IRhinoGeometry.GetPointsFromElements(e.Vertices, m);
                             args.Display.DrawPolyline(pts, c);
